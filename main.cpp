@@ -1,3 +1,5 @@
+// ADAPTED FROM JIM MCCANN'S BASE1 CODE FOR 15-466 COMPUTER GAME PROGRAMMING
+
 #include "load_save_png.hpp"
 #include "GL.hpp"
 
@@ -9,6 +11,7 @@
 #include <iostream>
 #include <stdexcept>
 
+const float PI = 3.1415f;
 static GLuint compile_shader(GLenum type, std::string const &source);
 static GLuint link_program(GLuint vertex_shader, GLuint fragment_shader);
 
@@ -16,7 +19,7 @@ int main(int argc, char **argv) {
 	//Configuration:
 	struct {
 		std::string title = "Game1: Text/Tiles";
-		glm::uvec2 size = glm::uvec2(640, 480);
+		glm::uvec2 size = glm::uvec2(1200, 700);
 	} config;
 
 	//------------  initialization ------------
@@ -184,31 +187,170 @@ int main(int argc, char **argv) {
 		glEnableVertexAttribArray(program_Color);
 	}
 
-	//------------ sprite info ------------
-	struct SpriteInfo {
+	//------------ structs and variables ------------
+  struct {
+    glm::vec2 pos = glm::vec2(6.0f, 3.5f);
+    glm::vec2 size = glm::vec2(12.0f, 7.0f);
+  } camera;
+  //adjust for aspect ratio
+  camera.size.x = camera.size.y * (float(config.size.x) / float(config.size.y));
+
+  typedef struct SpriteInfo {
 		glm::vec2 min_uv = glm::vec2(0.0f);
 		glm::vec2 max_uv = glm::vec2(1.0f);
-		glm::vec2 rad = glm::vec2(0.5f);
-	};
+	} SpriteInfo;
 
+  struct {
+    glm::vec2 pos = glm::vec2(0.0f);
+    glm::vec2 size = glm::vec2(0.5f);
+    
+    SpriteInfo sprite_basic = {
+      glm::vec2(0.0f),
+      glm::vec2(0.2f),
+    };
+    SpriteInfo sprite_aim_throw = {
+      glm::vec2(0.2f),
+      glm::vec2(0.4f),
+    };
+    SpriteInfo sprite_aim_shoot = {
+      glm::vec2(0.4f),
+      glm::vec2(0.6f),
+    };
+  } mouse;
+  
+  struct {
+    glm::vec2 pos = glm::vec2(0.25f, 1.0f);
+    glm::vec2 size = glm::vec2(0.5f, 1.0f);
+    glm::vec2 vel = glm::vec2(0.0f);
+    
+    SpriteInfo sprite_stand = {
+      glm::vec2(0.0f),
+      glm::vec2(0.2f),
+    };
+    SpriteInfo sprite_walk = {
+      glm::vec2(0.0f),
+      glm::vec2(0.2f),
+    };
+    SpriteInfo sprite_run = {
+      glm::vec2(0.0f),
+      glm::vec2(0.2f),
+    };
+    SpriteInfo sprite_jump = {
+      glm::vec2(0.0f),
+      glm::vec2(0.2f),
+    };
+    SpriteInfo sprite_throw = {
+      glm::vec2(0.0f),
+      glm::vec2(0.2f),
+    };
+    SpriteInfo sprite_shoot = {
+      glm::vec2(0.0f),
+      glm::vec2(0.2f),
+    };
+    
+    // 0: standing
+    // 1: walking
+    // 2: running
+    // 3: throwing
+    // 4: shooting
+    // 5: hiding
+    int action_state = 0;
 
-	auto load_sprite = [](std::string const &name) -> SpriteInfo {
-		SpriteInfo info;
-		//TODO: look up sprite name in table of sprite infos
-		return info;
-	};
+    // 0: throwing
+    // 1: shooting
+    int ability_mode = 0;
 
+    bool jumping = false;    
+    int num_projectiles = 0;
+  } player;
 
-	//------------ game state ------------
+  typedef struct Enemy {
+    glm::vec2 pos = glm::vec2(0.0f);
+    glm::vec2 vel = glm::vec2(0.0f);
+    glm::vec2 size = glm::vec2(1.0f);
 
-	glm::vec2 mouse = glm::vec2(0.0f, 0.0f); //mouse position in [-1,1]x[-1,1] coordinates
+    SpriteInfo sprite_stand = {
+      glm::vec2(0.0f),
+      glm::vec2(0.2f),
+    };
+    SpriteInfo sprite_walk = {
+      glm::vec2(0.2f),
+      glm::vec2(0.4f),
+    };
+    SpriteInfo sprite_alert = {
+      glm::vec2(0.4f),
+      glm::vec2(0.6f),
+    };
 
-	struct {
-		glm::vec2 at = glm::vec2(0.0f, 0.0f);
-		glm::vec2 radius = glm::vec2(10.0f, 10.0f);
-	} camera;
-	//correct radius for aspect ratio:
-	camera.radius.x = camera.radius.y * (float(config.size.x) / float(config.size.y));
+    // 0: standing
+    // 1: walking
+    int action_state = 0;
+    
+    // 0: facing left
+    // 1: facing right
+    int direction = 0;
+    bool alerted = false;
+
+    glm::vec2 waypoints [2] = { glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f) };
+    float wait_timers [2] = { 5.0f, 5.0f };
+    int curr_waypoint  = 0;
+    glm::vec2 curr_goal = glm::vec2(0.0f, 0.0f);
+    float remaining_wait = 5.0f;
+  } Enemy;
+
+  typedef struct Light {
+    glm::vec2 pos = glm::vec2(0.0f);
+    glm::vec2 size = glm::vec2(1.0f, 3.0f);
+    float dir = PI * 1.5f;
+    float angle = PI * 0.25f;
+    float range = 3.0f;
+
+    SpriteInfo sprite_on = {
+      glm::vec2(0.0f),
+      glm::vec2(0.2f),
+    };
+    SpriteInfo sprite_off = {
+      glm::vec2(0.2f),
+      glm::vec2(0.4f),
+    };
+
+    // 0: on
+    // 1: off
+    int state = 0;
+  } Light;
+
+  typedef struct Door {
+    glm::vec2 pos = glm::vec2(0.0f);
+    glm::vec2 size = glm::vec2(1.0f);
+
+    SpriteInfo sprite_empty = {
+      glm::vec2(0.0f),
+      glm::vec2(0.2f),
+    };
+    SpriteInfo sprite_used = {
+      glm::vec2(0.0f),
+      glm::vec2(0.2f),
+    };
+
+    // 0: empty
+    // 1: used
+    int state = 0;
+  } Door;
+
+  typedef struct Platform {
+    glm::vec2 pos = glm::vec2(15.0f, 0.25f);
+    glm::vec2 size = glm::vec2(30.0f, 0.5f);
+
+    SpriteInfo sprite = {
+      glm::vec2(0.5f),
+      glm::vec2(0.75f),
+    };
+  } Platform;
+
+  Light light;
+  Platform platform;
+  Enemy enemy;
+  Door door;
 
 	//------------ game loop ------------
 
@@ -218,12 +360,48 @@ int main(int argc, char **argv) {
 		while (SDL_PollEvent(&evt) == 1) {
 			//handle input:
 			if (evt.type == SDL_MOUSEMOTION) {
-				mouse.x = (evt.motion.x + 0.5f) / float(config.size.x) * 2.0f - 1.0f;
-				mouse.y = (evt.motion.y + 0.5f) / float(config.size.y) *-2.0f + 1.0f;
+				mouse.pos.x = (evt.motion.x + 0.5f) / float(config.size.x) * 2.0f - 1.0f;
+				mouse.pos.y = (evt.motion.y + 0.5f) / float(config.size.y) *-2.0f + 1.0f;
 			} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_ESCAPE) {
 				should_quit = true;
-			} else if (evt.type == SDL_QUIT) {
+			} else if (evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP) {
+        if (evt.key.keysym.sym == SDLK_w) {
+          if (!player.jumping && evt.key.state == SDL_PRESSED) {
+            player.jumping = true;
+            player.vel.y = 6.0f;
+          }
+        } else if (evt.key.keysym.sym == SDLK_a) {
+          if (evt.key.state == SDL_PRESSED) {
+            player.vel.x = -1.0f;
+            player.action_state = 1;
+          } else {
+            player.vel.x = 0.0f;
+            player.action_state = 0;
+          }
+        } else if (evt.key.keysym.sym == SDLK_d) {
+          if (evt.key.state == SDL_PRESSED) {
+            player.vel.x = 1.0f;
+            player.action_state = 1;
+          } else {
+            player.vel.x = 0.0f;
+            player.action_state = 0;
+          }
+        } else if (evt.key.keysym.sym == SDLK_s) {
+          if (!player.jumping && evt.key.state == SDL_PRESSED) {
+            player.jumping = true;
+            player.vel.y = -6.0f;
+          }
+        } else if (evt.key.keysym.sym == SDLK_q) {
+          if (evt.key.state == SDL_PRESSED) {
+            player.ability_mode = 0;
+          }
+        } else if (evt.key.keysym.sym == SDLK_e) {
+          if (evt.key.state == SDL_PRESSED) {
+            player.ability_mode = 1;
+          }
+        } 
+      } else if (evt.type == SDL_QUIT) {
 				should_quit = true;
 				break;
 			}
@@ -236,61 +414,64 @@ int main(int argc, char **argv) {
 		previous_time = current_time;
 
 		{ //update game state:
-			(void)elapsed;
-		}
+      if (player.jumping) {
+        player.vel.y -= elapsed * 9.0f;
+      }
+
+      player.pos += player.vel * elapsed;
+      if (player.pos.x < 0.25f) {
+        player.pos.x = 0.25f;
+      } else if (player.pos.x > 29.75f) {
+        player.pos.x = 29.75f;
+      }
+      if (player.pos.y < 1.0f) {
+        player.jumping = false;
+        player.pos.y = 1.0f;
+        player.vel.y = 0.0f;
+      }
+
+      camera.pos.x += player.vel.x * elapsed;
+      if (player.pos.x < 6.0f) {
+        camera.pos.x = 6.0f;
+      } else if (player.pos.x > 24.0f) {
+        camera.pos.x = 24.0f;
+      }
+
+    }
 
 		//draw output:
-		glClearColor(0.5, 0.5, 0.5, 0.0);
+		glClearColor(0.0, 0.0, 0.0, 0.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
 		{ //draw game state:
 			std::vector< Vertex > verts;
 
-			//helper: add rectangle to verts:
-			auto rect = [&verts](glm::vec2 const &at, glm::vec2 const &rad, glm::u8vec4 const &tint) {
-				verts.emplace_back(at + glm::vec2(-rad.x,-rad.y), glm::vec2(0.0f, 0.0f), tint);
-				verts.emplace_back(verts.back());
-				verts.emplace_back(at + glm::vec2(-rad.x, rad.y), glm::vec2(0.0f, 1.0f), tint);
-				verts.emplace_back(at + glm::vec2( rad.x,-rad.y), glm::vec2(1.0f, 0.0f), tint);
-				verts.emplace_back(at + glm::vec2( rad.x, rad.y), glm::vec2(1.0f, 1.0f), tint);
-				verts.emplace_back(verts.back());
-			};
-
-			auto draw_sprite = [&verts](SpriteInfo const &sprite, glm::vec2 const &at, float angle = 0.0f) {
+			auto draw_sprite = [&verts](SpriteInfo const &sprite, glm::vec2 const &at, glm::vec2 size, glm::u8vec4 tint = glm::u8vec4(0xff, 0xff, 0xff, 0xff), float angle = 0.0f) {
 				glm::vec2 min_uv = sprite.min_uv;
 				glm::vec2 max_uv = sprite.max_uv;
-				glm::vec2 rad = sprite.rad;
-				glm::u8vec4 tint = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
 				glm::vec2 right = glm::vec2(std::cos(angle), std::sin(angle));
 				glm::vec2 up = glm::vec2(-right.y, right.x);
 
-				verts.emplace_back(at + right * -rad.x + up * -rad.y, glm::vec2(min_uv.x, min_uv.y), tint);
+				verts.emplace_back(at + right * -size.x/2.0f + up * -size.y/2.0f, glm::vec2(min_uv.x, min_uv.y), tint);
 				verts.emplace_back(verts.back());
-				verts.emplace_back(at + right * -rad.x + up * rad.y, glm::vec2(min_uv.x, max_uv.y), tint);
-				verts.emplace_back(at + right *  rad.x + up * -rad.y, glm::vec2(max_uv.x, min_uv.y), tint);
-				verts.emplace_back(at + right *  rad.x + up *  rad.y, glm::vec2(max_uv.x, max_uv.y), tint);
+				verts.emplace_back(at + right * -size.x/2.0f + up * size.y/2.0f, glm::vec2(min_uv.x, max_uv.y), tint);
+				verts.emplace_back(at + right *  size.x/2.0f + up * -size.y/2.0f, glm::vec2(max_uv.x, min_uv.y), tint);
+				verts.emplace_back(at + right *  size.x/2.0f + up *  size.y/2.0f, glm::vec2(max_uv.x, max_uv.y), tint);
 				verts.emplace_back(verts.back());
 			};
 
-
-			//Draw a sprite "player" at position (5.0, 2.0):
-			static SpriteInfo player = load_sprite("player"); //TODO: hoist
-			draw_sprite(player, glm::vec2(5.0, 2.0), 0.2f);
-
-			rect(glm::vec2(0.0f, 0.0f), glm::vec2(4.0f), glm::u8vec4(0xff, 0x00, 0x00, 0xff));
-			rect(mouse * camera.radius + camera.at, glm::vec2(4.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
-
+			draw_sprite(player.sprite_stand, player.pos, player.size);
+			draw_sprite(platform.sprite, platform.pos, platform.size);
 
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * verts.size(), &verts[0], GL_STREAM_DRAW);
 
 			glUseProgram(program);
 			glUniform1i(program_tex, 0);
-			glm::vec2 scale = 1.0f / camera.radius;
-			glm::vec2 offset = scale * -camera.at;
+			glm::vec2 scale = 2.0f / camera.size;
+			glm::vec2 offset = scale * -camera.pos;
 			glm::mat4 mvp = glm::mat4(
 				glm::vec4(scale.x, 0.0f, 0.0f, 0.0f),
 				glm::vec4(0.0f, scale.y, 0.0f, 0.0f),
@@ -304,7 +485,6 @@ int main(int argc, char **argv) {
 
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, verts.size());
 		}
-
 
 		SDL_GL_SwapWindow(window);
 	}
