@@ -254,9 +254,10 @@ int main(int argc, char **argv) {
 
     bool jumping = false;
     bool shifting = false;
-    bool hiding = false;
+    bool behind_door = false;
     bool aiming = false;
-      
+    bool visible = false;  
+
     int num_projectiles = 0;
   } player;
 
@@ -277,8 +278,7 @@ int main(int argc, char **argv) {
       glm::vec2(0.4f),
       glm::vec2(0.6f),
     };
-
-    
+ 
     bool face_right = true;
     bool alerted = false;
     bool walking = false;
