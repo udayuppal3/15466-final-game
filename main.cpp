@@ -248,19 +248,15 @@ int main(int argc, char **argv) {
       glm::vec2(0.2f),
     };
     
-    // 0: standing
-    // 1: walking
-    // 2: running
-    // 3: throwing
-    // 4: shooting
-    // 5: hiding
-    int action_state = 0;
-
     // 0: throwing
     // 1: shooting
     int ability_mode = 0;
 
-    bool jumping = false;    
+    bool jumping = false;
+    bool shifting = false;
+    bool hiding = false;
+    bool aiming = false;
+      
     int num_projectiles = 0;
   } player;
 
@@ -373,19 +369,27 @@ int main(int argc, char **argv) {
           }
         } else if (evt.key.keysym.sym == SDLK_a) {
           if (evt.key.state == SDL_PRESSED) {
-            player.vel.x = -1.0f;
-            player.action_state = 1;
+            if (player.shifting) {
+              player.vel.x = -2.5f;
+            } else {
+              player.vel.x = -1.0f;
+            }
           } else {
-            player.vel.x = 0.0f;
-            player.action_state = 0;
+            if (player.vel.x == -1.0f || player.vel.x == -2.5f) {
+              player.vel.x = 0.0f;
+            }
           }
         } else if (evt.key.keysym.sym == SDLK_d) {
           if (evt.key.state == SDL_PRESSED) {
-            player.vel.x = 1.0f;
-            player.action_state = 1;
+            if (player.shifting) {
+              player.vel.x = 2.5f;
+            } else {
+              player.vel.x = 1.0f;
+            }
           } else {
-            player.vel.x = 0.0f;
-            player.action_state = 0;
+            if (player.vel.x == 1.0f || player.vel.x == 2.5f) {
+              player.vel.x = 0.0f;
+            }
           }
         } else if (evt.key.keysym.sym == SDLK_s) {
           if (!player.jumping && evt.key.state == SDL_PRESSED) {
@@ -399,6 +403,22 @@ int main(int argc, char **argv) {
         } else if (evt.key.keysym.sym == SDLK_e) {
           if (evt.key.state == SDL_PRESSED) {
             player.ability_mode = 1;
+          }
+        } else if (evt.key.keysym.sym == SDLK_LSHIFT) {
+          if (evt.key.state == SDL_PRESSED) {
+            if (player.vel.x == 1.0f) {
+              player.vel.x = 2.5f;
+            } else if (player.vel.x == -1.0f) {
+              player.vel.x = -2.5f;
+            }
+            player.shifting = true;
+          } else {
+            if (player.vel.x == 2.5f) {
+              player.vel.x = 1.0f;
+            } else if (player.vel.x == -2.5f) {
+              player.vel.x = -1.0f;
+            }
+            player.shifting = false;
           }
         } 
       } else if (evt.type == SDL_QUIT) {
