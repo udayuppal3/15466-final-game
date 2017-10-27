@@ -195,10 +195,10 @@ int main(int argc, char **argv) {
   //adjust for aspect ratio
   camera.size.x = camera.size.y * (float(config.size.x) / float(config.size.y));
 
-  typedef struct SpriteInfo {
+  struct SpriteInfo {
 		glm::vec2 min_uv = glm::vec2(0.0f);
 		glm::vec2 max_uv = glm::vec2(1.0f);
-	} SpriteInfo;
+	};
 
   struct {
     glm::vec2 pos = glm::vec2(0.0f);
@@ -260,7 +260,7 @@ int main(int argc, char **argv) {
     int num_projectiles = 0;
   } player;
 
-  typedef struct Enemy {
+  struct Enemy {
     glm::vec2 pos = glm::vec2(0.0f);
     glm::vec2 vel = glm::vec2(0.0f);
     glm::vec2 size = glm::vec2(1.0f);
@@ -292,9 +292,9 @@ int main(int argc, char **argv) {
     int curr_waypoint  = 0;
     glm::vec2 curr_goal = glm::vec2(0.0f, 0.0f);
     float remaining_wait = 5.0f;
-  } Enemy;
+  };
 
-  typedef struct Light {
+  struct Light {
     glm::vec2 pos = glm::vec2(0.0f);
     glm::vec2 size = glm::vec2(1.0f, 3.0f);
     float dir = PI * 1.5f;
@@ -313,9 +313,9 @@ int main(int argc, char **argv) {
     // 0: on
     // 1: off
     int state = 0;
-  } Light;
+  };
 
-  typedef struct Door {
+  struct Door {
     glm::vec2 pos = glm::vec2(0.0f);
     glm::vec2 size = glm::vec2(1.0f);
 
@@ -331,9 +331,9 @@ int main(int argc, char **argv) {
     // 0: empty
     // 1: used
     int state = 0;
-  } Door;
+  };
 
-  typedef struct Platform {
+  struct Platform {
     glm::vec2 pos = glm::vec2(15.0f, 0.25f);
     glm::vec2 size = glm::vec2(30.0f, 0.5f);
 
@@ -341,7 +341,7 @@ int main(int argc, char **argv) {
       glm::vec2(0.5f),
       glm::vec2(0.75f),
     };
-  } Platform;
+  };
 
   Light light;
   Platform platform;
