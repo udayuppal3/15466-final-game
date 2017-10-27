@@ -196,8 +196,8 @@ int main(int argc, char **argv) {
   camera.size.x = camera.size.y * (float(config.size.x) / float(config.size.y));
 
   struct SpriteInfo {
-		glm::vec2 min_uv = glm::vec2(0.0f);
-		glm::vec2 max_uv = glm::vec2(1.0f);
+		glm::vec2 min_uv;
+		glm::vec2 max_uv;
 	};
 
   struct {
@@ -261,13 +261,13 @@ int main(int argc, char **argv) {
   } player;
 
   struct Enemy {
-    glm::vec2 pos = glm::vec2(0.0f);
+    glm::vec2 pos = glm::vec2(10.0f, 1.0f);
     glm::vec2 vel = glm::vec2(0.0f);
-    glm::vec2 size = glm::vec2(1.0f);
+    glm::vec2 size = glm::vec2(0.5, 1.0f);
 
     SpriteInfo sprite_stand = {
-      glm::vec2(0.0f),
-      glm::vec2(0.2f),
+      glm::vec2(0.0f, 0.5f),
+      glm::vec2(0.5f, 1.0f),
     };
     SpriteInfo sprite_walk = {
       glm::vec2(0.2f),
@@ -278,19 +278,14 @@ int main(int argc, char **argv) {
       glm::vec2(0.6f),
     };
 
-    // 0: standing
-    // 1: walking
-    int action_state = 0;
     
-    // 0: facing left
-    // 1: facing right
-    int direction = 0;
+    bool face_right = true;
     bool alerted = false;
+    bool walking = false;
 
-    glm::vec2 waypoints [2] = { glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f) };
+    glm::vec2 waypoints [2] = { glm::vec2(10.0f, 1.0f), glm::vec2(4.0f, 1.0f) };
     float wait_timers [2] = { 5.0f, 5.0f };
-    int curr_waypoint  = 0;
-    glm::vec2 curr_goal = glm::vec2(0.0f, 0.0f);
+    int curr_index  = 0;
     float remaining_wait = 5.0f;
   };
 
@@ -310,9 +305,7 @@ int main(int argc, char **argv) {
       glm::vec2(0.4f),
     };
 
-    // 0: on
-    // 1: off
-    int state = 0;
+    bool light_on = true;
   };
 
   struct Door {
@@ -328,9 +321,7 @@ int main(int argc, char **argv) {
       glm::vec2(0.2f),
     };
 
-    // 0: empty
-    // 1: used
-    int state = 0;
+    bool in_use = false;
   };
 
   struct Platform {
@@ -391,11 +382,6 @@ int main(int argc, char **argv) {
               player.vel.x = 0.0f;
             }
           }
-        } else if (evt.key.keysym.sym == SDLK_s) {
-          if (!player.jumping && evt.key.state == SDL_PRESSED) {
-            player.jumping = true;
-            player.vel.y = -6.0f;
-          }
         } else if (evt.key.keysym.sym == SDLK_q) {
           if (evt.key.state == SDL_PRESSED) {
             player.ability_mode = 0;
@@ -434,6 +420,8 @@ int main(int argc, char **argv) {
 		previous_time = current_time;
 
 		{ //update game state:
+      
+      // player update
       if (player.jumping) {
         player.vel.y -= elapsed * 9.0f;
       }
@@ -450,11 +438,35 @@ int main(int argc, char **argv) {
         player.vel.y = 0.0f;
       }
 
+      //camera update
       camera.pos.x += player.vel.x * elapsed;
       if (player.pos.x < 6.0f) {
         camera.pos.x = 6.0f;
       } else if (player.pos.x > 24.0f) {
         camera.pos.x = 24.0f;
+      }
+
+      //enemy update
+      if (!enemy.walking) {
+        enemy.remaining_wait -= elapsed;
+        if (enemy.remaining_wait <= 0.0f) {
+          enemy.walking = true;
+          enemy.face_right = !enemy.face_right;
+          enemy.curr_index = (enemy.curr_index + 1) % 2;
+          if (enemy.face_right) {
+            enemy.vel.x = 1.0f;
+          } else {
+            enemy.vel.x = -1.0f;
+          }
+        }
+      } else {
+        enemy.pos += enemy.vel * elapsed;
+        if ((enemy.face_right && enemy.pos.x > enemy.waypoints[enemy.curr_index].x) ||
+            (!enemy.face_right && enemy.pos.x < enemy.waypoints[enemy.curr_index].x)) {
+          enemy.pos = enemy.waypoints[enemy.curr_index];
+          enemy.remaining_wait = enemy.wait_timers[enemy.curr_index];
+          enemy.walking = false;
+        }
       }
 
     }
@@ -483,6 +495,7 @@ int main(int argc, char **argv) {
 			};
 
 			draw_sprite(player.sprite_stand, player.pos, player.size);
+			draw_sprite(enemy.sprite_stand, enemy.pos, enemy.size);
 			draw_sprite(platform.sprite, platform.pos, platform.size);
 
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
