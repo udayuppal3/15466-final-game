@@ -204,17 +204,13 @@ int main(int argc, char **argv) {
     glm::vec2 pos = glm::vec2(0.0f);
     glm::vec2 size = glm::vec2(0.5f);
     
-    SpriteInfo sprite_basic = {
-      glm::vec2(0.0f),
-      glm::vec2(0.2f),
+    SpriteInfo sprite_throw = {
+      glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
+      glm::vec2(1263.0f/3503.0f, 1.0f),
     };
-    SpriteInfo sprite_aim_throw = {
-      glm::vec2(0.2f),
-      glm::vec2(0.4f),
-    };
-    SpriteInfo sprite_aim_shoot = {
-      glm::vec2(0.4f),
-      glm::vec2(0.6f),
+    SpriteInfo sprite_shoot = {
+      glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
+      glm::vec2(1263.0f/3503.0f, 1.0f),
     };
   } mouse;
   
@@ -224,28 +220,28 @@ int main(int argc, char **argv) {
     glm::vec2 vel = glm::vec2(0.0f);
     
     SpriteInfo sprite_stand = {
-      glm::vec2(0.0f),
-      glm::vec2(0.2f),
+      glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+      glm::vec2(1199.0f/3503.0f, 1.0f),
     };
     SpriteInfo sprite_walk = {
-      glm::vec2(0.0f),
-      glm::vec2(0.2f),
+      glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+      glm::vec2(1199.0f/3503.0f, 1.0f),
     };
     SpriteInfo sprite_run = {
-      glm::vec2(0.0f),
-      glm::vec2(0.2f),
+      glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+      glm::vec2(1199.0f/3503.0f, 1.0f),
     };
     SpriteInfo sprite_jump = {
-      glm::vec2(0.0f),
-      glm::vec2(0.2f),
+      glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+      glm::vec2(1199.0f/3503.0f, 1.0f),
     };
     SpriteInfo sprite_throw = {
-      glm::vec2(0.0f),
-      glm::vec2(0.2f),
+      glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+      glm::vec2(1199.0f/3503.0f, 1.0f),
     };
     SpriteInfo sprite_shoot = {
-      glm::vec2(0.0f),
-      glm::vec2(0.2f),
+      glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+      glm::vec2(1199.0f/3503.0f, 1.0f),
     };
     
     // 0: throwing
@@ -267,16 +263,16 @@ int main(int argc, char **argv) {
     glm::vec2 size = glm::vec2(0.5, 1.0f);
 
     SpriteInfo sprite_stand = {
-      glm::vec2(0.0f, 0.5f),
-      glm::vec2(0.5f, 1.0f),
+      glm::vec2(1263.0f/3503.0f, 741.0f/1689.0f),
+      glm::vec2(1776.0f/3503.0f, 1.0f),
     };
     SpriteInfo sprite_walk = {
-      glm::vec2(0.2f),
-      glm::vec2(0.4f),
+      glm::vec2(1263.0f/3503.0f, 741.0f/1689.0f),
+      glm::vec2(1776.0f/3503.0f, 1.0f),
     };
     SpriteInfo sprite_alert = {
-      glm::vec2(0.4f),
-      glm::vec2(0.6f),
+      glm::vec2(1776.0f/3503.0f, 1520.0f/1689.0f),
+      glm::vec2(2084.0f/3503.0f, 1.0f),
     };
  
     bool face_right = true;
@@ -296,13 +292,9 @@ int main(int argc, char **argv) {
     float angle = PI * 0.25f;
     float range = 3.0f;
 
-    SpriteInfo sprite_on = {
-      glm::vec2(0.0f),
-      glm::vec2(0.2f),
-    };
-    SpriteInfo sprite_off = {
-      glm::vec2(0.2f),
-      glm::vec2(0.4f),
+    SpriteInfo sprite = {
+      glm::vec2(2084.0f/3503.0f, 1137.0f/1689.0f),
+      glm::vec2(2724.0f/3503.0f, 1.0f),
     };
 
     bool light_on = true;
@@ -313,12 +305,12 @@ int main(int argc, char **argv) {
     glm::vec2 size = glm::vec2(1.0f);
 
     SpriteInfo sprite_empty = {
-      glm::vec2(0.0f),
-      glm::vec2(0.2f),
+      glm::vec2(0.0f, 481.0f/1689.0f),
+      glm::vec2(740.0f/3503.0f, 1.0f),
     };
     SpriteInfo sprite_used = {
-      glm::vec2(0.0f),
-      glm::vec2(0.2f),
+      glm::vec2(0.0f, 481.0f/1689.0f),
+      glm::vec2(740.0f/3503.0f, 1.0f),
     };
 
     bool in_use = false;
@@ -329,8 +321,8 @@ int main(int argc, char **argv) {
     glm::vec2 size = glm::vec2(30.0f, 0.5f);
 
     SpriteInfo sprite = {
-      glm::vec2(0.5f),
-      glm::vec2(0.75f),
+      glm::vec2(0.0f),
+      glm::vec2(1.0f, 481.0f/1689.0f),
     };
   };
 
