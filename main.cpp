@@ -351,10 +351,10 @@ int main(int argc, char **argv) {
 				should_quit = true;
 			} else if (evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP) {
         			if (evt.key.keysym.sym == SDLK_w) {
-				       	if (!player.jumping && evt.key.state == SDL_PRESSED) {
-						player.jumping = true;
+				       	if (!player.jumping && !player.behind_door && evt.key.state == SDL_PRESSED) {
+                  player.jumping = true;
 					        player.vel.y = 6.0f;
-          				}
+          			}
         			} else if (evt.key.keysym.sym == SDLK_a) {
           				if (evt.key.state == SDL_PRESSED) {
             					if (player.shifting) {
