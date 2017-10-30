@@ -298,7 +298,7 @@ int main(int argc, char **argv) {
     float range = 3.0f;
 
     SpriteInfo sprite = {
-      glm::vec2(1945.0f/3503.0f, 1137.0f/1689.0f),
+      glm::vec2(1945.0f/3503.0f, 1289.0f/1689.0f),
       glm::vec2(2585.0f/3503.0f, 1.0f),
     };
 
@@ -322,8 +322,8 @@ int main(int argc, char **argv) {
   };
 
   struct Platform {
-    glm::vec2 pos = glm::vec2(15.0f, 0.25f);
-    glm::vec2 size = glm::vec2(30.0f, 0.5f);
+    glm::vec2 pos = glm::vec2(10.0f, 0.25f);
+    glm::vec2 size = glm::vec2(20.0f, 0.5f);
 
     SpriteInfo sprite = {
       glm::vec2(0.0f),
@@ -331,14 +331,12 @@ int main(int argc, char **argv) {
     };
   };
 
-  // Light light;
   Light flashlight;
   Light ceilingLight;
   Platform platform;
   Enemy enemy;
   Door door;
 
-  //
   flashlight.dir = PI * 1.5f;
   ceilingLight.pos = glm::vec2(10.0f, 2.7f);
   ceilingLight.size = glm::vec2(3.0f, 10.3f);
@@ -484,8 +482,8 @@ int main(int argc, char **argv) {
       camera.pos.x += player.vel.x * elapsed;
       if (player.pos.x < 6.0f) {
         camera.pos.x = 6.0f;
-      } else if (player.pos.x > 24.0f) {
-        camera.pos.x = 24.0f;
+      } else if (player.pos.x > 14.0f) {
+        camera.pos.x = 14.0f;
       }
 
       //enemy update ------------------------------------------------------------
@@ -536,7 +534,6 @@ int main(int argc, char **argv) {
           }
         }
       }
-
       if (player.visible) {
         if (enemy.face_right) {
           if (enemy.pos.x <= player.pos.x && enemy.pos.x + enemy.sight_range >= player.pos.x) {
@@ -565,6 +562,11 @@ int main(int argc, char **argv) {
             should_quit = true;
           }
         }
+      }
+
+      //level win -----------------------------------------------------------
+      if (player.pos.x >= 19.0) {
+        should_quit = true;
       }
 
     }
