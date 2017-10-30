@@ -248,6 +248,7 @@ int main(int argc, char **argv) {
     // 1: shooting
     int ability_mode = 0;
 
+    bool face_right = false;
     bool jumping = false;
     bool shifting = false;
     bool behind_door = false;
@@ -359,8 +360,10 @@ int main(int argc, char **argv) {
           				if (evt.key.state == SDL_PRESSED) {
             					if (player.shifting) {
               						player.vel.x = -2.5f;
+                          player.face_right = false;
             					} else {
               						player.vel.x = -1.0f;
+                          player.face_right = false;
             					}
           				} else {
             					if (player.vel.x == -1.0f || player.vel.x == -2.5f) {
@@ -371,8 +374,10 @@ int main(int argc, char **argv) {
           				if (evt.key.state == SDL_PRESSED) {
 						if (player.shifting) {
 							player.vel.x = 2.5f;
+                          player.face_right = true;
 						} else {
 							player.vel.x = 1.0f;
+                          player.face_right = true;
 						}
 					} else {
 						if (player.vel.x == 1.0f || player.vel.x == 2.5f) {
@@ -390,15 +395,19 @@ int main(int argc, char **argv) {
 				} else if (evt.key.keysym.sym == SDLK_LSHIFT) {
 					if (evt.key.state == SDL_PRESSED) {
 						if (player.vel.x == 1.0f) {
+              player.face_right = true;
 							player.vel.x = 2.5f;
 						} else if (player.vel.x == -1.0f) {
+              player.face_right = false;
 							player.vel.x = -2.5f;
 						}
 						player.shifting = true;
 					} else {
 						if (player.vel.x == 2.5f) {
+              player.face_right = true;
 							player.vel.x = 1.0f;
 						} else if (player.vel.x == -2.5f) {
+              player.face_right = false;
 							player.vel.x = -1.0f;
 						}
 						player.shifting = false;
@@ -559,17 +568,32 @@ int main(int argc, char **argv) {
 				verts.emplace_back(verts.back());
 			};
 
+      //draw doors ------------------------------------------------------------------
 			draw_sprite(door.sprite_empty, door.pos, door.size);
-			if (player.behind_door == false) {
-				draw_sprite(player.sprite_stand, player.pos, player.size);
+			
+      //draw player -----------------------------------------------------------
+      glm::vec2 player_size = player.size;
+      if (!player.face_right) {
+        player_size.x *= -1.0f;
+      }
+      if (player.behind_door == false) {
+				draw_sprite(player.sprite_stand, player.pos, player_size);
 			}
-			draw_sprite(enemy.sprite_stand, enemy.pos, enemy.size);
+			
+      //draw enemies -----------------------------------------------------------
+      glm::vec2 enemy_size = enemy.size;
+      if (enemy.face_right) {
+        enemy_size.x *= -1.0f;
+      }
+      draw_sprite(enemy.sprite_stand, enemy.pos, enemy_size);     
       if (enemy.alerted) {
       glm::vec2 alert_pos = glm::vec2(enemy.pos.x, 
             enemy.pos.y + 0.51f*enemy.size.y + 0.51f*enemy.alert_size.y );
         draw_sprite(enemy.sprite_alert, alert_pos, enemy.alert_size);
       }
-			draw_sprite(platform.sprite, platform.pos, platform.size);
+			
+      //draw platforms -----------------------------------------------------------
+      draw_sprite(platform.sprite, platform.pos, platform.size);
 
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * verts.size(), &verts[0], GL_STREAM_DRAW);
