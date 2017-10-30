@@ -15,6 +15,10 @@ const float PI = 3.1415f;
 static GLuint compile_shader(GLenum type, std::string const &source);
 static GLuint link_program(GLuint vertex_shader, GLuint fragment_shader);
 
+float dot(glm::vec2 a, glm::vec2 b) {
+	return (a.x * b.x + a.y * b.y);
+}
+
 int main(int argc, char **argv) {
 	//Configuration:
 	struct {
@@ -441,25 +445,68 @@ int main(int argc, char **argv) {
 		previous_time = current_time;
 
     auto check_visibility = [&player](Light &light) {
-        if (light.dir == PI) {
-          if (((light.pos.x - light.size.y) <= player.pos.x) && (player.pos.x <= (light.pos.x + light.size.y)))
-            return true;
-        }
-        else if (light.dir == ((3.0f / 2.0f) * PI)) {
-          if (((light.pos.x - light.size.x) <= player.pos.x) && (player.pos.x <= (light.pos.x + light.size.x)))
-            return true;
-        }
-        return false;
-      };
+    	// Compute vectors
+    	printf("lightpos: (%f, %f)\n", light.pos.x, light.pos.y);
+    	float width, height;
+    	glm::vec2 A;
+    	glm::vec2 B;
+    	glm::vec2 C;
+    	if (light.dir == 0.0f) {
+    		width = light.pos.y;
+    		height = light.pos.x;
+    	}
+    	else if (light.dir == (0.5f * PI)) {
+    		width = light.pos.x;
+    		height = light.pos.y;
+    	}
+    	else if (light.dir == PI) {
+    		width = light.pos.y;
+    		height = light.pos.x;
+    	}
+    	else if (light.dir == (1.5f * PI)) {
+    		width = light.pos.x;
+    		height = light.pos.y;
+    	}
 
-		{ //update game state:
+    	A = light.pos + glm::vec2(0.0f, 0.5f * height);
+    	B = light.pos - glm::vec2(0.5f * width, 0.5f * height);
+    	C = light.pos - glm::vec2(-0.5f * width, 0.5f * height);;
+
+
+		glm::vec2 v0 = C - A;
+		glm::vec2 v1 = B - A;
+		glm::vec2 v2 = player.pos - A;
+
+		// Compute dot products
+		float dot00 = dot(v0, v0);
+		float dot01 = dot(v0, v1);
+		float dot02 = dot(v0, v2);
+		float dot11 = dot(v1, v1);
+		float dot12 = dot(v1, v2);
+
+		// Compute barycentric coordinates
+		float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+		float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+		float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+		// Check if point is in triangle
+		//return (u >= 0) && (v >= 0) && (u + v < 1)
+        if ((u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f))
+        	return true;
+        return false;
+    };
+
+
+	{ //update game state:
       
       //check if player is in light
-      if (check_visibility(flashlight) || check_visibility(ceilingLight))
+      if ((!player.behind_door) && (check_visibility(flashlight) || check_visibility(ceilingLight))) {
+      	printf("in light\n");
         player.visible = true;
+    }
 
 
-			if (player.behind_door == false) {
+	if (player.behind_door == false) {
       // player update
       if (player.jumping) {
         player.vel.y -= elapsed * 9.0f;
@@ -562,7 +609,13 @@ int main(int argc, char **argv) {
             should_quit = true;
           }
         }
-      }
+      }      
+
+      if (enemy.face_right)
+        flashlight.pos = enemy.pos + glm::vec2(1.4f, 0.0f);
+      else
+        flashlight.pos = enemy.pos - glm::vec2(1.4f, 0.05f);
+
 
       //level win -----------------------------------------------------------
       if (player.pos.x >= 19.0) {
