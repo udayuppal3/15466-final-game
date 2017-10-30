@@ -331,10 +331,17 @@ int main(int argc, char **argv) {
     };
   };
 
-  Light light;
+  // Light light;
+  Light flashlight;
+  Light ceilingLight;
   Platform platform;
   Enemy enemy;
   Door door;
+
+  //
+  flashlight.dir = PI * 1.5f;
+  ceilingLight.pos = glm::vec2(10.0f, 2.7f);
+  ceilingLight.size = glm::vec2(3.0f, 10.3f);
   door.pos = glm::vec2(5.0f, 1.25f);
 
 	//------------ game loop ------------
@@ -435,8 +442,25 @@ int main(int argc, char **argv) {
 		float elapsed = std::chrono::duration< float >(current_time - previous_time).count();
 		previous_time = current_time;
 
+    auto check_visibility = [&player](Light &light) {
+        if (light.dir == PI) {
+          if (((light.pos.x - light.size.y) <= player.pos.x) && (player.pos.x <= (light.pos.x + light.size.y)))
+            return true;
+        }
+        else if (light.dir == ((3.0f / 2.0f) * PI)) {
+          if (((light.pos.x - light.size.x) <= player.pos.x) && (player.pos.x <= (light.pos.x + light.size.x)))
+            return true;
+        }
+        return false;
+      };
+
 		{ //update game state:
       
+      //check if player is in light
+      if (check_visibility(flashlight) || check_visibility(ceilingLight))
+        player.visible = true;
+
+
 			if (player.behind_door == false) {
       // player update
       if (player.jumping) {
@@ -591,6 +615,15 @@ int main(int argc, char **argv) {
             enemy.pos.y + 0.51f*enemy.size.y + 0.51f*enemy.alert_size.y );
         draw_sprite(enemy.sprite_alert, alert_pos, enemy.alert_size);
       }
+
+      //draw lights --------------------------------------------------------------
+      if (enemy.face_right)
+        draw_sprite(flashlight.sprite, enemy.pos + glm::vec2(1.4f, 0.0f), flashlight.size, glm::u8vec4(0xff, 0xff, 0xff, 0xff), flashlight.dir + PI);
+      else
+        draw_sprite(flashlight.sprite, enemy.pos - glm::vec2(1.4f, 0.05f), flashlight.size, glm::u8vec4(0xff, 0xff, 0xff, 0xff), flashlight.dir);
+
+      draw_sprite(ceilingLight.sprite, ceilingLight.pos, ceilingLight.size);
+
 			
       //draw platforms -----------------------------------------------------------
       draw_sprite(platform.sprite, platform.pos, platform.size);
