@@ -254,6 +254,9 @@ int main(int argc, char **argv) {
     bool aiming = false;
     bool visible = false;  
 
+    // hiding will be true when the player gets behind a door or behind toys
+    bool hiding = false;
+
     int num_projectiles = 0;
   } player;
 
@@ -302,7 +305,7 @@ int main(int argc, char **argv) {
 
   struct Door {
     glm::vec2 pos = glm::vec2(0.0f);
-    glm::vec2 size = glm::vec2(1.0f);
+    glm::vec2 size = glm::vec2(1.0f, 1.5f);
 
     SpriteInfo sprite_empty = {
       glm::vec2(0.0f, 481.0f/1689.0f),
@@ -330,6 +333,7 @@ int main(int argc, char **argv) {
   Platform platform;
   Enemy enemy;
   Door door;
+  door.pos = glm::vec2(5.0f, 1.25f);
 
 	//------------ game loop ------------
 
@@ -345,61 +349,71 @@ int main(int argc, char **argv) {
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_ESCAPE) {
 				should_quit = true;
 			} else if (evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP) {
-        if (evt.key.keysym.sym == SDLK_w) {
-          if (!player.jumping && evt.key.state == SDL_PRESSED) {
-            player.jumping = true;
-            player.vel.y = 6.0f;
-          }
-        } else if (evt.key.keysym.sym == SDLK_a) {
-          if (evt.key.state == SDL_PRESSED) {
-            if (player.shifting) {
-              player.vel.x = -2.5f;
-            } else {
-              player.vel.x = -1.0f;
-            }
-          } else {
-            if (player.vel.x == -1.0f || player.vel.x == -2.5f) {
-              player.vel.x = 0.0f;
-            }
-          }
-        } else if (evt.key.keysym.sym == SDLK_d) {
-          if (evt.key.state == SDL_PRESSED) {
-            if (player.shifting) {
-              player.vel.x = 2.5f;
-            } else {
-              player.vel.x = 1.0f;
-            }
-          } else {
-            if (player.vel.x == 1.0f || player.vel.x == 2.5f) {
-              player.vel.x = 0.0f;
-            }
-          }
-        } else if (evt.key.keysym.sym == SDLK_q) {
-          if (evt.key.state == SDL_PRESSED) {
-            player.ability_mode = 0;
-          }
-        } else if (evt.key.keysym.sym == SDLK_e) {
-          if (evt.key.state == SDL_PRESSED) {
-            player.ability_mode = 1;
-          }
-        } else if (evt.key.keysym.sym == SDLK_LSHIFT) {
-          if (evt.key.state == SDL_PRESSED) {
-            if (player.vel.x == 1.0f) {
-              player.vel.x = 2.5f;
-            } else if (player.vel.x == -1.0f) {
-              player.vel.x = -2.5f;
-            }
-            player.shifting = true;
-          } else {
-            if (player.vel.x == 2.5f) {
-              player.vel.x = 1.0f;
-            } else if (player.vel.x == -2.5f) {
-              player.vel.x = -1.0f;
-            }
-            player.shifting = false;
-          }
-        } 
-      } else if (evt.type == SDL_QUIT) {
+        			if (evt.key.keysym.sym == SDLK_w) {
+				       	if (!player.jumping && evt.key.state == SDL_PRESSED) {
+						player.jumping = true;
+					        player.vel.y = 6.0f;
+          				}
+        			} else if (evt.key.keysym.sym == SDLK_a) {
+          				if (evt.key.state == SDL_PRESSED) {
+            					if (player.shifting) {
+              						player.vel.x = -2.5f;
+            					} else {
+              						player.vel.x = -1.0f;
+            					}
+          				} else {
+            					if (player.vel.x == -1.0f || player.vel.x == -2.5f) {
+              						player.vel.x = 0.0f;
+            					}
+          				}
+        			} else if (evt.key.keysym.sym == SDLK_d) {
+          				if (evt.key.state == SDL_PRESSED) {
+						if (player.shifting) {
+							player.vel.x = 2.5f;
+						} else {
+							player.vel.x = 1.0f;
+						}
+					} else {
+						if (player.vel.x == 1.0f || player.vel.x == 2.5f) {
+							player.vel.x = 0.0f;
+						}
+					}
+				} else if (evt.key.keysym.sym == SDLK_q) {
+					if (evt.key.state == SDL_PRESSED) {
+						player.ability_mode = 0;
+					}
+				} else if (evt.key.keysym.sym == SDLK_e) {
+					if (evt.key.state == SDL_PRESSED) {
+						player.ability_mode = 1;
+					}
+				} else if (evt.key.keysym.sym == SDLK_LSHIFT) {
+					if (evt.key.state == SDL_PRESSED) {
+						if (player.vel.x == 1.0f) {
+							player.vel.x = 2.5f;
+						} else if (player.vel.x == -1.0f) {
+							player.vel.x = -2.5f;
+						}
+						player.shifting = true;
+					} else {
+						if (player.vel.x == 2.5f) {
+							player.vel.x = 1.0f;
+						} else if (player.vel.x == -2.5f) {
+							player.vel.x = -1.0f;
+						}
+						player.shifting = false;
+					}
+				} else if (evt.key.keysym.sym == SDLK_SPACE) {
+					// handle space press
+					// check interractable state
+					if (evt.type == SDL_KEYDOWN && evt.key.repeat == 0) {
+						if (player.pos.x + player.size.x / 2 < door.pos.x + door.size.x / 2
+								&& player.pos.x - player.size.x / 2 > door.pos.x - door.size.x / 2
+								&& player.pos.y + player.size.y / 2 < door.pos.y + door.size.y / 2) {
+							player.hiding = !player.hiding;
+						}
+					}
+				}
+			} else if (evt.type == SDL_QUIT) {
 				should_quit = true;
 				break;
 			}
@@ -413,6 +427,7 @@ int main(int argc, char **argv) {
 
 		{ //update game state:
       
+			if (player.hiding == false) {
       // player update
       if (player.jumping) {
         player.vel.y -= elapsed * 9.0f;
@@ -424,6 +439,7 @@ int main(int argc, char **argv) {
       } else if (player.pos.x > 29.75f) {
         player.pos.x = 29.75f;
       }
+			}
       if (player.pos.y < 1.0f) {
         player.jumping = false;
         player.pos.y = 1.0f;
@@ -486,7 +502,10 @@ int main(int argc, char **argv) {
 				verts.emplace_back(verts.back());
 			};
 
-			draw_sprite(player.sprite_stand, player.pos, player.size);
+			draw_sprite(door.sprite_empty, door.pos, door.size);
+			if (player.hiding == false) {
+				draw_sprite(player.sprite_stand, player.pos, player.size);
+			}
 			draw_sprite(enemy.sprite_stand, enemy.pos, enemy.size);
 			draw_sprite(platform.sprite, platform.pos, platform.size);
 
