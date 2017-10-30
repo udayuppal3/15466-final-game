@@ -254,9 +254,6 @@ int main(int argc, char **argv) {
     bool aiming = false;
     bool visible = false;  
 
-    // hiding will be true when the player gets behind a door or behind toys
-    bool hiding = false;
-
     int num_projectiles = 0;
   } player;
 
@@ -413,7 +410,7 @@ int main(int argc, char **argv) {
 						if (player.pos.x + player.size.x / 2 < door.pos.x + door.size.x / 2
 								&& player.pos.x - player.size.x / 2 > door.pos.x - door.size.x / 2
 								&& player.pos.y + player.size.y / 2 < door.pos.y + door.size.y / 2) {
-							player.hiding = !player.hiding;
+							player.behind_door = !player.behind_door;
 						}
 					}
 				}
@@ -431,7 +428,7 @@ int main(int argc, char **argv) {
 
 		{ //update game state:
       
-			if (player.hiding == false) {
+			if (player.behind_door == false) {
       // player update
       if (player.jumping) {
         player.vel.y -= elapsed * 9.0f;
@@ -563,7 +560,7 @@ int main(int argc, char **argv) {
 			};
 
 			draw_sprite(door.sprite_empty, door.pos, door.size);
-			if (player.hiding == false) {
+			if (player.behind_door == false) {
 				draw_sprite(player.sprite_stand, player.pos, player.size);
 			}
 			draw_sprite(enemy.sprite_stand, enemy.pos, enemy.size);
