@@ -446,8 +446,7 @@ int main(int argc, char **argv) {
 
     auto check_visibility = [&player](Light &light) {
     	// Compute vectors
-    	printf("lightpos: (%f, %f)\n", light.pos.x, light.pos.y);
-    	float width, height;
+    	float width = 0.0f, height = 0.0f;
     	glm::vec2 A;
     	glm::vec2 B;
     	glm::vec2 C;
@@ -501,7 +500,6 @@ int main(int argc, char **argv) {
       
       //check if player is in light
       if ((!player.behind_door) && (check_visibility(flashlight) || check_visibility(ceilingLight))) {
-      	printf("in light\n");
         player.visible = true;
     }
 
