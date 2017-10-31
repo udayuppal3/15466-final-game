@@ -206,7 +206,7 @@ int main(int argc, char **argv) {
 
   struct {
     glm::vec2 pos = glm::vec2(0.0f);
-    glm::vec2 size = glm::vec2(0.5f);
+    glm::vec2 size = glm::vec2(6.0f);
     
     SpriteInfo sprite_throw = {
       glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
@@ -291,6 +291,7 @@ int main(int argc, char **argv) {
     int curr_index  = 0;
     float remaining_wait = 5.0f;
     float sight_range = 4.0f;
+    float hear_range = 3.0f;
     float catch_range = 0.5f;
   };
 
@@ -579,7 +580,7 @@ int main(int argc, char **argv) {
           }
         }
       }
-      if (player.visible) {
+      if (player.visible && !player.behind_door) {
         if (enemy.face_right) {
           if (enemy.pos.x <= player.pos.x && enemy.pos.x + enemy.sight_range >= player.pos.x) {
             enemy.target = player.pos;
