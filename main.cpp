@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 	}
 
 	//Hide mouse cursor (note: showing can be useful for debugging):
-	SDL_ShowCursor(SDL_DISABLE);
+	//SDL_ShowCursor(SDL_DISABLE);
 
 	//------------ opengl objects / game assets ------------
 
@@ -216,6 +216,8 @@ int main(int argc, char **argv) {
       glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
       glm::vec2(1263.0f/3503.0f, 1.0f),
     };
+
+    float remaining_time = 0.0f;
   } mouse;
   
   struct {
@@ -259,7 +261,8 @@ int main(int argc, char **argv) {
     bool aiming = false;
     bool visible = false;  
 
-    int num_projectiles = 0;
+    std::vector<glm::vec2> projectiles_pos;
+    int num_projectiles = 5;
   } player;
 
   struct Enemy {
@@ -355,14 +358,31 @@ int main(int argc, char **argv) {
 		while (SDL_PollEvent(&evt) == 1) {
 			//handle input:
 			if (evt.type == SDL_MOUSEMOTION) {
-				mouse.pos.x = (evt.motion.x + 0.5f) / float(config.size.x) * 2.0f - 1.0f;
-				mouse.pos.y = (evt.motion.y + 0.5f) / float(config.size.y) *-2.0f + 1.0f;
+				mouse.pos.x = ((evt.motion.x + 0.5f) / float(config.size.x) * 2.0f - 1.0f) * 0.5f * camera.size.x + camera.pos.x;
+				mouse.pos.y = ((evt.motion.y + 0.5f) / float(config.size.y) *-2.0f + 1.0f) * 0.5f * camera.size.y + camera.pos.y;
 			} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
+        if (evt.button.button == SDL_BUTTON_LEFT) {
+          if (player.aiming && player.num_projectiles > 0) {
+            player.num_projectiles--;
+            if (player.ability_mode == 0) {
+              player.projectiles_pos.push_back(glm::vec2(mouse.pos.x, 0.5f));
+            } else if (player.ability_mode == 1) {
+              player.projectiles_pos.push_back(glm::vec2(mouse.pos.x, 7.0f));
+            }
+          } 
+        } else if (evt.button.button == SDL_BUTTON_RIGHT) {
+          if (mouse.remaining_time <= 0.0f) {
+            player.aiming = !player.aiming;
+            if (!player.aiming) {
+              mouse.remaining_time = 1.0f;
+            }
+          }
+        }
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_ESCAPE) {
 				should_quit = true;
 			} else if (evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP) {
         			if (evt.key.keysym.sym == SDLK_w) {
-				       	if (!player.jumping && !player.behind_door && evt.key.state == SDL_PRESSED) {
+				       	if (!player.jumping && !player.behind_door && !player.aiming && evt.key.state == SDL_PRESSED) {
                   player.jumping = true;
 					        player.vel.y = 6.0f;
           			}
@@ -446,6 +466,9 @@ int main(int argc, char **argv) {
 		previous_time = current_time;
 
     auto check_visibility = [&player](Light &light) {
+      if (!light.light_on) {
+        return false;
+      }
     	// Compute vectors
     	float width = 0.0f, height = 0.0f;
     	glm::vec2 A;
@@ -496,27 +519,25 @@ int main(int argc, char **argv) {
         return false;
     };
 
-
-	{ //update game state:
+    if (!player.aiming) { //update game state:
       
       //check if player is in light
       if ((!player.behind_door) && (check_visibility(flashlight) || check_visibility(ceilingLight))) {
         player.visible = true;
-    }
-
-
-	if (player.behind_door == false) {
-      // player update
-      if (player.jumping) {
-        player.vel.y -= elapsed * 9.0f;
       }
 
-      player.pos += player.vel * elapsed;
-      if (player.pos.x < 0.25f) {
-        player.pos.x = 0.25f;
-      } else if (player.pos.x > 29.75f) {
-        player.pos.x = 29.75f;
-      }
+      // player update -----------------------------------------------------------------
+	    if (player.behind_door == false) {
+        if (player.jumping) {
+          player.vel.y -= elapsed * 9.0f;
+        }
+
+        player.pos += player.vel * elapsed;
+        if (player.pos.x < 0.25f) {
+          player.pos.x = 0.25f;
+        } else if (player.pos.x > 29.75f) {
+          player.pos.x = 29.75f;
+        }
 			}
       if (player.pos.y < 1.0f) {
         player.jumping = false;
@@ -524,7 +545,7 @@ int main(int argc, char **argv) {
         player.vel.y = 0.0f;
       }
 
-      //camera update
+      //camera update ---------------------------------------------------------------
       camera.pos.x += player.vel.x * elapsed;
       if (player.pos.x < 6.0f) {
         camera.pos.x = 6.0f;
@@ -532,7 +553,7 @@ int main(int argc, char **argv) {
         camera.pos.x = 14.0f;
       }
 
-      //enemy update ------------------------------------------------------------
+      //enemy update --------------------------------------------------------------
       if (!enemy.alerted) {
         if (!enemy.walking) {
           enemy.remaining_wait -= elapsed;
@@ -573,7 +594,7 @@ int main(int argc, char **argv) {
           enemy.pos += enemy.vel * elapsed;
           if ((enemy.face_right && enemy.pos.x > enemy.target.x) ||
               (!enemy.face_right && enemy.pos.x < enemy.target.x)) {
-            enemy.pos = enemy.target;
+            enemy.pos.x = enemy.target.x;
             enemy.remaining_wait = 10.0f;
             enemy.walking = false;
             enemy.vel.x = 0.0f;
@@ -610,11 +631,43 @@ int main(int argc, char **argv) {
         }
       }      
 
-      if (enemy.face_right)
-        flashlight.pos = enemy.pos + glm::vec2(1.4f, 0.0f);
-      else
-        flashlight.pos = enemy.pos - glm::vec2(1.4f, 0.05f);
+      // projectile update ----------------------------------------------------------------
+      if (mouse.remaining_time == 1.0f) {
+        for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end() ; ++i) {
+          
+          //enemies
+          float h_diff = enemy.pos.x - i->x;
+          float v_diff = enemy.pos.y - i->y;
+          if (sqrt(h_diff*h_diff + v_diff*v_diff) <= enemy.hear_range) {
+            if (i->x > enemy.pos.x) {
+              enemy.target = *i;
+              enemy.vel.x = 2.5f;
+              enemy.alerted = true;
+              enemy.walking = true;
+              enemy.face_right = true;
+            } else {
+              enemy.target = *i;
+              enemy.vel.x = -2.5f;
+              enemy.alerted = true;
+              enemy.walking = true;
+              enemy.face_right = false;
+            }
+          }
 
+          //lights
+          h_diff = ceilingLight.pos.x - i->x;
+          v_diff = (ceilingLight.pos.y + 0.5f * ceilingLight.size.y) - i->y;
+          if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 2.0f) {
+            ceilingLight.light_on = false;
+          }
+        }       
+      }
+
+      if (enemy.face_right) {
+        flashlight.pos = enemy.pos + glm::vec2(1.4f, 0.0f);
+      } else {
+        flashlight.pos = enemy.pos - glm::vec2(1.4f, 0.05f);
+      }
 
       //level win -----------------------------------------------------------
       if (player.pos.x >= 19.0) {
@@ -671,16 +724,53 @@ int main(int argc, char **argv) {
       }
 
       //draw lights --------------------------------------------------------------
-      if (enemy.face_right)
+      if (enemy.face_right && flashlight.light_on) {
         draw_sprite(flashlight.sprite, enemy.pos + glm::vec2(1.4f, 0.0f), flashlight.size, glm::u8vec4(0xff, 0xff, 0xff, 0xff), flashlight.dir + PI);
-      else
+      } else {
         draw_sprite(flashlight.sprite, enemy.pos - glm::vec2(1.4f, 0.05f), flashlight.size, glm::u8vec4(0xff, 0xff, 0xff, 0xff), flashlight.dir);
+      }
 
-      draw_sprite(ceilingLight.sprite, ceilingLight.pos, ceilingLight.size);
-
+      if (ceilingLight.light_on) {
+        draw_sprite(ceilingLight.sprite, ceilingLight.pos, ceilingLight.size);
+      }
 			
       //draw platforms -----------------------------------------------------------
       draw_sprite(platform.sprite, platform.pos, platform.size);
+
+      //draw sounds ---------------------------------------------------------------
+      if (!player.aiming && mouse.remaining_time > 0.0f) {
+        mouse.remaining_time -= elapsed;
+        for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
+          if (i->y == 0.5) {
+            draw_sprite(mouse.sprite_throw, *i, mouse.size);
+          } else {
+            draw_sprite(mouse.sprite_shoot, *i, mouse.size);
+          }
+        }
+
+        if (mouse.remaining_time <= 0.0f) {
+          mouse.remaining_time = 0.0f;
+          player.projectiles_pos.clear();
+        }
+      }
+
+      if (player.aiming) {
+        for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
+          if (i->y == 0.5) {
+            draw_sprite(mouse.sprite_throw, *i, mouse.size);
+          } else {
+            draw_sprite(mouse.sprite_shoot, *i, mouse.size);
+          }
+        }
+
+        if (player.num_projectiles > 0) {
+          if (player.ability_mode == 0) {
+            draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 0.5f), mouse.size);
+          } else {
+            draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 7.0f), mouse.size);
+          }
+        }
+      }
 
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * verts.size(), &verts[0], GL_STREAM_DRAW);
