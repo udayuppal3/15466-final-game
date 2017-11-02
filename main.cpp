@@ -261,6 +261,11 @@ int main(int argc, char **argv) {
     bool aiming = false;
     bool visible = false;  
 
+    float walk_sound = 2.0f;
+    float run_sound = 10.0f;
+    float throw_sound = 6.0f;
+    float sound_time = 0.5f;
+    
     std::vector<glm::vec2> projectiles_pos;
     int num_projectiles = 5;
   } player;
@@ -294,7 +299,6 @@ int main(int argc, char **argv) {
     int curr_index  = 0;
     float remaining_wait = 5.0f;
     float sight_range = 4.0f;
-    float hear_range = 3.0f;
     float catch_range = 0.5f;
   };
 
@@ -495,7 +499,6 @@ int main(int argc, char **argv) {
     	B = light.pos - glm::vec2(0.5f * width, 0.5f * height);
     	C = light.pos - glm::vec2(-0.5f * width, 0.5f * height);;
 
-
 		glm::vec2 v0 = C - A;
 		glm::vec2 v1 = B - A;
 		glm::vec2 v2 = player.pos - A;
@@ -571,6 +574,8 @@ int main(int argc, char **argv) {
           enemy.pos += enemy.vel * elapsed;
           if ((enemy.face_right && enemy.pos.x > enemy.waypoints[enemy.curr_index].x) ||
               (!enemy.face_right && enemy.pos.x < enemy.waypoints[enemy.curr_index].x)) {
+            enemy.face_right = enemy.waypoints[enemy.curr_index].x > 
+              enemy.waypoints[(enemy.curr_index + 1) % 2].x;
             enemy.pos = enemy.waypoints[enemy.curr_index];
             enemy.remaining_wait = enemy.wait_timers[enemy.curr_index];
             enemy.walking = false;
@@ -631,6 +636,32 @@ int main(int argc, char **argv) {
         }
       }      
 
+      //detect footsteps
+      float h_diff = enemy.pos.x - player.pos.x;
+      float v_diff = enemy.pos.y - (player.pos.y - 0.5f * player.size.y);
+      float sound = 0.0f;
+      if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
+        sound = 0.5f * player.walk_sound;
+      } else if ((player.vel.x == 2.5f || player.vel.x == -2.5f) && !player.jumping && !player.behind_door) {
+        sound = 0.5f * player.run_sound;
+      }
+
+      if (sqrt(h_diff * h_diff + v_diff * v_diff) <= sound) {
+        if (player.pos.x > enemy.pos.x) {
+          enemy.target = (player.pos + enemy.pos)/2.0f;
+          enemy.vel.x = 2.5f;
+          enemy.alerted = true;
+          enemy.walking = true;
+          enemy.face_right = true;
+        } else {
+          enemy.target = (player.pos + enemy.pos)/2.0f;
+          enemy.vel.x = -2.5f;
+          enemy.alerted = true;
+          enemy.walking = true;
+          enemy.face_right = false;
+        }
+      }
+
       // projectile update ----------------------------------------------------------------
       if (mouse.remaining_time == 1.0f) {
         for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end() ; ++i) {
@@ -638,7 +669,7 @@ int main(int argc, char **argv) {
           //enemies
           float h_diff = enemy.pos.x - i->x;
           float v_diff = enemy.pos.y - i->y;
-          if (sqrt(h_diff*h_diff + v_diff*v_diff) <= enemy.hear_range) {
+          if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 0.5f * player.throw_sound) {
             if (i->x > enemy.pos.x) {
               enemy.target = *i;
               enemy.vel.x = 2.5f;
@@ -742,9 +773,9 @@ int main(int argc, char **argv) {
         mouse.remaining_time -= elapsed;
         for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
           if (i->y == 0.5) {
-            draw_sprite(mouse.sprite_throw, *i, mouse.size);
+            draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound));
           } else {
-            draw_sprite(mouse.sprite_shoot, *i, mouse.size);
+            draw_sprite(mouse.sprite_shoot, *i, glm::vec2(player.throw_sound));
           }
         }
 
@@ -757,20 +788,34 @@ int main(int argc, char **argv) {
       if (player.aiming) {
         for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
           if (i->y == 0.5) {
-            draw_sprite(mouse.sprite_throw, *i, mouse.size);
+            draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound));
           } else {
-            draw_sprite(mouse.sprite_shoot, *i, mouse.size);
+            draw_sprite(mouse.sprite_shoot, *i, glm::vec2(player.throw_sound));
           }
         }
 
         if (player.num_projectiles > 0) {
           if (player.ability_mode == 0) {
-            draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 0.5f), mouse.size);
+            draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 0.5f), glm::vec2(player.throw_sound));
           } else {
-            draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 7.0f), mouse.size);
+            draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 7.0f), glm::vec2(player.throw_sound));
           }
         }
       }
+
+      player.sound_time -= elapsed;
+      if (player.sound_time < 0.0f) {
+        player.sound_time = 0.5f;
+      } else if (player.sound_time < 0.15f) {
+        float sound = 0.0f;
+        if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
+          sound = player.walk_sound;
+        } else if ((player.vel.x == 2.5f || player.vel.x == -2.5f) && !player.jumping&& !player.behind_door) {
+          sound = player.run_sound;
+        }
+        draw_sprite(mouse.sprite_throw, glm::vec2(player.pos.x, player.pos.y - 0.5 * player.size.y), glm::vec2(sound));
+      }
+      //-----------------------------------------------------------------------
 
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * verts.size(), &verts[0], GL_STREAM_DRAW);
