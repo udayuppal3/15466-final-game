@@ -796,8 +796,37 @@ int main(int argc, char **argv) {
 
         if (player.num_projectiles > 0) {
           if (player.ability_mode == 0) {
+            float y1 = player.pos.y;
+            float y2 = 5.0f;
+            float y3 = 0.5f;
+            float x1 = player.pos.x;
+            float x2 = 0.5*(mouse.pos.x + player.pos.x);
+            float x3 = mouse.pos.x;
+            //from https://stackoverflow.com/questions/16896577/using-points-to-generate-quadratic-equation-to-interpolate-data
+            float a = y1/((x1-x2)*(x1-x3)) 
+              + y2/((x2-x1)*(x2-x3)) 
+              + y3/((x3-x1)*(x3-x2));
+            float b = -y1*(x2+x3)/((x1-x2)*(x1-x3))
+              - y2*(x1+x3)/((x2-x1)*(x2-x3))
+              - y3*(x1+x2)/((x3-x1)*(x3-x2));
+            float c = y1*x2*x3/((x1-x2)*(x1-x3))
+              + y2*x1*x3/((x2-x1)*(x2-x3))
+              + y3*x1*x2/((x3-x1)*(x3-x2));
+            for (float x = player.pos.x; x > mouse.pos.x; x -= 0.3f) {
+              draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
+            }
+            for (float x = player.pos.x; x < mouse.pos.x; x += 0.3f) {
+              draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
+            }
             draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 0.5f), glm::vec2(player.throw_sound));
           } else {
+            float slope = (7.0f - player.pos.y) / (mouse.pos.x - player.pos.x);
+            for (float x = player.pos.x; x > mouse.pos.x; x -= 0.3f) {
+              draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), glm::vec2(0.03f * player.throw_sound));
+            }
+            for (float x = player.pos.x; x < mouse.pos.x; x += 0.3f) {
+              draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), glm::vec2(0.03f * player.throw_sound));
+            }
             draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 7.0f), glm::vec2(player.throw_sound));
           }
         }
