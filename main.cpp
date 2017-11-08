@@ -305,6 +305,7 @@ int main(int argc, char **argv) {
   struct Light {
     glm::vec2 pos = glm::vec2(0.0f);
     glm::vec2 size = glm::vec2(1.0f, 3.0f);
+	glm::u8vec4 color = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
     float dir = PI * 1.5f;
     float angle = PI * 0.25f;
     float range = 3.0f;
@@ -730,6 +731,20 @@ int main(int argc, char **argv) {
 				verts.emplace_back(verts.back());
 			};
 
+			auto draw_triangle = [&verts](glm::vec2 const &at, glm::vec2 size, float angle = 0.0f) {
+				glm::vec2 top_vertex = at + glm::vec2(0.0f, size.y)/2.0f;
+				glm::vec2 bleft_vertex = at + glm::vec2(-size.x, -size.y)/2.0f;
+				glm::vec2 bright_vertex = at + glm::vec2(size.x, -size.y)/2.0f;
+				glm::u8vec4 tint = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
+
+				verts.emplace_back(top_vertex, glm::vec2(0.0f, 0.0f), tint);
+				verts.emplace_back(verts.back());
+				//verts.emplace_back(at + glm::vec2(0.0f, size.y/2.0f), glm::vec2(0.0f, 0.0f), tint);
+				verts.emplace_back(bleft_vertex, glm::vec2(0.0f, 0.0f), tint);
+				verts.emplace_back(bright_vertex, glm::vec2(0.0f, 0.0f), tint);
+				verts.emplace_back(verts.back());
+			};
+
       //draw doors ------------------------------------------------------------------
 			draw_sprite(door.sprite_empty, door.pos, door.size);
 			
@@ -760,6 +775,8 @@ int main(int argc, char **argv) {
       } else {
         draw_sprite(flashlight.sprite, enemy.pos - glm::vec2(1.4f, 0.05f), flashlight.size, glm::u8vec4(0xff, 0xff, 0xff, 0xff), flashlight.dir);
       }
+      draw_triangle(glm::vec2(4.0f, 2.0f), ceilingLight.size, ceilingLight.dir);
+
 
       if (ceilingLight.light_on) {
         draw_sprite(ceilingLight.sprite, ceilingLight.pos, ceilingLight.size);
@@ -800,7 +817,7 @@ int main(int argc, char **argv) {
             float y2 = 5.0f;
             float y3 = 0.5f;
             float x1 = player.pos.x;
-            float x2 = 0.5*(mouse.pos.x + player.pos.x);
+            float x2 = 0.5f*(mouse.pos.x + player.pos.x);
             float x3 = mouse.pos.x;
             //from https://stackoverflow.com/questions/16896577/using-points-to-generate-quadratic-equation-to-interpolate-data
             float a = y1/((x1-x2)*(x1-x3)) 
@@ -865,6 +882,7 @@ int main(int argc, char **argv) {
 			glBindVertexArray(vao);
 
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, verts.size());
+			//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		}
 
 		SDL_GL_SwapWindow(window);
