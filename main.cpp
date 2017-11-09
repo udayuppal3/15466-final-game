@@ -111,6 +111,30 @@ int main(int argc, char **argv) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
+
+	// separate texture specifically for lights
+	GLuint tex2 = 0;
+	glm::uvec2 tex2_size = glm::uvec2(0,0);
+
+	{ //load texture 'tex2':
+		std::vector< uint32_t > data;
+		if (!load_png("light.png", &tex2_size.x, &tex2_size.y, &data, LowerLeftOrigin)) {
+			std::cerr << "Failed to load texture." << std::endl;
+			exit(1);
+		}
+		//create a texture object:
+		glGenTextures(1, &tex2);
+		//bind texture object to GL_TEXTURE_2D:
+		glBindTexture(GL_TEXTURE_2D, tex2);
+		//upload texture data from data:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex2_size.x, tex2_size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+		//set texture sampling parameters:
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
+
 	//shader program:
 	GLuint program = 0;
 	GLuint program_Position = 0;
@@ -716,6 +740,7 @@ int main(int argc, char **argv) {
 
 		{ //draw game state:
 			std::vector< Vertex > verts;
+			std::vector< Vertex > tri_verts;
 
 			auto draw_sprite = [&verts](SpriteInfo const &sprite, glm::vec2 const &at, glm::vec2 size, glm::u8vec4 tint = glm::u8vec4(0xff, 0xff, 0xff, 0xff), float angle = 0.0f) {
 				glm::vec2 min_uv = sprite.min_uv;
@@ -731,18 +756,28 @@ int main(int argc, char **argv) {
 				verts.emplace_back(verts.back());
 			};
 
-			auto draw_triangle = [&verts](glm::vec2 const &at, glm::vec2 size, float angle = 0.0f) {
+			/*auto draw_triangle = [&tri_verts](glm::vec2 const &at, glm::vec2 size, float angle = 0.0f) {
 				glm::vec2 top_vertex = at + glm::vec2(0.0f, size.y)/2.0f;
 				glm::vec2 bleft_vertex = at + glm::vec2(-size.x, -size.y)/2.0f;
 				glm::vec2 bright_vertex = at + glm::vec2(size.x, -size.y)/2.0f;
 				glm::u8vec4 tint = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
 
-				verts.emplace_back(top_vertex, glm::vec2(0.0f, 0.0f), tint);
-				verts.emplace_back(verts.back());
+				tri_verts.emplace_back(top_vertex, glm::vec2(0.0f, 0.0f), tint);
+				tri_verts.emplace_back(tri_verts.back());
 				//verts.emplace_back(at + glm::vec2(0.0f, size.y/2.0f), glm::vec2(0.0f, 0.0f), tint);
-				verts.emplace_back(bleft_vertex, glm::vec2(0.0f, 0.0f), tint);
-				verts.emplace_back(bright_vertex, glm::vec2(0.0f, 0.0f), tint);
-				verts.emplace_back(verts.back());
+				tri_verts.emplace_back(bleft_vertex, glm::vec2(0.0f, 0.0f), tint);
+				tri_verts.emplace_back(bright_vertex, glm::vec2(0.0f, 0.0f), tint);
+				tri_verts.emplace_back(tri_verts.back());
+			};*/
+
+			//helper: add character to game
+			auto draw_triangle = [&tri_verts](glm::vec2 const &at, glm::vec2 const &rad, glm::u8vec4 const &tint) {
+				tri_verts.emplace_back(at + glm::vec2(-rad.x,-rad.y), glm::vec2(0.0f, 0.0f), tint);
+				tri_verts.emplace_back(tri_verts.back());
+				tri_verts.emplace_back(at + glm::vec2( 0.0, rad.y), glm::vec2(0.0f, 1.0f), tint);
+				tri_verts.emplace_back(at + glm::vec2( rad.x,-rad.y), glm::vec2(1.0f, 0.0f), tint);
+				// tri_verts.emplace_back(at + glm::vec2( rad.x, rad.y), glm::vec2(1.0f, 1.0f), tint);
+				tri_verts.emplace_back(tri_verts.back());
 			};
 
       //draw doors ------------------------------------------------------------------
@@ -775,7 +810,8 @@ int main(int argc, char **argv) {
       } else {
         draw_sprite(flashlight.sprite, enemy.pos - glm::vec2(1.4f, 0.05f), flashlight.size, glm::u8vec4(0xff, 0xff, 0xff, 0xff), flashlight.dir);
       }
-      draw_triangle(glm::vec2(4.0f, 2.0f), ceilingLight.size, ceilingLight.dir);
+      // draw_triangle(glm::vec2(4.0f, 2.0f), ceilingLight.size, ceilingLight.dir);
+      draw_triangle(glm::vec2(4.0f, 4.0f), glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
 
 
       if (ceilingLight.light_on) {
@@ -883,6 +919,14 @@ int main(int argc, char **argv) {
 
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, verts.size());
 			//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+			// glDisable(GL_TEXTURE_2D);
+
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * tri_verts.size(), &tri_verts[0], GL_STREAM_DRAW);
+
+			glBindTexture(GL_TEXTURE_2D, tex2);
+
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, tri_verts.size());
 		}
 
 		SDL_GL_SwapWindow(window);
