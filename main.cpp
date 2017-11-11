@@ -216,168 +216,227 @@ int main(int argc, char **argv) {
 	}
 
 	//------------ structs and variables ------------
-  struct {
-    glm::vec2 pos = glm::vec2(6.0f, 3.5f);
-    glm::vec2 size = glm::vec2(12.0f, 7.0f);
-  } camera;
-  //adjust for aspect ratio
-  camera.size.x = camera.size.y * (float(config.size.x) / float(config.size.y));
+	struct {
+		glm::vec2 pos = glm::vec2(6.0f, 3.5f);
+		glm::vec2 size = glm::vec2(12.0f, 7.0f);
+	} camera;
+	//adjust for aspect ratio
+	camera.size.x = camera.size.y * (float(config.size.x) / float(config.size.y));
 
-  struct SpriteInfo {
+	struct SpriteInfo {
 		glm::vec2 min_uv;
 		glm::vec2 max_uv;
 	};
 
-  struct {
-    glm::vec2 pos = glm::vec2(0.0f);
-    glm::vec2 size = glm::vec2(6.0f);
-    
-    SpriteInfo sprite_throw = {
-      glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
-      glm::vec2(1263.0f/3503.0f, 1.0f),
-    };
-    SpriteInfo sprite_shoot = {
-      glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
-      glm::vec2(1263.0f/3503.0f, 1.0f),
-    };
+	struct {
+		glm::vec2 pos = glm::vec2(0.0f);
+		glm::vec2 size = glm::vec2(6.0f);
+		
+		SpriteInfo sprite_throw = {
+			glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
+			glm::vec2(1263.0f/3503.0f, 1.0f),
+		};
+		SpriteInfo sprite_shoot = {
+			glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
+			glm::vec2(1263.0f/3503.0f, 1.0f),
+		};
 
-    float remaining_time = 0.0f;
-  } mouse;
-  
-  struct {
-    glm::vec2 pos = glm::vec2(0.25f, 1.0f);
-    glm::vec2 size = glm::vec2(0.5f, 1.0f);
-    glm::vec2 vel = glm::vec2(0.0f);
-    
-    SpriteInfo sprite_stand = {
-      glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
-      glm::vec2(1199.0f/3503.0f, 1.0f),
-    };
-    SpriteInfo sprite_walk = {
-      glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
-      glm::vec2(1199.0f/3503.0f, 1.0f),
-    };
-    SpriteInfo sprite_run = {
-      glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
-      glm::vec2(1199.0f/3503.0f, 1.0f),
-    };
-    SpriteInfo sprite_jump = {
-      glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
-      glm::vec2(1199.0f/3503.0f, 1.0f),
-    };
-    SpriteInfo sprite_throw = {
-      glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
-      glm::vec2(1199.0f/3503.0f, 1.0f),
-    };
-    SpriteInfo sprite_shoot = {
-      glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
-      glm::vec2(1199.0f/3503.0f, 1.0f),
-    };
-    
-    // 0: throwing
-    // 1: shooting
-    int ability_mode = 0;
+		float remaining_time = 0.0f;
+	} mouse;
+	
+	struct {
+		glm::vec2 pos = glm::vec2(0.25f, 1.0f);
+		glm::vec2 size = glm::vec2(0.5f, 1.0f);
+		glm::vec2 vel = glm::vec2(0.0f);
+		
+		SpriteInfo sprite_stand = {
+			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+			glm::vec2(1199.0f/3503.0f, 1.0f),
+		};
+		SpriteInfo sprite_walk = {
+			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+			glm::vec2(1199.0f/3503.0f, 1.0f),
+		};
+		SpriteInfo sprite_run = {
+			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+			glm::vec2(1199.0f/3503.0f, 1.0f),
+		};
+		SpriteInfo sprite_jump = {
+			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+			glm::vec2(1199.0f/3503.0f, 1.0f),
+		};
+		SpriteInfo sprite_throw = {
+			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+			glm::vec2(1199.0f/3503.0f, 1.0f),
+		};
+		SpriteInfo sprite_shoot = {
+			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+			glm::vec2(1199.0f/3503.0f, 1.0f),
+		};
+		
+		// 0: throwing
+		// 1: shooting
+		int ability_mode = 0;
 
-    bool face_right = false;
-    bool jumping = false;
-    bool shifting = false;
-    bool behind_door = false;
-    bool aiming = false;
-    bool visible = false;  
+		bool face_right = false;
+		bool jumping = false;
+		bool shifting = false;
+		bool behind_door = false;
+		bool aiming = false;
+		bool visible = false;  
 
-    float walk_sound = 2.0f;
-    float run_sound = 10.0f;
-    float throw_sound = 6.0f;
-    float sound_time = 0.5f;
-    
-    std::vector<glm::vec2> projectiles_pos;
-    int num_projectiles = 5;
-  } player;
+		float walk_sound = 2.0f;
+		float run_sound = 10.0f;
+		float throw_sound = 6.0f;
+		float sound_time = 0.5f;
+		
+		std::vector<glm::vec2> projectiles_pos;
+		int num_projectiles = 5;
+	} player;
 
-  struct Enemy {
-    glm::vec2 pos = glm::vec2(10.0f, 1.0f);
-    glm::vec2 vel = glm::vec2(0.0f);
-    glm::vec2 size = glm::vec2(0.5, 1.0f);
-    glm::vec2 alert_size = glm::vec2(0.2, 0.4);
+	struct Enemy {
+		glm::vec2 pos = glm::vec2(10.0f, 1.0f);
+		glm::vec2 vel = glm::vec2(0.0f);
+		glm::vec2 size = glm::vec2(0.5, 1.0f);
+		glm::vec2 alert_size = glm::vec2(0.2, 0.4);
+		glm::vec2 waypoints [2] = { glm::vec2(10.0f, 1.0f), glm::vec2(4.0f, 1.0f) };
+		glm::vec2 target = glm::vec2(0.0f, 0.0f);
 
-    SpriteInfo sprite_stand = {
-      glm::vec2(1263.0f/3503.0f, 741.0f/1689.0f),
-      glm::vec2(1776.0f/3503.0f, 1.0f),
-    };
-    SpriteInfo sprite_walk = {
-      glm::vec2(1263.0f/3503.0f, 741.0f/1689.0f),
-      glm::vec2(1776.0f/3503.0f, 1.0f),
-    };
-    SpriteInfo sprite_alert = {
-      glm::vec2(1776.0f/3503.0f, 1381.0f/1689.0f),
-      glm::vec2(1945.0f/3503.0f, 1.0f),
-    };
+		SpriteInfo sprite_stand = {
+			glm::vec2(1263.0f/3503.0f, 741.0f/1689.0f),
+			glm::vec2(1776.0f/3503.0f, 1.0f),
+		};
+		SpriteInfo sprite_walk = {
+			glm::vec2(1263.0f/3503.0f, 741.0f/1689.0f),
+			glm::vec2(1776.0f/3503.0f, 1.0f),
+		};
+		SpriteInfo sprite_alert = {
+			glm::vec2(1776.0f/3503.0f, 1381.0f/1689.0f),
+			glm::vec2(1945.0f/3503.0f, 1.0f),
+		};
  
-    bool face_right = true;
-    bool alerted = false;
-    bool walking = false;
+		bool face_right = true;
+		bool alerted = false;
+		bool walking = false;
 
-    glm::vec2 waypoints [2] = { glm::vec2(10.0f, 1.0f), glm::vec2(4.0f, 1.0f) };
-    glm::vec2 target = glm::vec2(0.0f, 0.0f);
-    float wait_timers [2] = { 5.0f, 5.0f };
-    int curr_index  = 0;
-    float remaining_wait = 5.0f;
-    float sight_range = 4.0f;
-    float catch_range = 0.5f;
-  };
+		float wait_timers [2] = { 5.0f, 5.0f };
+		float remaining_wait = 5.0f;
+		float sight_range = 4.0f;
+		float catch_range = 0.5f;
+		int curr_index  = 0;
+	};
 
-  struct Light {
-    glm::vec2 pos = glm::vec2(0.0f);
-    glm::vec2 size = glm::vec2(1.0f, 3.0f);
-	glm::u8vec4 color = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
-    float dir = PI * 1.5f;
-    float angle = PI * 0.25f;
-    float range = 3.0f;
+	struct Light {
+		glm::vec2 pos = glm::vec2(0.0f, 0.0f);
+		glm::vec2 size = glm::vec2(0.0f, 0.0f);
+		float dir = PI * 1.5f;
+		bool light_on = true;
+		glm::u8vec4 color = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
 
-    SpriteInfo sprite = {
-      glm::vec2(1945.0f/3503.0f, 1289.0f/1689.0f),
-      glm::vec2(2585.0f/3503.0f, 1.0f),
-    };
+		SpriteInfo sprite = {
+			glm::vec2(1945.0f/3503.0f, 1289.0f/1689.0f),
+			glm::vec2(2585.0f/3503.0f, 1.0f),
+		};
 
-    bool light_on = true;
-  };
+		glm::vec2 vectors [3] = { glm::vec2(pos.x, 
+																				pos.y + (0.5f * size.y)),
+															glm::vec2(pos.x + (0.5f * size.x), 
+																				pos.y + (0.5f * -size.y)),
+															glm::vec2(pos.x + (0.5f * -size.x),
+																				pos.y + (0.5f * -size.y)) };
+	};
 
-  struct Door {
-    glm::vec2 pos = glm::vec2(0.0f);
-    glm::vec2 size = glm::vec2(1.0f, 1.5f);
+	struct Door {
+		glm::vec2 pos = glm::vec2(0.0f);
+		glm::vec2 size = glm::vec2(1.0f, 1.5f);
+		bool in_use = false;
 
-    SpriteInfo sprite_empty = {
-      glm::vec2(0.0f, 481.0f/1689.0f),
-      glm::vec2(740.0f/3503.0f, 1.0f),
-    };
-    SpriteInfo sprite_used = {
-      glm::vec2(0.0f, 481.0f/1689.0f),
-      glm::vec2(740.0f/3503.0f, 1.0f),
-    };
+		SpriteInfo sprite_empty = {
+			glm::vec2(0.0f, 481.0f/1689.0f),
+			glm::vec2(740.0f/3503.0f, 1.0f),
+		};
+		SpriteInfo sprite_used = {
+			glm::vec2(0.0f, 481.0f/1689.0f),
+			glm::vec2(740.0f/3503.0f, 1.0f),
+		};
+	};
 
-    bool in_use = false;
-  };
+	struct Platform {
+		glm::vec2 pos = glm::vec2(10.0f, 0.25f);
+		glm::vec2 size = glm::vec2(20.0f, 0.5f);
 
-  struct Platform {
-    glm::vec2 pos = glm::vec2(10.0f, 0.25f);
-    glm::vec2 size = glm::vec2(20.0f, 0.5f);
+		SpriteInfo sprite = {
+			glm::vec2(0.0f),
+			glm::vec2(1.0f, 481.0f/1689.0f),
+		};
+	};
 
-    SpriteInfo sprite = {
-      glm::vec2(0.0f),
-      glm::vec2(1.0f, 481.0f/1689.0f),
-    };
-  };
+	auto rotate_light = [](Light &light) {
+		if (light.dir == 0.0f) {
+			light.vectors[0] = glm::vec2(light.pos.x + (0.5f + -light.size.y), 
+																 light.pos.y);
+			light.vectors[1] = glm::vec2(light.pos.x + (0.5f * light.size.y), 
+																 light.pos.y + (0.5f * light.size.x));
+			light.vectors[2] = glm::vec2(light.pos.x + (0.5f * light.size.y),
+																 light.pos.y + (0.5f * -light.size.x));
+		}
+		else if (light.dir == (PI * 0.5f)) {
+			light.vectors[0] = glm::vec2(light.pos.x, 
+											 	 				 light.pos.y + (0.5f * -light.size.y));
+			light.vectors[1] = glm::vec2(light.pos.x + (0.5f * -light.size.x), 
+												 light.pos.y + (0.5f * light.size.y));
+			light.vectors[2] = glm::vec2(light.pos.x + (0.5f * light.size.x),
+												 light.pos.y + (0.5f * light.size.y));
+		}
+		else if (light.dir == PI) {
+			light.vectors[0] = glm::vec2(light.pos.x + (0.5f + light.size.y), 
+												 light.pos.y);
+			light.vectors[1] = glm::vec2(light.pos.x + (0.5f * -light.size.y), 
+												 light.pos.y + (0.5f * light.size.x));
+			light.vectors[2] = glm::vec2(light.pos.x + (0.5f * -light.size.y),
+												 light.pos.y + (0.5f * -light.size.x));
+		}
+		else {
+			light.vectors[0] = glm::vec2(light.pos.x, 
+												 light.pos.y + (0.5f * light.size.y));
+			light.vectors[1] = glm::vec2(light.pos.x + (0.5f * light.size.x), 
+												 light.pos.y + (0.5f * -light.size.y));
+			light.vectors[2] = glm::vec2(light.pos.x + (0.5f * -light.size.x),
+												 light.pos.y + (0.5f * -light.size.y));
+		}
+	};
 
-  Light flashlight;
-  Light ceilingLight;
-  Platform platform;
-  Enemy enemy;
-  Door door;
 
-  flashlight.dir = PI * 1.5f;
-  ceilingLight.pos = glm::vec2(10.0f, 2.7f);
-  ceilingLight.size = glm::vec2(3.0f, 10.3f);
-  door.pos = glm::vec2(5.0f, 1.25f);
+	//------------ Initialization --------
+
+
+	//---- Level Loading ----
+	/* Levels will be imported from outside code / txt file. Levels will define
+	 * object initialization, as well as the variables attached to each object.
+	 */
+
+	//---- Instantiate Obects ----
+	Light ceilingLight;
+	Light flashlight;
+	Platform platform;
+	Enemy enemy;
+	Door door;
+
+	//---- Set Object Variables ---
+	//Enemies
+	//Light
+	ceilingLight.pos = glm::vec2(10.0f, 3.0f);
+	ceilingLight.size = glm::vec2(4.0f, 10.0f);
+	ceilingLight.dir = PI * 1.5f;
+
+	flashlight.size = glm::vec2(2.0f, 4.0f);
+	flashlight.pos = enemy.pos + glm::vec2(flashlight.size.y - 0.35f, 0.0f);
+	flashlight.dir = 0.0f;
+	rotate_light(ceilingLight);
+	rotate_light(flashlight);
+
+	//Door
+	door.pos = glm::vec2(5.0f, 1.25f);
 
 	//------------ game loop ------------
 
@@ -389,89 +448,98 @@ int main(int argc, char **argv) {
 			if (evt.type == SDL_MOUSEMOTION) {
 				mouse.pos.x = ((evt.motion.x + 0.5f) / float(config.size.x) * 2.0f - 1.0f) * 0.5f * camera.size.x + camera.pos.x;
 				mouse.pos.y = ((evt.motion.y + 0.5f) / float(config.size.y) *-2.0f + 1.0f) * 0.5f * camera.size.y + camera.pos.y;
-			} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
-        if (evt.button.button == SDL_BUTTON_LEFT) {
-          if (player.aiming && player.num_projectiles > 0) {
-            player.num_projectiles--;
-            if (player.ability_mode == 0) {
-              player.projectiles_pos.push_back(glm::vec2(mouse.pos.x, 0.5f));
-            } else if (player.ability_mode == 1) {
-              player.projectiles_pos.push_back(glm::vec2(mouse.pos.x, 7.0f));
-            }
-          } 
-        } else if (evt.button.button == SDL_BUTTON_RIGHT) {
-          if (mouse.remaining_time <= 0.0f) {
-            player.aiming = !player.aiming;
-            if (!player.aiming) {
-              mouse.remaining_time = 1.0f;
-            }
-          }
-        }
-			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_ESCAPE) {
+			} 
+			else if (evt.type == SDL_MOUSEBUTTONDOWN) {
+				if (evt.button.button == SDL_BUTTON_LEFT) {
+					if (player.aiming && player.num_projectiles > 0) {
+						player.num_projectiles--;
+						if (player.ability_mode == 0) {
+							player.projectiles_pos.push_back(glm::vec2(mouse.pos.x, 0.5f));
+						} else if (player.ability_mode == 1) {
+							player.projectiles_pos.push_back(glm::vec2(mouse.pos.x, 7.0f));
+						}
+					} 
+				} else if (evt.button.button == SDL_BUTTON_RIGHT) {
+					if (mouse.remaining_time <= 0.0f) {
+						player.aiming = !player.aiming;
+						if (!player.aiming) {
+							mouse.remaining_time = 1.0f;
+						}
+					}
+				}
+			} 
+			else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_ESCAPE) {
 				should_quit = true;
-			} else if (evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP) {
-        			if (evt.key.keysym.sym == SDLK_w) {
-				       	if (!player.jumping && !player.behind_door && !player.aiming && evt.key.state == SDL_PRESSED) {
-                  player.jumping = true;
-					        player.vel.y = 6.0f;
-          			}
-        			} else if (evt.key.keysym.sym == SDLK_a) {
-          				if (evt.key.state == SDL_PRESSED) {
-            					if (player.shifting) {
-              						player.vel.x = -2.5f;
-                          player.face_right = false;
-            					} else {
-              						player.vel.x = -1.0f;
-                          player.face_right = false;
-            					}
-          				} else {
-            					if (player.vel.x == -1.0f || player.vel.x == -2.5f) {
-              						player.vel.x = 0.0f;
-            					}
-          				}
-        			} else if (evt.key.keysym.sym == SDLK_d) {
-          				if (evt.key.state == SDL_PRESSED) {
+			} 
+			else if (evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP) {
+				if (evt.key.keysym.sym == SDLK_w) {
+					if (!player.jumping && !player.behind_door && !player.aiming && evt.key.state == SDL_PRESSED) {
+						player.jumping = true;
+						player.vel.y = 6.0f;
+					}
+				} 
+				else if (evt.key.keysym.sym == SDLK_a) {
+					if (evt.key.state == SDL_PRESSED) {
+						if (player.shifting) {
+							player.vel.x = -2.5f;
+							player.face_right = false;
+						} else {
+							player.vel.x = -1.0f;
+							player.face_right = false;
+						}
+					} else {
+						if (player.vel.x == -1.0f || player.vel.x == -2.5f) {
+							player.vel.x = 0.0f;
+						}
+					}
+				} 
+				else if (evt.key.keysym.sym == SDLK_d) {
+					if (evt.key.state == SDL_PRESSED) {
 						if (player.shifting) {
 							player.vel.x = 2.5f;
-                          player.face_right = true;
+							player.face_right = true;
 						} else {
 							player.vel.x = 1.0f;
-                          player.face_right = true;
+							player.face_right = true;
 						}
 					} else {
 						if (player.vel.x == 1.0f || player.vel.x == 2.5f) {
 							player.vel.x = 0.0f;
 						}
 					}
-				} else if (evt.key.keysym.sym == SDLK_q) {
+				} 
+				else if (evt.key.keysym.sym == SDLK_q) {
 					if (evt.key.state == SDL_PRESSED) {
 						player.ability_mode = 0;
 					}
-				} else if (evt.key.keysym.sym == SDLK_e) {
+				} 
+				else if (evt.key.keysym.sym == SDLK_e) {
 					if (evt.key.state == SDL_PRESSED) {
 						player.ability_mode = 1;
 					}
-				} else if (evt.key.keysym.sym == SDLK_LSHIFT) {
+				} 
+				else if (evt.key.keysym.sym == SDLK_LSHIFT) {
 					if (evt.key.state == SDL_PRESSED) {
 						if (player.vel.x == 1.0f) {
-              player.face_right = true;
+							player.face_right = true;
 							player.vel.x = 2.5f;
 						} else if (player.vel.x == -1.0f) {
-              player.face_right = false;
+							player.face_right = false;
 							player.vel.x = -2.5f;
 						}
 						player.shifting = true;
 					} else {
 						if (player.vel.x == 2.5f) {
-              player.face_right = true;
+							player.face_right = true;
 							player.vel.x = 1.0f;
 						} else if (player.vel.x == -2.5f) {
-              player.face_right = false;
+							player.face_right = false;
 							player.vel.x = -1.0f;
 						}
 						player.shifting = false;
 					}
-				} else if (evt.key.keysym.sym == SDLK_SPACE) {
+				} 
+				else if (evt.key.keysym.sym == SDLK_SPACE) {
 					// handle space press
 					// check interractable state
 					if (evt.type == SDL_KEYDOWN && evt.key.repeat == 0) {
@@ -482,11 +550,14 @@ int main(int argc, char **argv) {
 						}
 					}
 				}
-			} else if (evt.type == SDL_QUIT) {
+			} 
+
+			else if (evt.type == SDL_QUIT) {
 				should_quit = true;
 				break;
 			}
 		}
+
 		if (should_quit) break;
 
 		auto current_time = std::chrono::high_resolution_clock::now();
@@ -494,243 +565,227 @@ int main(int argc, char **argv) {
 		float elapsed = std::chrono::duration< float >(current_time - previous_time).count();
 		previous_time = current_time;
 
-    auto check_visibility = [&player](Light &light) {
-      if (!light.light_on) {
-        return false;
-      }
-    	// Compute vectors
-    	float width = 0.0f, height = 0.0f;
-    	glm::vec2 A;
-    	glm::vec2 B;
-    	glm::vec2 C;
-    	if (light.dir == 0.0f) {
-    		width = light.pos.y;
-    		height = light.pos.x;
-    	}
-    	else if (light.dir == (0.5f * PI)) {
-    		width = light.pos.x;
-    		height = light.pos.y;
-    	}
-    	else if (light.dir == PI) {
-    		width = light.pos.y;
-    		height = light.pos.x;
-    	}
-    	else if (light.dir == (1.5f * PI)) {
-    		width = light.pos.x;
-    		height = light.pos.y;
-    	}
+		auto check_visibility = [&player](Light &light) {
+			//will have this loop through all lights
+			if (!light.light_on)
+				return false;
 
-    	A = light.pos + glm::vec2(0.0f, 0.5f * height);
-    	B = light.pos - glm::vec2(0.5f * width, 0.5f * height);
-    	C = light.pos - glm::vec2(-0.5f * width, 0.5f * height);;
+			glm::vec2 A = light.vectors[0];
+			glm::vec2 B = light.vectors[1];
+			glm::vec2 C = light.vectors[2];
 
-		glm::vec2 v0 = C - A;
-		glm::vec2 v1 = B - A;
-		glm::vec2 v2 = player.pos - A;
+			glm::vec2 v0 = C - A;
+			glm::vec2 v1 = B - A;
+			glm::vec2 v2 = player.pos - A;
 
-		// Compute dot products
-		float dot00 = dot(v0, v0);
-		float dot01 = dot(v0, v1);
-		float dot02 = dot(v0, v2);
-		float dot11 = dot(v1, v1);
-		float dot12 = dot(v1, v2);
+			// Compute dot products
+			float dot00 = dot(v0, v0);
+			float dot01 = dot(v0, v1);
+			float dot02 = dot(v0, v2);
+			float dot11 = dot(v1, v1);
+			float dot12 = dot(v1, v2);
 
-		// Compute barycentric coordinates
-		float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
-		float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-		float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+			// Compute barycentric coordinates
+			float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+			float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+			float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
-		// Check if point is in triangle
-		//return (u >= 0) && (v >= 0) && (u + v < 1)
-        if ((u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f))
-        	return true;
-        return false;
-    };
+			// Check if point is in triangle
+			//return (u >= 0) && (v >= 0) && (u + v < 1)
+			if ((u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f))
+				return true;
+			return false;
+		};
 
-    if (!player.aiming) { //update game state:
-      
-      //check if player is in light
-      if ((!player.behind_door) && (check_visibility(flashlight) || check_visibility(ceilingLight))) {
-        player.visible = true;
-      }
-
-      // player update -----------------------------------------------------------------
-	    if (player.behind_door == false) {
-        if (player.jumping) {
-          player.vel.y -= elapsed * 9.0f;
-        }
-
-        player.pos += player.vel * elapsed;
-        if (player.pos.x < 0.25f) {
-          player.pos.x = 0.25f;
-        } else if (player.pos.x > 29.75f) {
-          player.pos.x = 29.75f;
-        }
+		if (!player.aiming) { //update game state:
+			
+			//check if player is in light
+			if ((!player.behind_door) && (check_visibility(flashlight) || check_visibility(ceilingLight))) {
+				player.visible = true;
 			}
-      if (player.pos.y < 1.0f) {
-        player.jumping = false;
-        player.pos.y = 1.0f;
-        player.vel.y = 0.0f;
-      }
 
-      //camera update ---------------------------------------------------------------
-      camera.pos.x += player.vel.x * elapsed;
-      if (player.pos.x < 6.0f) {
-        camera.pos.x = 6.0f;
-      } else if (player.pos.x > 14.0f) {
-        camera.pos.x = 14.0f;
-      }
+			// player update -----------------------------------------------------------------
+			if (player.behind_door == false) {
+				if (player.jumping) {
+					player.vel.y -= elapsed * 9.0f;
+				}
 
-      //enemy update --------------------------------------------------------------
-      if (!enemy.alerted) {
-        if (!enemy.walking) {
-          enemy.remaining_wait -= elapsed;
-          if (enemy.remaining_wait <= 0.0f) {
-            enemy.walking = true;
-            enemy.face_right = !enemy.face_right;
-            enemy.curr_index = (enemy.curr_index + 1) % 2;
-            if (enemy.face_right) {
-              enemy.vel.x = 1.0f;
-            } else {
-              enemy.vel.x = -1.0f;
-            }
-          }
-        } else {
-          enemy.pos += enemy.vel * elapsed;
-          if ((enemy.face_right && enemy.pos.x > enemy.waypoints[enemy.curr_index].x) ||
-              (!enemy.face_right && enemy.pos.x < enemy.waypoints[enemy.curr_index].x)) {
-            enemy.face_right = enemy.waypoints[enemy.curr_index].x > 
-              enemy.waypoints[(enemy.curr_index + 1) % 2].x;
-            enemy.pos = enemy.waypoints[enemy.curr_index];
-            enemy.remaining_wait = enemy.wait_timers[enemy.curr_index];
-            enemy.walking = false;
-            enemy.vel.x = 0.0f;
-          }
-        }
-      } else {
-        if (!enemy.walking) {
-          enemy.remaining_wait -= elapsed;
-          if (enemy.remaining_wait <= 0.0f) {
-            enemy.alerted = false;
-            enemy.walking = true;
-            enemy.face_right = (enemy.waypoints[enemy.curr_index].x > enemy.pos.x);
-            if (enemy.face_right) {
-              enemy.vel.x = 1.0f;
-            } else {
-              enemy.vel.x = -1.0f;
-            }
-          }
-        } else {
-          enemy.pos += enemy.vel * elapsed;
-          if ((enemy.face_right && enemy.pos.x > enemy.target.x) ||
-              (!enemy.face_right && enemy.pos.x < enemy.target.x)) {
-            enemy.pos.x = enemy.target.x;
-            enemy.remaining_wait = 10.0f;
-            enemy.walking = false;
-            enemy.vel.x = 0.0f;
-          }
-        }
-      }
-      if (player.visible && !player.behind_door) {
-        if (enemy.face_right) {
-          if (enemy.pos.x <= player.pos.x && enemy.pos.x + enemy.sight_range >= player.pos.x) {
-            enemy.target = player.pos;
-            enemy.vel.x = 2.5f;
-            enemy.alerted = true;
-            enemy.walking = true;
-          }
-        } else {
-          if (enemy.pos.x - enemy.sight_range <= player.pos.x && enemy.pos.x >= player.pos.x) {
-            enemy.target = player.pos;
-            enemy.vel.x = -2.5f;
-            enemy.alerted = true;
-            enemy.walking = true;
-          }
-        } 
-      }
+				player.pos += player.vel * elapsed;
+				if (player.pos.x < 0.25f) {
+					player.pos.x = 0.25f;
+				} else if (player.pos.x > 29.75f) {
+					player.pos.x = 29.75f;
+				}
+			}
+			if (player.pos.y < 1.0f) {
+				player.jumping = false;
+				player.pos.y = 1.0f;
+				player.vel.y = 0.0f;
+			}
 
-      if (!player.behind_door) {
-        if (enemy.face_right) {
-          if (enemy.pos.x <= player.pos.x && enemy.pos.x + enemy.catch_range >= player.pos.x) {
-            should_quit = true;
-          }
-        } else {
-          if (enemy.pos.x - enemy.catch_range <= player.pos.x && enemy.pos.x >= player.pos.x) {
-            should_quit = true;
-          }
-        }
-      }      
+			//camera update ---------------------------------------------------------------
+			camera.pos.x += player.vel.x * elapsed;
+			if (player.pos.x < 6.0f) {
+				camera.pos.x = 6.0f;
+			} else if (player.pos.x > 14.0f) {
+				camera.pos.x = 14.0f;
+			}
 
-      //detect footsteps
-      float h_diff = enemy.pos.x - player.pos.x;
-      float v_diff = enemy.pos.y - (player.pos.y - 0.5f * player.size.y);
-      float sound = 0.0f;
-      if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
-        sound = 0.5f * player.walk_sound;
-      } else if ((player.vel.x == 2.5f || player.vel.x == -2.5f) && !player.jumping && !player.behind_door) {
-        sound = 0.5f * player.run_sound;
-      }
+			//enemy update --------------------------------------------------------------
+			if (!enemy.alerted) {
+				if (!enemy.walking) {
+					enemy.remaining_wait -= elapsed;
+					if (enemy.remaining_wait <= 0.0f) {
+						enemy.walking = true;
+						enemy.face_right = !enemy.face_right;
+						enemy.curr_index = (enemy.curr_index + 1) % 2;
+						if (enemy.face_right) {
+							enemy.vel.x = 1.0f;
+						} else {
+							enemy.vel.x = -1.0f;
+						}
+					}
+				} else {
+					enemy.pos += enemy.vel * elapsed;
+					if ((enemy.face_right && enemy.pos.x > enemy.waypoints[enemy.curr_index].x) ||
+							(!enemy.face_right && enemy.pos.x < enemy.waypoints[enemy.curr_index].x)) {
+						enemy.face_right = enemy.waypoints[enemy.curr_index].x > 
+							enemy.waypoints[(enemy.curr_index + 1) % 2].x;
+						enemy.pos = enemy.waypoints[enemy.curr_index];
+						enemy.remaining_wait = enemy.wait_timers[enemy.curr_index];
+						enemy.walking = false;
+						enemy.vel.x = 0.0f;
+					}
+				}
+			} else {
+				if (!enemy.walking) {
+					enemy.remaining_wait -= elapsed;
+					if (enemy.remaining_wait <= 0.0f) {
+						enemy.alerted = false;
+						enemy.walking = true;
+						enemy.face_right = (enemy.waypoints[enemy.curr_index].x > enemy.pos.x);
+						if (enemy.face_right) {
+							enemy.vel.x = 1.0f;
+						} else {
+							enemy.vel.x = -1.0f;
+						}
+					}
+				} else {
+					enemy.pos += enemy.vel * elapsed;
+					if ((enemy.face_right && enemy.pos.x > enemy.target.x) ||
+							(!enemy.face_right && enemy.pos.x < enemy.target.x)) {
+						enemy.pos.x = enemy.target.x;
+						enemy.remaining_wait = 10.0f;
+						enemy.walking = false;
+						enemy.vel.x = 0.0f;
+					}
+				}
+			}
+			if (player.visible && !player.behind_door) {
+				if (enemy.face_right) {
+					if (enemy.pos.x <= player.pos.x && enemy.pos.x + enemy.sight_range >= player.pos.x) {
+						enemy.target = player.pos;
+						enemy.vel.x = 2.5f;
+						enemy.alerted = true;
+						enemy.walking = true;
+					}
+				} else {
+					if (enemy.pos.x - enemy.sight_range <= player.pos.x && enemy.pos.x >= player.pos.x) {
+						enemy.target = player.pos;
+						enemy.vel.x = -2.5f;
+						enemy.alerted = true;
+						enemy.walking = true;
+					}
+				} 
+			}
 
-      if (sqrt(h_diff * h_diff + v_diff * v_diff) <= sound) {
-        if (player.pos.x > enemy.pos.x) {
-          enemy.target = (player.pos + enemy.pos)/2.0f;
-          enemy.vel.x = 2.5f;
-          enemy.alerted = true;
-          enemy.walking = true;
-          enemy.face_right = true;
-        } else {
-          enemy.target = (player.pos + enemy.pos)/2.0f;
-          enemy.vel.x = -2.5f;
-          enemy.alerted = true;
-          enemy.walking = true;
-          enemy.face_right = false;
-        }
-      }
+			if (!player.behind_door) {
+				if (enemy.face_right) {
+					if (enemy.pos.x <= player.pos.x && enemy.pos.x + enemy.catch_range >= player.pos.x) {
+						should_quit = true;
+					}
+				} else {
+					if (enemy.pos.x - enemy.catch_range <= player.pos.x && enemy.pos.x >= player.pos.x) {
+						should_quit = true;
+					}
+				}
+			}      
 
-      // projectile update ----------------------------------------------------------------
-      if (mouse.remaining_time == 1.0f) {
-        for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end() ; ++i) {
-          
-          //enemies
-          float h_diff = enemy.pos.x - i->x;
-          float v_diff = enemy.pos.y - i->y;
-          if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 0.5f * player.throw_sound) {
-            if (i->x > enemy.pos.x) {
-              enemy.target = *i;
-              enemy.vel.x = 2.5f;
-              enemy.alerted = true;
-              enemy.walking = true;
-              enemy.face_right = true;
-            } else {
-              enemy.target = *i;
-              enemy.vel.x = -2.5f;
-              enemy.alerted = true;
-              enemy.walking = true;
-              enemy.face_right = false;
-            }
-          }
+			//detect footsteps
+			float h_diff = enemy.pos.x - player.pos.x;
+			float v_diff = enemy.pos.y - (player.pos.y - 0.5f * player.size.y);
+			float sound = 0.0f;
+			if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
+				sound = 0.5f * player.walk_sound;
+			} else if ((player.vel.x == 2.5f || player.vel.x == -2.5f) && !player.jumping && !player.behind_door) {
+				sound = 0.5f * player.run_sound;
+			}
 
-          //lights
-          h_diff = ceilingLight.pos.x - i->x;
-          v_diff = (ceilingLight.pos.y + 0.5f * ceilingLight.size.y) - i->y;
-          if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 2.0f) {
-            ceilingLight.light_on = false;
-          }
-        }       
-      }
+			if (sqrt(h_diff * h_diff + v_diff * v_diff) <= sound) {
+				if (player.pos.x > enemy.pos.x) {
+					enemy.target = (player.pos + enemy.pos)/2.0f;
+					enemy.vel.x = 2.5f;
+					enemy.alerted = true;
+					enemy.walking = true;
+					enemy.face_right = true;
+				} else {
+					enemy.target = (player.pos + enemy.pos)/2.0f;
+					enemy.vel.x = -2.5f;
+					enemy.alerted = true;
+					enemy.walking = true;
+					enemy.face_right = false;
+				}
+			}
 
-      if (enemy.face_right) {
-        flashlight.pos = enemy.pos + glm::vec2(1.4f, 0.0f);
-      } else {
-        flashlight.pos = enemy.pos - glm::vec2(1.4f, 0.05f);
-      }
+			// projectile update ----------------------------------------------------------------
+			if (mouse.remaining_time == 1.0f) {
+				for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end() ; ++i) {
+					
+					//enemies
+					float h_diff = enemy.pos.x - i->x;
+					float v_diff = enemy.pos.y - i->y;
+					if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 0.5f * player.throw_sound) {
+						if (i->x > enemy.pos.x) {
+							enemy.target = *i;
+							enemy.vel.x = 2.5f;
+							enemy.alerted = true;
+							enemy.walking = true;
+							enemy.face_right = true;
+						} else {
+							enemy.target = *i;
+							enemy.vel.x = -2.5f;
+							enemy.alerted = true;
+							enemy.walking = true;
+							enemy.face_right = false;
+						}
+					}
 
-      //level win -----------------------------------------------------------
-      if (player.pos.x >= 19.0) {
-        should_quit = true;
-      }
+					//lights
+					h_diff = ceilingLight.pos.x - i->x;
+					v_diff = (ceilingLight.pos.y + 0.5f * ceilingLight.size.y) - i->y;
+					if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 2.0f) {
+						ceilingLight.light_on = false;
+					}
+				}       
+			}
 
-    }
+			if (enemy.vel.x > 0.0f) {
+				flashlight.dir = 0.0f;
+				flashlight.pos = enemy.pos + glm::vec2(flashlight.size.y - 0.35f, 0.0f);
+				rotate_light(flashlight);
+			} else if (enemy.vel.x < 0.0f) {
+				flashlight.dir = PI;
+				flashlight.pos = enemy.pos - glm::vec2(flashlight.size.y + 0.60f, 0.0f);
+				rotate_light(flashlight);
+			}
+
+
+			//level win -----------------------------------------------------------
+			if (player.pos.x >= 19.0f) {
+				should_quit = true;
+			}
+
+		}
 
 		//draw output:
 		glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -742,6 +797,8 @@ int main(int argc, char **argv) {
 			std::vector< Vertex > verts;
 			std::vector< Vertex > tri_verts;
 
+
+			//---- Functions ----
 			auto draw_sprite = [&verts](SpriteInfo const &sprite, glm::vec2 const &at, glm::vec2 size, glm::u8vec4 tint = glm::u8vec4(0xff, 0xff, 0xff, 0xff), float angle = 0.0f) {
 				glm::vec2 min_uv = sprite.min_uv;
 				glm::vec2 max_uv = sprite.max_uv;
@@ -771,133 +828,134 @@ int main(int argc, char **argv) {
 			};*/
 
 			//helper: add character to game
-			auto draw_triangle = [&tri_verts](glm::vec2 const &at, glm::vec2 const &rad, glm::u8vec4 const &tint) {
-				tri_verts.emplace_back(at + glm::vec2(-rad.x,-rad.y), glm::vec2(0.0f, 0.0f), tint);
+			auto draw_triangle = [&tri_verts](glm::vec2 vec1, glm::vec2 vec2, glm::vec2 vec3, glm::vec2 const &rad, glm::u8vec4 const &tint) {
+				tri_verts.emplace_back(vec1, glm::vec2(0.0f, 0.0f), tint);
 				tri_verts.emplace_back(tri_verts.back());
-				tri_verts.emplace_back(at + glm::vec2( 0.0, rad.y), glm::vec2(0.0f, 1.0f), tint);
-				tri_verts.emplace_back(at + glm::vec2( rad.x,-rad.y), glm::vec2(1.0f, 0.0f), tint);
+				tri_verts.emplace_back(vec2, glm::vec2(0.0f, 1.0f), tint);
+				tri_verts.emplace_back(vec3, glm::vec2(1.0f, 0.0f), tint);
 				// tri_verts.emplace_back(at + glm::vec2( rad.x, rad.y), glm::vec2(1.0f, 1.0f), tint);
 				tri_verts.emplace_back(tri_verts.back());
 			};
 
-      //draw doors ------------------------------------------------------------------
+			//------------- Draw Objects -------------
+
+			//draw doors ------------------------------------------------------------------
 			draw_sprite(door.sprite_empty, door.pos, door.size);
 			
-      //draw player -----------------------------------------------------------
-      glm::vec2 player_size = player.size;
-      if (!player.face_right) {
-        player_size.x *= -1.0f;
-      }
-      if (player.behind_door == false) {
+			//draw player -----------------------------------------------------------
+			glm::vec2 player_size = player.size;
+			if (!player.face_right) {
+				player_size.x *= -1.0f;
+			}
+			if (player.behind_door == false) {
 				draw_sprite(player.sprite_stand, player.pos, player_size);
 			}
 			
-      //draw enemies -----------------------------------------------------------
-      glm::vec2 enemy_size = enemy.size;
-      if (enemy.face_right) {
-        enemy_size.x *= -1.0f;
-      }
-      draw_sprite(enemy.sprite_stand, enemy.pos, enemy_size);     
-      if (enemy.alerted) {
-      glm::vec2 alert_pos = glm::vec2(enemy.pos.x, 
-            enemy.pos.y + 0.51f*enemy.size.y + 0.51f*enemy.alert_size.y );
-        draw_sprite(enemy.sprite_alert, alert_pos, enemy.alert_size);
-      }
+			//draw enemies -----------------------------------------------------------
+			glm::vec2 enemy_size = enemy.size;
+			if (enemy.face_right) {
+				enemy_size.x *= -1.0f;
+			}
+			draw_sprite(enemy.sprite_stand, enemy.pos, enemy_size);     
+			if (enemy.alerted) {
+			glm::vec2 alert_pos = glm::vec2(enemy.pos.x, 
+						enemy.pos.y + 0.51f*enemy.size.y + 0.51f*enemy.alert_size.y );
+				draw_sprite(enemy.sprite_alert, alert_pos, enemy.alert_size);
+			}
 
-      //draw lights --------------------------------------------------------------
-      if (enemy.face_right && flashlight.light_on) {
-        draw_sprite(flashlight.sprite, enemy.pos + glm::vec2(1.4f, 0.0f), flashlight.size, glm::u8vec4(0xff, 0xff, 0xff, 0xff), flashlight.dir + PI);
-      } else {
-        draw_sprite(flashlight.sprite, enemy.pos - glm::vec2(1.4f, 0.05f), flashlight.size, glm::u8vec4(0xff, 0xff, 0xff, 0xff), flashlight.dir);
-      }
-      // draw_triangle(glm::vec2(4.0f, 2.0f), ceilingLight.size, ceilingLight.dir);
-      draw_triangle(glm::vec2(4.0f, 4.0f), glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+			//draw lights --------------------------------------------------------------
+			if (flashlight.light_on) {
+				draw_triangle(flashlight.vectors[0], flashlight.vectors[1], flashlight.vectors[2], 
+					glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+			}
 
 
-      if (ceilingLight.light_on) {
-        draw_sprite(ceilingLight.sprite, ceilingLight.pos, ceilingLight.size);
-      }
+			if (ceilingLight.light_on) {
+				//draw_sprite(ceilingLight.sprite, ceilingLight.pos, ceilingLight.size);
+				draw_triangle(ceilingLight.vectors[0], ceilingLight.vectors[1], ceilingLight.vectors[2], 
+					glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));				
+			}
 			
-      //draw platforms -----------------------------------------------------------
-      draw_sprite(platform.sprite, platform.pos, platform.size);
+			//draw platforms -----------------------------------------------------------
+			draw_sprite(platform.sprite, platform.pos, platform.size);
 
-      //draw sounds ---------------------------------------------------------------
-      if (!player.aiming && mouse.remaining_time > 0.0f) {
-        mouse.remaining_time -= elapsed;
-        for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
-          if (i->y == 0.5) {
-            draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound));
-          } else {
-            draw_sprite(mouse.sprite_shoot, *i, glm::vec2(player.throw_sound));
-          }
-        }
+			//draw sounds ---------------------------------------------------------------
+			if (!player.aiming && mouse.remaining_time > 0.0f) {
+				mouse.remaining_time -= elapsed;
+				for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
+					if (i->y == 0.5) {
+						draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound));
+					} else {
+						draw_sprite(mouse.sprite_shoot, *i, glm::vec2(player.throw_sound));
+					}
+				}
 
-        if (mouse.remaining_time <= 0.0f) {
-          mouse.remaining_time = 0.0f;
-          player.projectiles_pos.clear();
-        }
-      }
+				if (mouse.remaining_time <= 0.0f) {
+					mouse.remaining_time = 0.0f;
+					player.projectiles_pos.clear();
+				}
+			}
 
-      if (player.aiming) {
-        for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
-          if (i->y == 0.5) {
-            draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound));
-          } else {
-            draw_sprite(mouse.sprite_shoot, *i, glm::vec2(player.throw_sound));
-          }
-        }
+			if (player.aiming) {
+				for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
+					if (i->y == 0.5) {
+						draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound));
+					} else {
+						draw_sprite(mouse.sprite_shoot, *i, glm::vec2(player.throw_sound));
+					}
+				}
 
-        if (player.num_projectiles > 0) {
-          if (player.ability_mode == 0) {
-            float y1 = player.pos.y;
-            float y2 = 5.0f;
-            float y3 = 0.5f;
-            float x1 = player.pos.x;
-            float x2 = 0.5f*(mouse.pos.x + player.pos.x);
-            float x3 = mouse.pos.x;
-            //from https://stackoverflow.com/questions/16896577/using-points-to-generate-quadratic-equation-to-interpolate-data
-            float a = y1/((x1-x2)*(x1-x3)) 
-              + y2/((x2-x1)*(x2-x3)) 
-              + y3/((x3-x1)*(x3-x2));
-            float b = -y1*(x2+x3)/((x1-x2)*(x1-x3))
-              - y2*(x1+x3)/((x2-x1)*(x2-x3))
-              - y3*(x1+x2)/((x3-x1)*(x3-x2));
-            float c = y1*x2*x3/((x1-x2)*(x1-x3))
-              + y2*x1*x3/((x2-x1)*(x2-x3))
-              + y3*x1*x2/((x3-x1)*(x3-x2));
-            for (float x = player.pos.x; x > mouse.pos.x; x -= 0.3f) {
-              draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
-            }
-            for (float x = player.pos.x; x < mouse.pos.x; x += 0.3f) {
-              draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
-            }
-            draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 0.5f), glm::vec2(player.throw_sound));
-          } else {
-            float slope = (7.0f - player.pos.y) / (mouse.pos.x - player.pos.x);
-            for (float x = player.pos.x; x > mouse.pos.x; x -= 0.3f) {
-              draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), glm::vec2(0.03f * player.throw_sound));
-            }
-            for (float x = player.pos.x; x < mouse.pos.x; x += 0.3f) {
-              draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), glm::vec2(0.03f * player.throw_sound));
-            }
-            draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 7.0f), glm::vec2(player.throw_sound));
-          }
-        }
-      }
+				if (player.num_projectiles > 0) {
+					if (player.ability_mode == 0) {
+						float y1 = player.pos.y;
+						float y2 = 5.0f;
+						float y3 = 0.5f;
+						float x1 = player.pos.x;
+						float x2 = 0.5f*(mouse.pos.x + player.pos.x);
+						float x3 = mouse.pos.x;
+						//from https://stackoverflow.com/questions/16896577/using-points-to-generate-quadratic-equation-to-interpolate-data
+						float a = y1/((x1-x2)*(x1-x3)) 
+							+ y2/((x2-x1)*(x2-x3)) 
+							+ y3/((x3-x1)*(x3-x2));
+						float b = -y1*(x2+x3)/((x1-x2)*(x1-x3))
+							- y2*(x1+x3)/((x2-x1)*(x2-x3))
+							- y3*(x1+x2)/((x3-x1)*(x3-x2));
+						float c = y1*x2*x3/((x1-x2)*(x1-x3))
+							+ y2*x1*x3/((x2-x1)*(x2-x3))
+							+ y3*x1*x2/((x3-x1)*(x3-x2));
+						for (float x = player.pos.x; x > mouse.pos.x; x -= 0.3f) {
+							draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
+						}
+						for (float x = player.pos.x; x < mouse.pos.x; x += 0.3f) {
+							draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
+						}
+						draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 0.5f), glm::vec2(player.throw_sound));
+					} else {
+						float slope = (7.0f - player.pos.y) / (mouse.pos.x - player.pos.x);
+						for (float x = player.pos.x; x > mouse.pos.x; x -= 0.3f) {
+							draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), glm::vec2(0.03f * player.throw_sound));
+						}
+						for (float x = player.pos.x; x < mouse.pos.x; x += 0.3f) {
+							draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), glm::vec2(0.03f * player.throw_sound));
+						}
+						draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 7.0f), glm::vec2(player.throw_sound));
+					}
+				}
+			}
 
-      player.sound_time -= elapsed;
-      if (player.sound_time < 0.0f) {
-        player.sound_time = 0.5f;
-      } else if (player.sound_time < 0.15f) {
-        float sound = 0.0f;
-        if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
-          sound = player.walk_sound;
-        } else if ((player.vel.x == 2.5f || player.vel.x == -2.5f) && !player.jumping&& !player.behind_door) {
-          sound = player.run_sound;
-        }
-        draw_sprite(mouse.sprite_throw, glm::vec2(player.pos.x, player.pos.y - 0.5 * player.size.y), glm::vec2(sound));
-      }
-      //-----------------------------------------------------------------------
+			player.sound_time -= elapsed;
+			if (player.sound_time < 0.0f) {
+				player.sound_time = 0.5f;
+			} else if (player.sound_time < 0.15f) {
+				float sound = 0.0f;
+				if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
+					sound = player.walk_sound;
+				} else if ((player.vel.x == 2.5f || player.vel.x == -2.5f) && !player.jumping&& !player.behind_door) {
+					sound = player.run_sound;
+				}
+				draw_sprite(mouse.sprite_throw, glm::vec2(player.pos.x, player.pos.y - 0.5 * player.size.y), glm::vec2(sound));
+			}
+			//-----------------------------------------------------------------------
 
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * verts.size(), &verts[0], GL_STREAM_DRAW);
