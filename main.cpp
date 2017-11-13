@@ -819,14 +819,14 @@ int main(int argc, char **argv) {
 
 				if (player.visible && !player.behind_door) {
 					if (enemies[i].face_right) {
-						if (enemies[i].pos.x <= player.pos.x && enemies[i].pos.x + enemies[i].sight_range >= player.pos.x) {
+						if (enemies[i].pos.x <= player.pos.x && enemies[i].pos.x + enemies[i].sight_range >= player.pos.x && (abs(enemies[i].pos.y - player.pos.y) <= 0.5f)) {
 							enemies[i].target = player.pos;
 							enemies[i].vel.x = 2.5f;
 							enemies[i].alerted = true;
 							enemies[i].walking = true;
 						}
 					} else {
-						if (enemies[i].pos.x - enemies[i].sight_range <= player.pos.x && enemies[i].pos.x >= player.pos.x) {
+						if (enemies[i].pos.x - enemies[i].sight_range <= player.pos.x && enemies[i].pos.x >= player.pos.x && (abs(enemies[i].pos.y - player.pos.y) <= 0.5f)) {
 							enemies[i].target = player.pos;
 							enemies[i].vel.x = -2.5f;
 							enemies[i].alerted = true;
@@ -838,11 +838,11 @@ int main(int argc, char **argv) {
 				if (!player.behind_door) {
 
 					if (enemies[i].face_right) {
-						if (enemies[i].pos.x <= player.pos.x && enemies[i].pos.x + enemies[i].catch_range >= player.pos.x) {
+						if (enemies[i].pos.x <= player.pos.x && enemies[i].pos.x + enemies[i].catch_range >= player.pos.x && (abs(enemies[i].pos.y - player.pos.y) <= 0.5f)) {
 							should_quit = true;
 						}
 					} else {
-						if (enemies[i].pos.x - enemies[i].catch_range <= player.pos.x && enemies[i].pos.x >= player.pos.x) {
+						if (enemies[i].pos.x - enemies[i].catch_range <= player.pos.x && enemies[i].pos.x >= player.pos.x && (abs(enemies[i].pos.y - player.pos.y) <= 0.5f)) {
 							should_quit = true;
 					}
 				}
