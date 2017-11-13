@@ -217,6 +217,13 @@ int main(int argc, char **argv) {
 	}
 
 	//------------ structs and variables ------------
+
+	//----------------- Variables --------------------------------------------
+
+	float start_level_pos_x = 0.25f;
+	float end_level_pos_x = 75.0f;
+
+	//----------------- Structs ----------------------------------------------
 	struct {
 		glm::vec2 pos = glm::vec2(6.0f, 3.5f);
 		glm::vec2 size = glm::vec2(12.0f, 7.0f);
@@ -340,11 +347,11 @@ int main(int argc, char **argv) {
 		};
 
 		glm::vec2 vectors [3] = { glm::vec2(pos.x, 
-																				pos.y + (0.5f * size.y)),
-															glm::vec2(pos.x + (0.5f * size.x), 
-																				pos.y + (0.5f * -size.y)),
-															glm::vec2(pos.x + (0.5f * -size.x),
-																				pos.y + (0.5f * -size.y)) };
+											pos.y + (0.5f * size.y)),
+								  glm::vec2(pos.x + (0.5f * size.x), 
+											pos.y + (0.5f * -size.y)),
+						glm::vec2(pos.x + (0.5f * -size.x),
+											pos.y + (0.5f * -size.y)) };
 	};
 
 	struct Door {
@@ -372,43 +379,54 @@ int main(int argc, char **argv) {
 		};
 	};
 
+	struct Air_Platform {
+		glm::vec2 pos = glm::vec2(10.0f, 1.4f);
+		glm::vec2 size = glm::vec2(5.0f, 0.5f);
+
+		SpriteInfo sprite = {
+			glm::vec2(0.0f),
+			glm::vec2(1.0f, 481.0f/1689.0f),
+		};
+	};
+
+
 	auto rotate_light = [](Light &light) {
 		if (light.dir == 0.0f) {
 			light.vectors[0] = glm::vec2(light.pos.x + (0.5f + -light.size.y), 
-																 light.pos.y);
+																	 light.pos.y);
 			light.vectors[1] = glm::vec2(light.pos.x + (0.5f * light.size.y), 
-																 light.pos.y + (0.5f * light.size.x));
+																	 light.pos.y + (0.5f * light.size.x));
 			light.vectors[2] = glm::vec2(light.pos.x + (0.5f * light.size.y),
-																 light.pos.y + (0.5f * -light.size.x));
+																	 light.pos.y + (0.5f * -light.size.x));
 		}
 		else if (light.dir == (PI * 0.5f)) {
 			light.vectors[0] = glm::vec2(light.pos.x, 
-											 	 				 light.pos.y + (0.5f * -light.size.y));
+											 	 					 light.pos.y + (0.5f * -light.size.y));
 			light.vectors[1] = glm::vec2(light.pos.x + (0.5f * -light.size.x), 
-												 light.pos.y + (0.5f * light.size.y));
+																	 light.pos.y + (0.5f * light.size.y));
 			light.vectors[2] = glm::vec2(light.pos.x + (0.5f * light.size.x),
-												 light.pos.y + (0.5f * light.size.y));
+																	 light.pos.y + (0.5f * light.size.y));
 		}
 		else if (light.dir == PI) {
 			light.vectors[0] = glm::vec2(light.pos.x + (0.5f + light.size.y), 
-												 light.pos.y);
+																	 light.pos.y);
 			light.vectors[1] = glm::vec2(light.pos.x + (0.5f * -light.size.y), 
-												 light.pos.y + (0.5f * light.size.x));
+																	 light.pos.y + (0.5f * light.size.x));
 			light.vectors[2] = glm::vec2(light.pos.x + (0.5f * -light.size.y),
-												 light.pos.y + (0.5f * -light.size.x));
+																	 light.pos.y + (0.5f * -light.size.x));
 		}
 		else {
 			light.vectors[0] = glm::vec2(light.pos.x, 
-												 light.pos.y + (0.5f * light.size.y));
+																	 light.pos.y + (0.5f * light.size.y));
 			light.vectors[1] = glm::vec2(light.pos.x + (0.5f * light.size.x), 
-												 light.pos.y + (0.5f * -light.size.y));
+																	 light.pos.y + (0.5f * -light.size.y));
 			light.vectors[2] = glm::vec2(light.pos.x + (0.5f * -light.size.x),
-												 light.pos.y + (0.5f * -light.size.y));
+																	 light.pos.y + (0.5f * -light.size.y));
 		}
 	};
 
 
-	//------------ Initialization --------
+	//------------ Initialization ---------------------------------------------
 
 
 	//---- Level Loading ----
@@ -417,6 +435,7 @@ int main(int argc, char **argv) {
 	 */
 
 	//---- Instantiate Obects ----
+<<<<<<< HEAD
 	Light ceilingLight;
 	Light flashlight;
 	Light l0;
@@ -519,6 +538,101 @@ int main(int argc, char **argv) {
 	flashlight.dir = 0.0f;
 	// rotate_light(ceilingLight);
 	rotate_light(flashlight);
+=======
+	//Tutorial Level
+	Light ceilingLight_1;
+	Light ceilingLight_2;
+	Light ceilingLight_3;
+	Light ceilingLight_4;
+	Light enemyLight_1;
+	Light enemyLight_2;
+	std::vector<Light> Vector_Lights = {ceilingLight_1, ceilingLight_2, ceilingLight_3, 
+																			ceilingLight_4, enemyLight_1, enemyLight_2};
+
+	Air_Platform platform_1;
+	Air_Platform platform_2;
+	Air_Platform platform_3;
+	std::vector<Platform> Vector_Floor_Platforms;
+	std::vector<Air_Platform> Vector_Air_Platforms = {platform_1, platform_2, platform_3};
+
+	Enemy enemy_1;
+	Enemy enemy_2;
+	Enemy enemy_3;
+	std::vector<Enemy> Vector_Enemies = {enemy_1, enemy_2, enemy_3};
+
+	Door door;
+
+	//---- Set Object Variables --
+
+	//Platforms
+	//for platforms on the floor
+	for (float f = 10.0f; f < end_level_pos_x; f+=platform_1.size.x) {
+		Platform temp_plat;
+		temp_plat.pos = glm::vec2(f, temp_plat.pos.y);
+		Vector_Floor_Platforms.emplace_back(temp_plat);
+	}
+	//for platforms in the air
+	Vector_Air_Platforms[0].pos = glm::vec2(45.0f, 2.0f);
+	Vector_Air_Platforms[1].pos = glm::vec2(65.0f, 2.0f);
+	Vector_Air_Platforms[2].pos = glm::vec2(70.0f, 2.0f);
+	
+	//Enemies
+	Vector_Enemies[0].pos = glm::vec2(31.0f, 1.0f);
+	Vector_Enemies[0].target = glm::vec2(20.0f, 0.0f);
+
+	Vector_Enemies[1].pos = glm::vec2(50.0f, 1.0f);
+	Vector_Enemies[1].alert_size = glm::vec2(1.0f, 0.2f);
+	Vector_Enemies[1].waypoints[0] = Vector_Enemies[1].pos;
+	Vector_Enemies[1].waypoints[1] = Vector_Enemies[1].pos;
+	Vector_Enemies[1].target = Vector_Enemies[1].pos;
+
+	Vector_Enemies[2].pos = glm::vec2(70.0f, 2.5);
+	Vector_Enemies[2].alert_size = glm::vec2(0.3f, 0.1f);
+	Vector_Enemies[2].waypoints[0] = Vector_Enemies[2].pos;
+	Vector_Enemies[2].waypoints[1] = Vector_Enemies[2].pos;
+	Vector_Enemies[2].target = Vector_Enemies[2].pos;
+
+
+	//Ceiling Lights
+	Vector_Lights[0].pos = glm::vec2(10.0f, 3.0f);
+	Vector_Lights[0].size = glm::vec2(6.0f, 9.0f);
+	Vector_Lights[0].dir = PI * 1.5f;
+
+	Vector_Lights[1].pos = glm::vec2(20.0f, 3.0f);
+	Vector_Lights[1].size = glm::vec2(3.0f, 9.0f);
+	Vector_Lights[1].dir = PI * 1.5f;
+
+	Vector_Lights[2].pos = glm::vec2(40.0f, 3.0f);
+	Vector_Lights[2].size = glm::vec2(4.0f, 9.0f);
+	Vector_Lights[2].dir = PI * 1.5f;
+
+	Vector_Lights[3].pos = glm::vec2(60.0f, 3.0f);
+	Vector_Lights[3].size = glm::vec2(4.0f, 9.0f);
+	Vector_Lights[3].dir = PI * 1.5f;
+
+	//Flashlights
+	Vector_Lights[4].size = glm::vec2(2.0f, 4.0f);
+	Vector_Lights[4].pos = Vector_Enemies[0].pos + glm::vec2(Vector_Lights[4].size.y - 0.35f, 0.0f);
+	Vector_Lights[4].dir = 0.0f;
+
+	Vector_Lights[5].size = glm::vec2(2.0, 10.0f);
+	Vector_Lights[5].pos = Vector_Enemies[1].pos + glm::vec2(Vector_Lights[5].size.y - 0.35, 0.0f);
+	Vector_Lights[5].dir = PI;
+
+
+	for (Light& i: Vector_Lights) {
+		printf("i pos: (%f,%f), size: (%f,%f), dir: %f\n", i.pos.x, i.pos.y, i.size.x, i.size.y, i.dir);
+		rotate_light(i);
+		printf("i vector0: (%f, %f)\n", i.vectors[0].x, i.vectors[0].y);
+	}
+	printf("vector_lights[0].vectors[0]: (%f,%f)\n", Vector_Lights[0].vectors[0].x, Vector_Lights[0].vectors[0].y);
+	// rotate_light(ceilingLight_1);
+	// rotate_light(ceilingLight_2);
+	// rotate_light(ceilingLight_3);
+	// rotate_light(ceilingLight_4);
+	// rotate_light(enemyLight_1);
+	// rotate_light(enemyLight_2);
+>>>>>>> 396e42b8a290c4e0250c34f2ec13cba58c6aba88
 
 	l0.pos = glm::vec2(5.0f, 2.0f);
 	l0.size = glm::vec2(3.0f, 3.0f);
@@ -532,10 +646,24 @@ int main(int argc, char **argv) {
 	rotate_light(l1);
 
 	//Door
+<<<<<<< HEAD
 	door[0].pos = glm::vec2(5.0f, 1.25f);
 	door[1].pos = glm::vec2(14.0f, 4.5f);
 	door[2].pos = glm::vec2(2.5f, 4.5f);
 	door[3].pos = glm::vec2(8.0f, 8.0f);
+=======
+	door.pos = glm::vec2(10.0f, 1.25f);
+
+	//Platforms
+	//platform_1.pos = glm::vec2(45.0f, 2.0f);
+	//platform_2.pos = glm::vec2(65.0f, 2.0f);
+	//platform_3.pos = glm::vec2(70.0f, 2.0f);
+
+
+	//Variables
+
+	//End of Initialization -----------------------------------------------------
+>>>>>>> 396e42b8a290c4e0250c34f2ec13cba58c6aba88
 
 	//------------ game loop ------------
 
@@ -701,9 +829,22 @@ int main(int argc, char **argv) {
 		if (!player.aiming) { //update game state:
 			
 			//check if player is in light
+<<<<<<< HEAD
 			// if ((!player.behind_door) && (check_visibility(flashlight) || check_visibility(ceilingLight))) {
 			if ((!player.behind_door) && (check_visibility(flashlight))) {
 				player.visible = true;
+=======
+			if (!player.behind_door) {
+				bool isVisible = false;
+				for (Light& i : Vector_Lights) {
+					rotate_light(i);
+					isVisible = (isVisible || check_visibility(i));
+				}
+				if (isVisible)
+					player.visible = true;
+				else
+					player.visible = false;
+>>>>>>> 396e42b8a290c4e0250c34f2ec13cba58c6aba88
 			}
 
 			// player update -----------------------------------------------------------------
@@ -713,12 +854,19 @@ int main(int argc, char **argv) {
 				}
 
 				player.pos += player.vel * elapsed;
+<<<<<<< HEAD
 				if (player.pos.x < 0.25f) {
 					player.pos.x = 0.25f;
 				} else if (player.pos.x >= 19.5f && player.pos.y < 7.5f) {
 					player.pos.x = 19.5f;
 				} else if (player.pos.x > 29.75f) {
 					player.pos.x = 29.75f;
+=======
+				if (player.pos.x < start_level_pos_x) {
+					player.pos.x = start_level_pos_x;
+				} else if (player.pos.x > end_level_pos_x) {
+					player.pos.x = end_level_pos_x;
+>>>>>>> 396e42b8a290c4e0250c34f2ec13cba58c6aba88
 				}
 			}
 
@@ -763,14 +911,15 @@ int main(int argc, char **argv) {
 			camera.pos.x += player.vel.x * elapsed;
 			if (player.pos.x < 6.0f) {
 				camera.pos.x = 6.0f;
-			} else if (player.pos.x > 14.0f) {
-				camera.pos.x = 14.0f;
+			} else if (player.pos.x > 65.0f) {
+				camera.pos.x = 65.0f;
 			}
 
 			//have the camera vertically follow the player
 			camera.pos.y = 2.5f + (player.pos.y - 1.0f);
 
 			//enemy update --------------------------------------------------------------
+<<<<<<< HEAD
 			for (int i = 0; i < num_enemies; i++){
 				if (!enemies[i].alerted) {
 					if (!enemies[i].walking) {
@@ -818,10 +967,61 @@ int main(int argc, char **argv) {
 							enemies[i].remaining_wait = 10.0f;
 							enemies[i].walking = false;
 							enemies[i].vel.x = 0.0f;
+=======
+			for (Enemy& enemy: Vector_Enemies) {
+
+				if (!enemy.alerted) {
+					if (!enemy.walking) {
+						enemy.remaining_wait -= elapsed;
+						if (enemy.remaining_wait <= 0.0f) {
+							enemy.walking = true;
+							enemy.face_right = !enemy.face_right;
+							enemy.curr_index = (enemy.curr_index + 1) % 2;
+							if (enemy.face_right) {
+								enemy.vel.x = 1.0f;
+							} else {
+								enemy.vel.x = -1.0f;
+							}
+						}
+					} else {
+						enemy.pos += enemy.vel * elapsed;
+						if ((enemy.face_right && enemy.pos.x > enemy.waypoints[enemy.curr_index].x) ||
+								(!enemy.face_right && enemy.pos.x < enemy.waypoints[enemy.curr_index].x)) {
+							enemy.face_right = enemy.waypoints[enemy.curr_index].x > 
+								enemy.waypoints[(enemy.curr_index + 1) % 2].x;
+							enemy.pos = enemy.waypoints[enemy.curr_index];
+							enemy.remaining_wait = enemy.wait_timers[enemy.curr_index];
+							enemy.walking = false;
+							enemy.vel.x = 0.0f;
+						}
+					}
+				} else {
+					if (!enemy.walking) {
+						enemy.remaining_wait -= elapsed;
+						if (enemy.remaining_wait <= 0.0f) {
+							enemy.alerted = false;
+							enemy.walking = true;
+							enemy.face_right = (enemy.waypoints[enemy.curr_index].x > enemy.pos.x);
+							if (enemy.face_right) {
+								enemy.vel.x = 1.0f;
+							} else {
+								enemy.vel.x = -1.0f;
+							}
+						}
+					} else {
+						enemy.pos += enemy.vel * elapsed;
+						if ((enemy.face_right && enemy.pos.x > enemy.target.x) ||
+								(!enemy.face_right && enemy.pos.x < enemy.target.x)) {
+							enemy.pos.x = enemy.target.x;
+							enemy.remaining_wait = 10.0f;
+							enemy.walking = false;
+							enemy.vel.x = 0.0f;
+>>>>>>> 396e42b8a290c4e0250c34f2ec13cba58c6aba88
 						}
 					}
 				}
 				if (player.visible && !player.behind_door) {
+<<<<<<< HEAD
 					if (enemies[i].face_right) {
 						if (enemies[i].pos.x <= player.pos.x && enemies[i].pos.x + enemies[i].sight_range >= player.pos.x) {
 							enemies[i].target = player.pos;
@@ -835,22 +1035,50 @@ int main(int argc, char **argv) {
 							enemies[i].vel.x = -2.5f;
 							enemies[i].alerted = true;
 							enemies[i].walking = true;
+=======
+					if (enemy.face_right) {
+						if (enemy.pos.x <= player.pos.x && enemy.pos.x + enemy.sight_range >= player.pos.x) {
+							enemy.target = player.pos;
+							enemy.vel.x = 2.5f;
+							enemy.alerted = true;
+							enemy.walking = true;
+						}
+					} else {
+						if (enemy.pos.x - enemy.sight_range <= player.pos.x && enemy.pos.x >= player.pos.x) {
+							enemy.target = player.pos;
+							enemy.vel.x = -2.5f;
+							enemy.alerted = true;
+							enemy.walking = true;
+>>>>>>> 396e42b8a290c4e0250c34f2ec13cba58c6aba88
 						}
 					} 
 				}
 
 				if (!player.behind_door) {
+<<<<<<< HEAD
 					if (enemies[i].face_right) {
 						if (enemies[i].pos.x <= player.pos.x && enemies[i].pos.x + enemies[i].catch_range >= player.pos.x) {
 							should_quit = true;
 						}
 					} else {
 						if (enemies[i].pos.x - enemies[i].catch_range <= player.pos.x && enemies[i].pos.x >= player.pos.x) {
+=======
+					if (enemy.face_right) {
+						if (enemy.pos.x <= player.pos.x && enemy.pos.x + enemy.catch_range >= player.pos.x) {
+							should_quit = true;
+						}
+					} else {
+						if (enemy.pos.x - enemy.catch_range <= player.pos.x && enemy.pos.x >= player.pos.x) {
+>>>>>>> 396e42b8a290c4e0250c34f2ec13cba58c6aba88
 							should_quit = true;
 						}
 					}
 				}
+<<<<<<< HEAD
 			} 
+=======
+
+>>>>>>> 396e42b8a290c4e0250c34f2ec13cba58c6aba88
 
 			//detect footsteps
 			for (int i = 0; i < num_enemies; i++){
@@ -906,6 +1134,7 @@ int main(int argc, char **argv) {
 					}
 
 					//lights
+<<<<<<< HEAD
 					// float h_diff_l = ceilingLight.pos.x - i->x;
 					// float v_diff_l = (ceilingLight.pos.y + 0.5f * ceilingLight.size.y) - i->y;
 					// if (sqrt(h_diff_l*h_diff_l + v_diff_l*v_diff_l) <= 2.0f) {
@@ -924,11 +1153,34 @@ int main(int argc, char **argv) {
 					flashlight.pos = enemies[i].pos - glm::vec2(flashlight.size.y + 0.60f, 0.0f);
 					rotate_light(flashlight);
 				}
+=======
+					h_diff = ceilingLight_1.pos.x - i->x;
+					v_diff = (ceilingLight_1.pos.y + 0.5f * ceilingLight_1.size.y) - i->y;
+					if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 2.0f) {
+						ceilingLight_1.light_on = false;
+					}
+				}       
 			}
+
+			if (enemy.vel.x > 0.0f) {
+				enemyLight_1.dir = 0.0f;
+				enemyLight_1.pos = enemy.pos + glm::vec2(enemyLight_1.size.y - 0.35f, 0.0f);
+				rotate_light(enemyLight_1);
+			} else if (enemy.vel.x < 0.0f) {
+				enemyLight_1.dir = PI;
+				enemyLight_1.pos = enemy.pos - glm::vec2(enemyLight_1.size.y + 0.60f, 0.0f);
+				rotate_light(enemyLight_1);
+>>>>>>> 396e42b8a290c4e0250c34f2ec13cba58c6aba88
+			}
+		}
 
 
 			//level win -----------------------------------------------------------
+<<<<<<< HEAD
 			if (player.pos.x >= 20.0f && player.pos.y >= 7.5) {
+=======
+			if (player.pos.x >= end_level_pos_x) {
+>>>>>>> 396e42b8a290c4e0250c34f2ec13cba58c6aba88
 				should_quit = true;
 			}
 
@@ -1001,6 +1253,7 @@ int main(int argc, char **argv) {
 			}
 			
 			//draw enemies -----------------------------------------------------------
+<<<<<<< HEAD
 			for (int i = 0; i < num_enemies; i++){
 				glm::vec2 enemy_size = enemies[i].size;
 				if (enemies[i].face_right) {
@@ -1011,10 +1264,23 @@ int main(int argc, char **argv) {
 				glm::vec2 alert_pos = glm::vec2(enemies[i].pos.x, 
 							enemies[i].pos.y + 0.51f*enemies[i].size.y + 0.51f*enemies[i].alert_size.y );
 					draw_sprite(enemies[i].sprite_alert, alert_pos, enemies[i].alert_size);
+=======
+			glm::vec2 enemy_size = Vector_Enemies[0].size;
+			for (Enemy& enemy: Vector_Enemies) {
+				if (enemy.face_right) {
+					enemy_size.x *= -1.0f;
+				}
+				draw_sprite(enemy.sprite_stand, enemy.pos, enemy_size);     
+				if (enemy.alerted) {
+				glm::vec2 alert_pos = glm::vec2(enemy.pos.x, 
+							enemy.pos.y + 0.51f*enemy.size.y + 0.51f*enemy.alert_size.y );
+					draw_sprite(enemy.sprite_alert, alert_pos, enemy.alert_size);
+>>>>>>> 396e42b8a290c4e0250c34f2ec13cba58c6aba88
 				}
 			}
 
 			//draw lights --------------------------------------------------------------
+<<<<<<< HEAD
 			if (flashlight.light_on) {
 				draw_triangle(flashlight.vectors[0], flashlight.vectors[1], flashlight.vectors[2], 
 					glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
@@ -1041,6 +1307,23 @@ int main(int argc, char **argv) {
 			//draw platforms -----------------------------------------------------------
 			for (int i = 0; i < num_platforms; i++){
 				draw_sprite(platforms[i].sprite, platforms[i].pos, platforms[i].size);
+=======
+			for (Light& i : Vector_Lights) {
+				if (i.light_on) {
+					//draw_sprite(ceilingLight_1.sprite, ceilingLight_1.pos, ceilingLight_1.size);
+					//printf("ipos: (%f, %f)\n", i.pos.x, i.pos.y);
+					draw_triangle(i.vectors[0], i.vectors[1], i.vectors[2],
+						glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+				}
+			}
+			
+			//draw platform_1s -----------------------------------------------------------
+			for (Platform& platform : Vector_Floor_Platforms) {
+				draw_sprite(platform.sprite, platform.pos, platform.size);
+			}
+			for (Air_Platform& air_plat : Vector_Air_Platforms) {
+				draw_sprite(air_plat.sprite, air_plat.pos, air_plat.size);
+>>>>>>> 396e42b8a290c4e0250c34f2ec13cba58c6aba88
 			}
 
 			//draw sounds ---------------------------------------------------------------
