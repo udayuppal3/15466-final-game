@@ -216,6 +216,13 @@ int main(int argc, char **argv) {
 	}
 
 	//------------ structs and variables ------------
+
+	//----------------- Variables --------------------------------------------
+
+	float start_level_pos_x = 0.25f;
+	float end_level_pos_x = 75.0f;
+
+	//----------------- Structs ----------------------------------------------
 	struct {
 		glm::vec2 pos = glm::vec2(6.0f, 3.5f);
 		glm::vec2 size = glm::vec2(12.0f, 7.0f);
@@ -339,11 +346,11 @@ int main(int argc, char **argv) {
 		};
 
 		glm::vec2 vectors [3] = { glm::vec2(pos.x, 
-																				pos.y + (0.5f * size.y)),
-															glm::vec2(pos.x + (0.5f * size.x), 
-																				pos.y + (0.5f * -size.y)),
-															glm::vec2(pos.x + (0.5f * -size.x),
-																				pos.y + (0.5f * -size.y)) };
+											pos.y + (0.5f * size.y)),
+								  glm::vec2(pos.x + (0.5f * size.x), 
+											pos.y + (0.5f * -size.y)),
+						glm::vec2(pos.x + (0.5f * -size.x),
+											pos.y + (0.5f * -size.y)) };
 	};
 
 	struct Door {
@@ -371,38 +378,49 @@ int main(int argc, char **argv) {
 		};
 	};
 
+	struct Air_Platform {
+		glm::vec2 pos = glm::vec2(10.0f, 1.4f);
+		glm::vec2 size = glm::vec2(5.0f, 0.5f);
+
+		SpriteInfo sprite = {
+			glm::vec2(0.0f),
+			glm::vec2(1.0f, 481.0f/1689.0f),
+		};
+	};
+
+
 	auto rotate_light = [](Light &light) {
 		if (light.dir == 0.0f) {
 			light.vectors[0] = glm::vec2(light.pos.x + (0.5f + -light.size.y), 
-																 light.pos.y);
+																	 light.pos.y);
 			light.vectors[1] = glm::vec2(light.pos.x + (0.5f * light.size.y), 
-																 light.pos.y + (0.5f * light.size.x));
+																	 light.pos.y + (0.5f * light.size.x));
 			light.vectors[2] = glm::vec2(light.pos.x + (0.5f * light.size.y),
-																 light.pos.y + (0.5f * -light.size.x));
+																	 light.pos.y + (0.5f * -light.size.x));
 		}
 		else if (light.dir == (PI * 0.5f)) {
 			light.vectors[0] = glm::vec2(light.pos.x, 
-											 	 				 light.pos.y + (0.5f * -light.size.y));
+											 	 					 light.pos.y + (0.5f * -light.size.y));
 			light.vectors[1] = glm::vec2(light.pos.x + (0.5f * -light.size.x), 
-												 light.pos.y + (0.5f * light.size.y));
+																	 light.pos.y + (0.5f * light.size.y));
 			light.vectors[2] = glm::vec2(light.pos.x + (0.5f * light.size.x),
-												 light.pos.y + (0.5f * light.size.y));
+																	 light.pos.y + (0.5f * light.size.y));
 		}
 		else if (light.dir == PI) {
 			light.vectors[0] = glm::vec2(light.pos.x + (0.5f + light.size.y), 
-												 light.pos.y);
+																	 light.pos.y);
 			light.vectors[1] = glm::vec2(light.pos.x + (0.5f * -light.size.y), 
-												 light.pos.y + (0.5f * light.size.x));
+																	 light.pos.y + (0.5f * light.size.x));
 			light.vectors[2] = glm::vec2(light.pos.x + (0.5f * -light.size.y),
-												 light.pos.y + (0.5f * -light.size.x));
+																	 light.pos.y + (0.5f * -light.size.x));
 		}
 		else {
 			light.vectors[0] = glm::vec2(light.pos.x, 
-												 light.pos.y + (0.5f * light.size.y));
+																	 light.pos.y + (0.5f * light.size.y));
 			light.vectors[1] = glm::vec2(light.pos.x + (0.5f * light.size.x), 
-												 light.pos.y + (0.5f * -light.size.y));
+																	 light.pos.y + (0.5f * -light.size.y));
 			light.vectors[2] = glm::vec2(light.pos.x + (0.5f * -light.size.x),
-												 light.pos.y + (0.5f * -light.size.y));
+																	 light.pos.y + (0.5f * -light.size.y));
 		}
 	};
 
@@ -425,16 +443,33 @@ int main(int argc, char **argv) {
 	Light enemyLight_2;
 	std::vector<Light> Vector_Lights = {ceilingLight_1, ceilingLight_2, ceilingLight_3, 
 																			ceilingLight_4, enemyLight_1, enemyLight_2};
-	Platform platform_1;
-	Platform platform_2;
-	Platform platform_3;
+
+	Air_Platform platform_1;
+	Air_Platform platform_2;
+	Air_Platform platform_3;
+	std::vector<Platform> Vector_Floor_Platforms;
+	std::vector<Air_Platform> Vector_Air_Platforms = {platform_1, platform_2, platform_3};
+
 	Enemy enemy_1;
 	Enemy enemy_2;
 	Enemy enemy_3;
 	std::vector<Enemy> Vector_Enemies = {enemy_1, enemy_2, enemy_3};
+
 	Door door;
 
 	//---- Set Object Variables --
+
+	//Platforms
+	//for platforms on the floor
+	for (float f = 10.0f; f < end_level_pos_x; f+=platform_1.size.x) {
+		Platform temp_plat;
+		temp_plat.pos = glm::vec2(f, temp_plat.pos.y);
+		Vector_Floor_Platforms.emplace_back(temp_plat);
+	}
+	//for platforms in the air
+	Vector_Air_Platforms[0].pos = glm::vec2(45.0f, 2.0f);
+	Vector_Air_Platforms[1].pos = glm::vec2(65.0f, 2.0f);
+	Vector_Air_Platforms[2].pos = glm::vec2(70.0f, 2.0f);
 	
 	//Enemies
 	Vector_Enemies[0].pos = glm::vec2(31.0f, 1.0f);
@@ -500,6 +535,9 @@ int main(int argc, char **argv) {
 	//platform_1.pos = glm::vec2(45.0f, 2.0f);
 	//platform_2.pos = glm::vec2(65.0f, 2.0f);
 	//platform_3.pos = glm::vec2(70.0f, 2.0f);
+
+
+	//Variables
 
 	//End of Initialization -----------------------------------------------------
 
@@ -684,10 +722,10 @@ int main(int argc, char **argv) {
 				}
 
 				player.pos += player.vel * elapsed;
-				if (player.pos.x < 0.25f) {
-					player.pos.x = 0.25f;
-				} else if (player.pos.x > 29.75f) {
-					player.pos.x = 29.75f;
+				if (player.pos.x < start_level_pos_x) {
+					player.pos.x = start_level_pos_x;
+				} else if (player.pos.x > end_level_pos_x) {
+					player.pos.x = end_level_pos_x;
 				}
 			}
 			if (player.pos.y < 1.0f) {
@@ -858,7 +896,7 @@ int main(int argc, char **argv) {
 
 
 			//level win -----------------------------------------------------------
-			if (player.pos.x >= 70.0f) {
+			if (player.pos.x >= end_level_pos_x) {
 				should_quit = true;
 			}
 
@@ -953,7 +991,12 @@ int main(int argc, char **argv) {
 			}
 			
 			//draw platform_1s -----------------------------------------------------------
-			draw_sprite(platform_1.sprite, platform_1.pos, platform_1.size);
+			for (Platform& platform : Vector_Floor_Platforms) {
+				draw_sprite(platform.sprite, platform.pos, platform.size);
+			}
+			for (Air_Platform& air_plat : Vector_Air_Platforms) {
+				draw_sprite(air_plat.sprite, air_plat.pos, air_plat.size);
+			}
 
 			//draw sounds ---------------------------------------------------------------
 			if (!player.aiming && mouse.remaining_time > 0.0f) {
