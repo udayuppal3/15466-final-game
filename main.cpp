@@ -495,10 +495,10 @@ int main(int argc, char **argv) {
   Light ceilingLight_2;
   Light ceilingLight_3;
   Light ceilingLight_4;
-  Light enemyLight_1;
-  Light enemyLight_2;
+  // Light enemyLight_1;
+  // Light enemyLight_2;
   std::vector<Light> Vector_Lights = {ceilingLight_1, ceilingLight_2, ceilingLight_3, 
-                                      ceilingLight_4, enemyLight_1, enemyLight_2};
+                                      ceilingLight_4};
 
   Air_Platform platform_1;
   Air_Platform platform_2;
@@ -562,21 +562,24 @@ int main(int argc, char **argv) {
   Vector_Lights[3].dir = PI * 1.5f;
 
   //Flashlights
-  Vector_Lights[4].size = glm::vec2(2.0f, 4.0f);
-  Vector_Lights[4].pos = Vector_Enemies[0].pos + glm::vec2(Vector_Lights[4].size.y - 0.35f, 0.0f);
-  Vector_Lights[4].dir = 0.0f;
+  // Vector_Lights[4].size = glm::vec2(2.0f, 4.0f);
+  // Vector_Lights[4].pos = Vector_Enemies[0].pos + glm::vec2(Vector_Lights[4].size.y - 0.35f, 0.0f);
+  // Vector_Lights[4].dir = 0.0f;
 
-  Vector_Lights[5].size = glm::vec2(2.0, 10.0f);
-  Vector_Lights[5].pos = Vector_Enemies[1].pos + glm::vec2(Vector_Lights[5].size.y - 0.35, 0.0f);
-  Vector_Lights[5].dir = PI;
+  // Vector_Lights[5].size = glm::vec2(2.0, 10.0f);
+  // Vector_Lights[5].pos = Vector_Enemies[1].pos + glm::vec2(Vector_Lights[5].size.y - 0.35, 0.0f);
+  // Vector_Lights[5].dir = PI;
 
 
   for (Light& i: Vector_Lights) {
-    printf("i pos: (%f,%f), size: (%f,%f), dir: %f\n", i.pos.x, i.pos.y, i.size.x, i.size.y, i.dir);
+    //printf("i pos: (%f,%f), size: (%f,%f), dir: %f\n", i.pos.x, i.pos.y, i.size.x, i.size.y, i.dir);
     rotate_light(i);
-    printf("i vector0: (%f, %f)\n", i.vectors[0].x, i.vectors[0].y);
+    //printf("i vector0: (%f, %f)\n", i.vectors[0].x, i.vectors[0].y);
   }
-  printf("vector_lights[0].vectors[0]: (%f,%f)\n", Vector_Lights[0].vectors[0].x, Vector_Lights[0].vectors[0].y);
+  for (Enemy& i: Vector_Enemies) {
+  	update_enemy_light(i);
+  }
+  //printf("vector_lights[0].vectors[0]: (%f,%f)\n", Vector_Lights[0].vectors[0].x, Vector_Lights[0].vectors[0].y);
   // rotate_light(ceilingLight_1);
   // rotate_light(ceilingLight_2);
   // rotate_light(ceilingLight_3);
@@ -860,12 +863,14 @@ int main(int argc, char **argv) {
       camera.pos.x += player.vel.x * elapsed;
       if (player.pos.x < 6.0f) {
         camera.pos.x = 6.0f;
-      } else if (player.pos.x > 65.0f) {
-        camera.pos.x = 65.0f;
+      } else if (player.pos.x > (end_level_pos_x - 10.0f)) {
+        camera.pos.x = end_level_pos_x - 10.0f;
       }
 
       //enemy update --------------------------------------------------------------
       for (Enemy& enemy: Vector_Enemies) {
+      	update_enemy_light(enemy);
+      	rotate_light(enemy.flashlight);
 
         if (!enemy.alerted) {
           if (!enemy.walking) {
@@ -1014,13 +1019,13 @@ int main(int argc, char **argv) {
       }
 
       if (enemy.vel.x > 0.0f) {
-        enemyLight_1.dir = 0.0f;
-        enemyLight_1.pos = enemy.pos + glm::vec2(enemyLight_1.size.y - 0.35f, 0.0f);
-        rotate_light(enemyLight_1);
+        // enemyLight_1.dir = 0.0f;
+        // enemyLight_1.pos = enemy.pos + glm::vec2(enemyLight_1.size.y - 0.35f, 0.0f);
+        // rotate_light(enemyLight_1);
       } else if (enemy.vel.x < 0.0f) {
-        enemyLight_1.dir = PI;
-        enemyLight_1.pos = enemy.pos - glm::vec2(enemyLight_1.size.y + 0.60f, 0.0f);
-        rotate_light(enemyLight_1);
+        // enemyLight_1.dir = PI;
+        // enemyLight_1.pos = enemy.pos - glm::vec2(enemyLight_1.size.y + 0.60f, 0.0f);
+        // rotate_light(enemyLight_1);
       }
     }
 
@@ -1118,6 +1123,12 @@ int main(int argc, char **argv) {
           draw_triangle(i.vectors[0], i.vectors[1], i.vectors[2],
             glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
         }
+      }
+      for (Enemy& i : Vector_Enemies) {
+      	if (i.flashlight.light_on) {
+          draw_triangle(i.flashlight.vectors[0], i.flashlight.vectors[1], i.flashlight.vectors[2],
+            glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+      	}
       }
       
       //draw platform_1s -----------------------------------------------------------
