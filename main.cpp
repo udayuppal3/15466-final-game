@@ -341,6 +341,7 @@ int main(int argc, char **argv) {
     int num_projectiles = 5;
   } player;
 
+  /*
   struct Light {
     glm::vec2 pos = glm::vec2(0.0f, 0.0f);
     glm::vec2 size = glm::vec2(0.0f, 0.0f);
@@ -359,6 +360,32 @@ int main(int argc, char **argv) {
                       pos.y + (0.5f * -size.y)),
             glm::vec2(pos.x + (0.5f * -size.x),
                       pos.y + (0.5f * -size.y)) };
+  };
+  */
+
+  // Going to simplify the data structure a bit
+  struct Light {
+	  glm::vec2 pos;		//origin of the light beam
+	  float beam_length;		//the length to which the light disperses
+
+	  float direction;		//the direction in which the light is pointing
+	  				// use polar coordinates for measurements
+
+	  float beam_angle;		/*the angle each half of the light lobe makes
+	  				 *with the direction of light */
+	  bool light_on;
+
+	  // constructor
+	  Light(){
+		  pos.x = 0.0f;
+		  pos.y = 0.0f;
+
+		  beam_length = 0.0f;
+
+		  beam_angle =0.0f;
+
+		  light_on = true;
+	  }
   };
 
   struct Enemy {
@@ -432,54 +459,8 @@ int main(int argc, char **argv) {
   };
 
 
-  auto rotate_light = [](Light &light) {
-    if (light.dir == 0.0f) {
-      light.vectors[0] = glm::vec2(light.pos.x + (0.5f + -light.size.y), 
-                                   light.pos.y);
-      light.vectors[1] = glm::vec2(light.pos.x + (0.5f * light.size.y), 
-                                   light.pos.y + (0.5f * light.size.x));
-      light.vectors[2] = glm::vec2(light.pos.x + (0.5f * light.size.y),
-                                   light.pos.y + (0.5f * -light.size.x));
-    }
-    else if (light.dir == (PI * 0.5f)) {
-      light.vectors[0] = glm::vec2(light.pos.x, 
-                                   light.pos.y + (0.5f * -light.size.y));
-      light.vectors[1] = glm::vec2(light.pos.x + (0.5f * -light.size.x), 
-                                   light.pos.y + (0.5f * light.size.y));
-      light.vectors[2] = glm::vec2(light.pos.x + (0.5f * light.size.x),
-                                   light.pos.y + (0.5f * light.size.y));
-    }
-    else if (light.dir == PI) {
-      light.vectors[0] = glm::vec2(light.pos.x + (0.5f + light.size.y), 
-                                   light.pos.y);
-      light.vectors[1] = glm::vec2(light.pos.x + (0.5f * -light.size.y), 
-                                   light.pos.y + (0.5f * light.size.x));
-      light.vectors[2] = glm::vec2(light.pos.x + (0.5f * -light.size.y),
-                                   light.pos.y + (0.5f * -light.size.x));
-    }
-    else {
-      light.vectors[0] = glm::vec2(light.pos.x, 
-                                   light.pos.y + (0.5f * light.size.y));
-      light.vectors[1] = glm::vec2(light.pos.x + (0.5f * light.size.x), 
-                                   light.pos.y + (0.5f * -light.size.y));
-      light.vectors[2] = glm::vec2(light.pos.x + (0.5f * -light.size.x),
-                                   light.pos.y + (0.5f * -light.size.y));
-    }
-    // printf("blight_vectors[0]: (%f,%f), light_vectors[1]: (%f,%f), light_vectors[2]: (%f,%f)\n", 
-    // 	light.vectors[0].x, light.vectors[0].y,
-    // 	light.vectors[1].x, light.vectors[1].y,
-    // 	light.vectors[2].x, light.vectors[2].y);
-  };  
-
    auto update_enemy_light = [](Enemy &enemy) {
-  	if (enemy.face_right) {
-  		enemy.flashlight.dir = 0.0f;
-  		enemy.flashlight.pos = enemy.pos + glm::vec2(enemy.flashlight.size.y + 0.05f, 0.0f);
-  	}
-  	else {
-  		enemy.flashlight.dir = PI;
-  		enemy.flashlight.pos = enemy.pos - glm::vec2(enemy.flashlight.size.y, 0.0f);
-  	}
+	   enemy.flashlight.direction = !enemy.face_right * PI;
   };
 
 
@@ -532,65 +513,45 @@ int main(int argc, char **argv) {
   //Enemies
   Vector_Enemies[0].pos = glm::vec2(31.0f, 1.0f);
   Vector_Enemies[0].target = glm::vec2(20.0f, 0.0f);
-  Vector_Enemies[0].flashlight.size = glm::vec2(2.0f, 5.0f);
+  Vector_Enemies[0].flashlight.beam_length = 2.0f;
+  Vector_Enemies[0].flashlight.beam_angle = (10.0f * PI) / 180.0f;
 
   Vector_Enemies[1].pos = glm::vec2(50.0f, 1.0f);
-  Vector_Enemies[1].alert_size = glm::vec2(1.0f, 0.2f);
   Vector_Enemies[1].waypoints[0] = Vector_Enemies[1].pos;
-  Vector_Enemies[1].waypoints[1] = Vector_Enemies[1].pos;
-  Vector_Enemies[1].target = Vector_Enemies[1].pos;
-  Vector_Enemies[1].flashlight.size = glm::vec2(1.5f, 10.0f);
+  Vector_Enemies[1].waypoints[1] = Vector_Enemies[1].pos - glm::vec2(20.0f, 0.0f);
+  Vector_Enemies[1].target = Vector_Enemies[1].pos - glm::vec2(20.0f, 0.0f);
+  Vector_Enemies[1].flashlight.beam_length = 2.0f;
+  Vector_Enemies[1].flashlight.beam_angle = (10.0f * PI) / 180.0f;
 
-  Vector_Enemies[2].pos = glm::vec2(end_level_pos_x - 5.0f, 2.5);
-  Vector_Enemies[2].alert_size = glm::vec2(0.3f, 0.1f);
+  Vector_Enemies[2].pos = glm::vec2(end_level_pos_x - 5.0f, 3.0f);
   Vector_Enemies[2].waypoints[0] = Vector_Enemies[2].pos;
   Vector_Enemies[2].waypoints[1] = Vector_Enemies[2].pos;
   Vector_Enemies[2].target = Vector_Enemies[2].pos;
-  Vector_Enemies[2].flashlight.size = glm::vec2(1.5f, 1.5f);
+  Vector_Enemies[2].flashlight.beam_length = 2.0f;
+  Vector_Enemies[2].flashlight.beam_angle = (10.0f * PI) / 180.0f;
 
 
   //Ceiling Lights
-  Vector_Lights[0].pos = glm::vec2(10.0f, 3.0f);
-  Vector_Lights[0].size = glm::vec2(6.0f, 9.0f);
-  Vector_Lights[0].dir = PI * 1.5f;
+  Vector_Lights[0].pos 		= glm::vec2(10.0f, 3.0f);
+  Vector_Lights[0].beam_length 	= 9.0f;
+  Vector_Lights[0].beam_angle	= (10.0f * PI) / 180.0f; // 10 degrees
+  Vector_Lights[0].direction 	= PI * 1.5f;		 // look down
 
-  Vector_Lights[1].pos = glm::vec2(20.0f, 3.0f);
-  Vector_Lights[1].size = glm::vec2(3.0f, 9.0f);
-  Vector_Lights[1].dir = PI * 1.5f;
+  Vector_Lights[1].pos 		= glm::vec2(20.0f, 3.0f);
+  Vector_Lights[1].beam_length 	= 9.0f;
+  Vector_Lights[1].beam_angle	= (10.0f * PI) / 180.0f; // 10 degrees
+  Vector_Lights[1].direction 	= PI * 1.5f;		 // look down
 
-  Vector_Lights[2].pos = glm::vec2(40.0f, 3.0f);
-  Vector_Lights[2].size = glm::vec2(4.0f, 9.0f);
-  Vector_Lights[2].dir = PI * 1.5f;
+  Vector_Lights[2].pos 		= glm::vec2(40.0f, 3.0f);
+  Vector_Lights[2].beam_length 	= 9.0f;
+  Vector_Lights[2].beam_angle	= (10.0f * PI) / 180.0f; // 10 degrees
+  Vector_Lights[2].direction 	= PI * 1.5f;		 // look down
 
-  Vector_Lights[3].pos = glm::vec2(60.0f, 3.0f);
-  Vector_Lights[3].size = glm::vec2(4.0f, 9.0f);
-  Vector_Lights[3].dir = PI * 1.5f;
+  Vector_Lights[3].pos 		= glm::vec2(60.0f, 3.0f);
+  Vector_Lights[3].beam_length 	= 9.0f;
+  Vector_Lights[3].beam_angle	= (10.0f * PI) / 180.0f; // 10 degrees
+  Vector_Lights[3].direction 	= PI * 1.5f;		 // look down
 
-  //Flashlights
-  // Vector_Lights[4].size = glm::vec2(2.0f, 4.0f);
-  // Vector_Lights[4].pos = Vector_Enemies[0].pos + glm::vec2(Vector_Lights[4].size.y - 0.35f, 0.0f);
-  // Vector_Lights[4].dir = 0.0f;
-
-  // Vector_Lights[5].size = glm::vec2(2.0, 10.0f);
-  // Vector_Lights[5].pos = Vector_Enemies[1].pos + glm::vec2(Vector_Lights[5].size.y - 0.35, 0.0f);
-  // Vector_Lights[5].dir = PI;
-
-
-  for (Light& i: Vector_Lights) {
-    //printf("i pos: (%f,%f), size: (%f,%f), dir: %f\n", i.pos.x, i.pos.y, i.size.x, i.size.y, i.dir);
-    rotate_light(i);
-    //printf("i vector0: (%f, %f)\n", i.vectors[0].x, i.vectors[0].y);
-  }
-  for (Enemy& i: Vector_Enemies) {
-  	update_enemy_light(i);
-  }
-  //printf("vector_lights[0].vectors[0]: (%f,%f)\n", Vector_Lights[0].vectors[0].x, Vector_Lights[0].vectors[0].y);
-  // rotate_light(ceilingLight_1);
-  // rotate_light(ceilingLight_2);
-  // rotate_light(ceilingLight_3);
-  // rotate_light(ceilingLight_4);
-  // rotate_light(enemyLight_1);
-  // rotate_light(enemyLight_2);
 
   //Door
   door.pos = glm::vec2(10.0f, 1.25f);
@@ -712,7 +673,7 @@ int main(int argc, char **argv) {
           }
         } 
         else if (evt.key.keysym.sym == SDLK_a) {
-          if (evt.key.state == SDL_PRESSED) {
+          if (evt.key.state == SDL_PRESSED && !player.behind_door) {
             if (player.shifting) {
               player.vel.x = -2.5f;
               player.face_right = false;
@@ -727,7 +688,7 @@ int main(int argc, char **argv) {
           }
         } 
         else if (evt.key.keysym.sym == SDLK_d) {
-          if (evt.key.state == SDL_PRESSED) {
+          if (evt.key.state == SDL_PRESSED && !player.behind_door) {
             if (player.shifting) {
               player.vel.x = 2.5f;
               player.face_right = true;
@@ -803,9 +764,14 @@ int main(int argc, char **argv) {
       if (!light.light_on)
         return false;
 
-      glm::vec2 A = light.vectors[0];
-      glm::vec2 B = light.vectors[1];
-      glm::vec2 C = light.vectors[2];
+      glm::vec2 A = light.pos + player.pos;
+      float angle;
+      
+      angle = light.direction + (light.beam_angle * PI / 180.0f);
+      glm::vec2 B = A + glm::vec2(light.beam_length * cos(angle), light.beam_length * sin(angle));
+      
+      angle = light.direction - (light.beam_angle * PI / 180.0f);
+      glm::vec2 C = A + glm::vec2(light.beam_length * cos(angle), light.beam_length * sin(angle));
 
       glm::vec2 v0 = C - A;
       glm::vec2 v1 = B - A;
@@ -836,7 +802,6 @@ int main(int argc, char **argv) {
       if (!player.behind_door) {
         bool isVisible = false;
         for (Light& i : Vector_Lights) {
-          rotate_light(i);
           isVisible = (isVisible || check_visibility(i));
         }
         if (isVisible)
@@ -857,6 +822,20 @@ int main(int argc, char **argv) {
         } else if (player.pos.x > end_level_pos_x) {
           player.pos.x = end_level_pos_x;
         }
+
+	// check collision with platforms
+	for (Air_Platform& platform :Vector_Air_Platforms) {
+		// Check collosion direction
+		if (abs(player.pos.x - platform.pos.x) < (player.size.x + platform.size.x) / 2.0f) {
+			if ((platform.pos.y - player.pos.y) < (player.size.y + platform.size.y) / 2.0f) {
+				// Downward collision
+				player.vel.y = 0.0f;
+			} else if ((player.pos.y - platform.pos.y) < (player.size.y + platform.size.y) / 2.0f) {
+				player.jumping = false;
+				player.vel.y = 0.0f;
+			}
+		}
+	}
       }
       if (player.pos.y < 1.0f) {
         player.jumping = false;
@@ -874,20 +853,13 @@ int main(int argc, char **argv) {
 
       //enemy update --------------------------------------------------------------
       for (Enemy& enemy: Vector_Enemies) {
-      	update_enemy_light(enemy);
-      	rotate_light(enemy.flashlight);    
-      	// printf("alight_vectors[0]: (%f,%f), light_vectors[1]: (%f,%f), light_vectors[2]: (%f,%f)\n", 
-					  //   	enemy.flashlight.vectors[0].x, enemy.flashlight.vectors[0].y,
-					  //   	enemy.flashlight.vectors[1].x, enemy.flashlight.vectors[1].y,
-					  //   	enemy.flashlight.vectors[2].x, enemy.flashlight.vectors[2].y);
-      	printf("flashlight size: (%f,%f)\n", enemy.flashlight.size.x, enemy.flashlight.size.y);
-
         if (!enemy.alerted) {
           if (!enemy.walking) {
             enemy.remaining_wait -= elapsed;
             if (enemy.remaining_wait <= 0.0f) {
               enemy.walking = true;
               enemy.face_right = !enemy.face_right;
+	      update_enemy_light(enemy);
               enemy.curr_index = (enemy.curr_index + 1) % 2;
               if (enemy.face_right) {
                 enemy.vel.x = 1.0f;
@@ -987,12 +959,14 @@ int main(int argc, char **argv) {
           enemy.alerted = true;
           enemy.walking = true;
           enemy.face_right = true;
+	  update_enemy_light(enemy);
         } else {
           enemy.target = (player.pos + enemy.pos)/2.0f;
           enemy.vel.x = -2.5f;
           enemy.alerted = true;
           enemy.walking = true;
           enemy.face_right = false;
+	  update_enemy_light(enemy);
         }
       }
 
@@ -1021,7 +995,7 @@ int main(int argc, char **argv) {
 
           //lights
           h_diff = ceilingLight_1.pos.x - i->x;
-          v_diff = (ceilingLight_1.pos.y + 0.5f * ceilingLight_1.size.y) - i->y;
+          v_diff = (ceilingLight_1.pos.y + 0.5f * ceilingLight_1.beam_length) - i->y;
           if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 2.0f) {
             ceilingLight_1.light_on = false;
           }
@@ -1130,14 +1104,36 @@ int main(int argc, char **argv) {
         if (i.light_on) {
           //draw_sprite(ceilingLight_1.sprite, ceilingLight_1.pos, ceilingLight_1.size);
           //printf("ipos: (%f, %f)\n", i.pos.x, i.pos.y);
-          draw_triangle(i.vectors[0], i.vectors[1], i.vectors[2],
-            glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+		glm::vec2 A, B, C;
+		A = i.pos;
+		float angle;
+
+		angle = i.direction + (i.beam_length * PI / 180.0f);
+		B = A + glm::vec2(i.beam_length * cos(angle), i.beam_length * sin(angle));
+
+		angle = i.direction - (i.beam_length * PI / 180.0f);
+		C = A + glm::vec2(i.beam_length * cos(angle), i.beam_length * sin(angle));
+		
+		draw_triangle(A, B, C, glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
         }
       }
       for (Enemy& i : Vector_Enemies) {
       	if (i.flashlight.light_on) {
-          draw_triangle(i.flashlight.vectors[0], i.flashlight.vectors[1], i.flashlight.vectors[2],
-            glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+		glm::vec2 A, B, C;
+		A = i.pos + i.flashlight.pos;
+		float angle;
+
+		angle = i.flashlight.direction + (i.flashlight.beam_length * PI / 180.0f);
+		B = A + glm::vec2(i.flashlight.beam_length * cos(angle), i.flashlight.beam_length * sin(angle));
+
+		angle = i.flashlight.direction - (i.flashlight.beam_length * PI / 180.0f);
+		C = A + glm::vec2(i.flashlight.beam_length * cos(angle), i.flashlight.beam_length * sin(angle));
+		
+		std::cerr << "pos = " << i.pos.x << " " << i.pos.y << std::endl
+			  << "A = " << A.x << " " << A.y << std::endl
+			  << "B = " << B.x << " " << B.y << std::endl
+			  << "C = " << C.x << " " << C.y << std::endl;
+		draw_triangle(A, B, C, glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
       	}
       }
       
