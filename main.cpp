@@ -476,7 +476,8 @@ int main(int argc, char **argv) {
 
 	//---- Instantiate Obects ----
 	Light ceilingLight;
-	Light flashlight;
+	Light flashlight0;
+	Light flashlight1;
 	Light l0;
 	Light l1;
 	Light l2;
@@ -542,11 +543,15 @@ int main(int argc, char **argv) {
 	// ceilingLight.size = glm::vec2(4.0f, 10.0f);
 	// ceilingLight.dir = PI * 1.5f;
 
-	flashlight.size = glm::vec2(2.0f, 4.0f);
-	flashlight.pos = enemies[0].pos + glm::vec2(flashlight.size.y - 0.35f, 0.0f);
-	flashlight.dir = 0.0f;
-	// rotate_light(ceilingLight);
-	rotate_light(flashlight);
+	flashlight0.size = glm::vec2(2.0f, 4.0f);
+	flashlight0.pos = enemies[0].pos + glm::vec2(flashlight0.size.y - 0.35f, 0.0f);
+	flashlight0.dir = 0.0f;
+	rotate_light(flashlight0);
+	
+  flashlight1.size = glm::vec2(2.0f, 4.0f);
+	flashlight1.pos = enemies[0].pos + glm::vec2(flashlight1.size.y - 0.35f, 0.0f);
+	flashlight1.dir = 0.0f;
+	rotate_light(flashlight1);
 
 	l0.pos = glm::vec2(2.0f, 3.0f);
 	l0.size = glm::vec2(1.5f, 10.0f);
@@ -740,8 +745,7 @@ int main(int argc, char **argv) {
 			
 			//check if player is in light
 
-			// if ((!player.behind_door) && (check_visibility(flashlight) || check_visibility(ceilingLight))) {
-			if ((!player.behind_door) && (check_visibility(flashlight))) {
+			if ((!player.behind_door) && (check_visibility(flashlight0) || check_visibility(flashlight1) || check_visibility(l0) || check_visibility(l1) || check_visibility(l2) || check_visibility(l3))) {
 				player.visible = true;
 			}
 
@@ -956,13 +960,27 @@ int main(int argc, char **argv) {
 
 			for (int i = 0; i < num_enemies; i++){
 				if (enemies[i].vel.x > 0.0f) {
-					flashlight.dir = 0.0f;
-					flashlight.pos = enemies[i].pos + glm::vec2(flashlight.size.y - 0.35f, 0.0f);
-					rotate_light(flashlight);
+          // FIX THIS LATER PLEASE
+          if (i == 0) {
+					  flashlight0.dir = 0.0f;
+					  flashlight0.pos = enemies[i].pos + glm::vec2(flashlight0.size.y - 0.35f, 0.0f);
+					  rotate_light(flashlight0);
+          } else if (i == 1) {
+					  flashlight1.dir = 0.0f;
+					  flashlight1.pos = enemies[i].pos + glm::vec2(flashlight1.size.y - 0.35f, 0.0f);
+					  rotate_light(flashlight1);
+          }
 				} else if (enemies[i].vel.x < 0.0f) {
-					flashlight.dir = PI;
-					flashlight.pos = enemies[i].pos - glm::vec2(flashlight.size.y + 0.60f, 0.0f);
-					rotate_light(flashlight);
+          // FIX THIS LATER AS WELL PLEASE
+          if (i == 0) { 
+					  flashlight0.dir = PI;
+					  flashlight0.pos = enemies[i].pos - glm::vec2(flashlight0.size.y + 0.60f, 0.0f);
+					  rotate_light(flashlight0);
+          } else if (i == 1) {
+					  flashlight1.dir = PI;
+					  flashlight1.pos = enemies[i].pos - glm::vec2(flashlight1.size.y + 0.60f, 0.0f);
+					  rotate_light(flashlight1);
+          }
 				}
 			}
 		}
@@ -1041,11 +1059,15 @@ int main(int argc, char **argv) {
 			}
 
 			//draw lights --------------------------------------------------------------
-			if (flashlight.light_on) {
-				draw_triangle(flashlight.vectors[0], flashlight.vectors[1], flashlight.vectors[2], 
+			if (flashlight0.light_on) {
+				draw_triangle(flashlight0.vectors[0], flashlight0.vectors[1], flashlight0.vectors[2], 
 					glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
 			}
 
+			if (flashlight1.light_on) {
+				draw_triangle(flashlight1.vectors[0], flashlight1.vectors[1], flashlight1.vectors[2], 
+					glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+      }
 
 			// if (ceilingLight.light_on) {
 			// 	draw_triangle(ceilingLight.vectors[0], ceilingLight.vectors[1], ceilingLight.vectors[2], 
