@@ -465,16 +465,20 @@ int main(int argc, char **argv) {
       light.vectors[2] = glm::vec2(light.pos.x + (0.5f * -light.size.x),
                                    light.pos.y + (0.5f * -light.size.y));
     }
+    // printf("blight_vectors[0]: (%f,%f), light_vectors[1]: (%f,%f), light_vectors[2]: (%f,%f)\n", 
+    // 	light.vectors[0].x, light.vectors[0].y,
+    // 	light.vectors[1].x, light.vectors[1].y,
+    // 	light.vectors[2].x, light.vectors[2].y);
   };  
 
    auto update_enemy_light = [](Enemy &enemy) {
   	if (enemy.face_right) {
   		enemy.flashlight.dir = 0.0f;
-  		enemy.flashlight.pos = enemy.pos + glm::vec2(0.05f, 0.0f);
+  		enemy.flashlight.pos = enemy.pos + glm::vec2(enemy.flashlight.size.y + 0.05f, 0.0f);
   	}
   	else {
   		enemy.flashlight.dir = PI;
-  		enemy.flashlight.pos = enemy.pos + glm::vec2(1.4, 0.0f);
+  		enemy.flashlight.pos = enemy.pos - glm::vec2(enemy.flashlight.size.y, 0.0f);
   	}
   };
 
@@ -528,18 +532,21 @@ int main(int argc, char **argv) {
   //Enemies
   Vector_Enemies[0].pos = glm::vec2(31.0f, 1.0f);
   Vector_Enemies[0].target = glm::vec2(20.0f, 0.0f);
+  Vector_Enemies[0].flashlight.size = glm::vec2(2.0f, 5.0f);
 
   Vector_Enemies[1].pos = glm::vec2(50.0f, 1.0f);
   Vector_Enemies[1].alert_size = glm::vec2(1.0f, 0.2f);
   Vector_Enemies[1].waypoints[0] = Vector_Enemies[1].pos;
   Vector_Enemies[1].waypoints[1] = Vector_Enemies[1].pos;
   Vector_Enemies[1].target = Vector_Enemies[1].pos;
+  Vector_Enemies[1].flashlight.size = glm::vec2(1.5f, 10.0f);
 
   Vector_Enemies[2].pos = glm::vec2(end_level_pos_x - 5.0f, 2.5);
   Vector_Enemies[2].alert_size = glm::vec2(0.3f, 0.1f);
   Vector_Enemies[2].waypoints[0] = Vector_Enemies[2].pos;
   Vector_Enemies[2].waypoints[1] = Vector_Enemies[2].pos;
   Vector_Enemies[2].target = Vector_Enemies[2].pos;
+  Vector_Enemies[2].flashlight.size = glm::vec2(1.5f, 1.5f);
 
 
   //Ceiling Lights
@@ -868,7 +875,12 @@ int main(int argc, char **argv) {
       //enemy update --------------------------------------------------------------
       for (Enemy& enemy: Vector_Enemies) {
       	update_enemy_light(enemy);
-      	rotate_light(enemy.flashlight);
+      	rotate_light(enemy.flashlight);    
+      	// printf("alight_vectors[0]: (%f,%f), light_vectors[1]: (%f,%f), light_vectors[2]: (%f,%f)\n", 
+					  //   	enemy.flashlight.vectors[0].x, enemy.flashlight.vectors[0].y,
+					  //   	enemy.flashlight.vectors[1].x, enemy.flashlight.vectors[1].y,
+					  //   	enemy.flashlight.vectors[2].x, enemy.flashlight.vectors[2].y);
+      	printf("flashlight size: (%f,%f)\n", enemy.flashlight.size.x, enemy.flashlight.size.y);
 
         if (!enemy.alerted) {
           if (!enemy.walking) {
