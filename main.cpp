@@ -260,8 +260,6 @@ int main(int argc, char **argv) {
 
 	//----------------- Variables --------------------------------------------
 
-	float start_level_pos_x = 0.25f;
-	float end_level_pos_x = 75.0f;
 
 	//----------------- Structs ----------------------------------------------
 	struct {
