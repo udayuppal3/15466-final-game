@@ -827,10 +827,10 @@ int main(int argc, char **argv) {
 	for (Air_Platform& platform :Vector_Air_Platforms) {
 		// Check collosion direction
 		if (abs(player.pos.x - platform.pos.x) < (player.size.x + platform.size.x) / 2.0f) {
-			if ((platform.pos.y - player.pos.y) < (player.size.y + platform.size.y) / 2.0f) {
+			if ((player.pos.y - platform.pos.y) < (player.size.y + platform.size.y) / 2.0f) {
 				// Downward collision
 				player.vel.y = 0.0f;
-			} else if ((player.pos.y - platform.pos.y) < (player.size.y + platform.size.y) / 2.0f) {
+			} else if ((platform.pos.y - player.pos.y) < (player.size.y + platform.size.y) / 2.0f) {
 				player.jumping = false;
 				player.vel.y = 0.0f;
 			}
