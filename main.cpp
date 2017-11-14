@@ -826,14 +826,34 @@ int main(int argc, char **argv) {
 	// check collision with platforms
 	for (Air_Platform& platform :Vector_Air_Platforms) {
 		// Check collosion direction
-		if (abs(player.pos.x - platform.pos.x) < (player.size.x + platform.size.x) / 2.0f) {
-			if ((player.pos.y - platform.pos.y) < (player.size.y + platform.size.y) / 2.0f) {
-				// Downward collision
+		if (fabs(player.pos.x - platform.pos.x) < (player.size.x + platform.size.x) / 2.0f) {
+			std::cerr << "x ---- true" << std::endl;
+			if ((fabs(player.pos.x - platform.pos.x) * 2.0f / (player.size.x + platform.size.x )) >
+					fabs((player.pos.y - platform.pos.y) * 2.0f / (player.size.y + platform.size.y))) {
+				if (player.vel.x > 0 && player.pos.x < platform.pos.x) {
+					player.pos.x -= player.vel.x * elapsed;
+				} else if (player.vel.x < 0 && player.pos.x > platform.pos.x) {
+					player.pos.x -= player.vel.x * elapsed;
+				} else {
+					if (player.pos.y > 1.0f) {
+						player.jumping = true;
+					}
+				}
+			} else if ((player.pos.y - platform.pos.y) > 0 && (player.pos.y - platform.pos.y) < (player.size.y + platform.size.y) / 2.0f) {
+				// Upward collision
+				std::cerr << "y ---- true "  << player.pos.y << " " << platform.pos.y << " " 
+					  << player.size.y << " " << platform.size.y << std::endl;
 				player.vel.y = 0.0f;
-			} else if ((platform.pos.y - player.pos.y) < (player.size.y + platform.size.y) / 2.0f) {
 				player.jumping = false;
-				player.vel.y = 0.0f;
+			} else if ((platform.pos.y - player.pos.y) > 0 && (platform.pos.y - player.pos.y) < (player.size.y + platform.size.y)) {
+				//player.pos.y -= player.vel.y * elapsed;
+				player.vel.y = -fabs(player.vel.y);
+			} else {
+				std::cerr << "y ---- false" << std::endl;
 			}
+
+		} else {
+			std::cerr << "x ---- false" << std::endl;
 		}
 	}
       }
@@ -844,7 +864,7 @@ int main(int argc, char **argv) {
       }
 
       //camera update ---------------------------------------------------------------
-      camera.pos.x += player.vel.x * elapsed;
+      camera.pos.x = player.pos.x;
       if (player.pos.x < 6.0f) {
         camera.pos.x = 6.0f;
       } else if (player.pos.x > (end_level_pos_x - 10.0f)) {
@@ -1129,10 +1149,6 @@ int main(int argc, char **argv) {
 		angle = i.flashlight.direction - (i.flashlight.beam_length * PI / 180.0f);
 		C = A + glm::vec2(i.flashlight.beam_length * cos(angle), i.flashlight.beam_length * sin(angle));
 		
-		std::cerr << "pos = " << i.pos.x << " " << i.pos.y << std::endl
-			  << "A = " << A.x << " " << A.y << std::endl
-			  << "B = " << B.x << " " << B.y << std::endl
-			  << "C = " << C.x << " " << C.y << std::endl;
 		draw_triangle(A, B, C, glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
       	}
       }
