@@ -467,8 +467,7 @@ int main(int argc, char **argv) {
     }
   };  
 
-  /*
-   * auto update_enemy_light = [](Enemy &enemy) {
+   auto update_enemy_light = [](Enemy &enemy) {
   	if (enemy.face_right) {
   		enemy.flashlight.dir = 0.0f;
   		enemy.flashlight.pos = enemy.pos + glm::vec2(0.05f, 0.0f);
@@ -478,7 +477,6 @@ int main(int argc, char **argv) {
   		enemy.flashlight.pos = enemy.pos + glm::vec2(1.4, 0.0f);
   	}
   };
-  */
 
 
   //------------ Initialization ---------------------------------------------
