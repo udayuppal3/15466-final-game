@@ -495,7 +495,7 @@ int main(int argc, char **argv) {
   Vector_Enemies[1].waypoints[1] = Vector_Enemies[1].pos;
   Vector_Enemies[1].target = Vector_Enemies[1].pos;
 
-  Vector_Enemies[2].pos = glm::vec2(70.0f, 2.5);
+  Vector_Enemies[2].pos = glm::vec2(end_level_pos_x - 5.0f, 2.5);
   Vector_Enemies[2].alert_size = glm::vec2(0.3f, 0.1f);
   Vector_Enemies[2].waypoints[0] = Vector_Enemies[2].pos;
   Vector_Enemies[2].waypoints[1] = Vector_Enemies[2].pos;
