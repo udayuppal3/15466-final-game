@@ -3,7 +3,7 @@
 #include "load_save_png.hpp"
 #include "GL.hpp"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -19,6 +19,17 @@ float dot(glm::vec2 a, glm::vec2 b) {
   return (a.x * b.x + a.y * b.y);
 }
 
+static const char *BG_MUSIC_PATH = "../sounds/Light_And_Shadow_Soundtrack.wav";
+
+struct AudioData {
+	Uint8 *pos;    // Current pointed byte of WAV
+	Uint32 length; // Remainging wav length
+	Uint8 *init_pos;   // Start location of the WAV
+	Uint32 init_length; // Duration of the WAV
+};
+
+static void playTone(void *userdata, Uint8 *stream, int streamlength);
+
 int main(int argc, char **argv) {
   //Configuration:
   struct {
@@ -30,6 +41,7 @@ int main(int argc, char **argv) {
 
   //Initialize SDL library:
   SDL_Init(SDL_INIT_VIDEO);
+  SDL_Init(SDL_INIT_AUDIO);
 
   //Ask for an OpenGL context version 3.3, core profile, enable debug:
   SDL_GL_ResetAttributes();
@@ -85,6 +97,34 @@ int main(int argc, char **argv) {
 
   //Hide mouse cursor (note: showing can be useful for debugging):
   //SDL_ShowCursor(SDL_DISABLE);
+
+  //SDL Audio
+  SDL_AudioSpec wavSpec;
+  Uint8 *wavStart;
+  Uint32 wavLength;
+
+  if (SDL_LoadWAV(BG_MUSIC_PATH, &wavSpec, &wavStart, &wavLength) == NULL) {
+	  std::cerr << "Failed to load back ground music" << std::endl;
+	  exit(1);
+  }
+
+  AudioData audioData;
+  audioData.pos    = wavStart;
+  audioData.length = wavLength;
+
+  audioData.init_pos = wavStart;
+  audioData.init_length = wavLength;
+
+  wavSpec.callback = playTone;
+  wavSpec.userdata = &audioData;
+
+  SDL_AudioDeviceID audioDevice = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL,
+		  SDL_AUDIO_ALLOW_ANY_CHANGE);
+
+  if (audioDevice == 0) {
+	  std::cerr << "Failed to grab a device" << std::endl;
+	  exit(1);
+  }
 
   //------------ opengl objects / game assets ------------
 
@@ -427,7 +467,8 @@ int main(int argc, char **argv) {
     }
   };  
 
-  auto update_enemy_light = [](Enemy &enemy) {
+  /*
+   * auto update_enemy_light = [](Enemy &enemy) {
   	if (enemy.face_right) {
   		enemy.flashlight.dir = 0.0f;
   		enemy.flashlight.pos = enemy.pos + glm::vec2(0.05f, 0.0f);
@@ -437,6 +478,7 @@ int main(int argc, char **argv) {
   		enemy.flashlight.pos = enemy.pos + glm::vec2(1.4, 0.0f);
   	}
   };
+  */
 
 
   //------------ Initialization ---------------------------------------------
@@ -619,6 +661,9 @@ int main(int argc, char **argv) {
   //End of Initialization -----------------------------------------------------
 
   //------------ game loop ------------
+
+  // Start audio playback
+  SDL_PauseAudioDevice(audioDevice, 0);
 
   bool should_quit = false;
   while (true) {
@@ -1197,11 +1242,17 @@ int main(int argc, char **argv) {
 
   //------------  teardown ------------
 
+  // Close the audio devices
+  SDL_CloseAudioDevice(audioDevice);
+  SDL_FreeWAV(wavStart);
+
   SDL_GL_DeleteContext(context);
   context = 0;
 
   SDL_DestroyWindow(window);
   window = NULL;
+
+  SDL_Quit();
 
   return 0;
 }
@@ -1248,4 +1299,23 @@ static GLuint link_program(GLuint fragment_shader, GLuint vertex_shader) {
     throw std::runtime_error("Failed to link program");
   }
   return program;
+}
+
+static void playTone(void *userData, Uint8 *stream, int streamLength) {
+	// change the user data passed by SDL into our User defined AudioData format
+	AudioData *audioData = (AudioData *)userData;
+
+	if (audioData->length == 0) {
+		// Set the init length and pos
+		audioData->pos = audioData->init_pos;
+		audioData->length = audioData->init_length;
+	}
+
+	Uint32 length = (Uint32) streamLength;
+	length = length > audioData->length ? audioData->length : length;
+
+	SDL_memcpy(stream, audioData->pos, length);
+
+	audioData->pos += length;
+	audioData->length -= length;
 }
