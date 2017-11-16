@@ -263,7 +263,7 @@ int main(int argc, char **argv) {
 
 	//----------------- Structs ----------------------------------------------
 	struct {
-		glm::vec2 pos = glm::vec2(6.0f, 3.5f);
+		glm::vec2 pos = glm::vec2(6.0f, 2.5f);
 		glm::vec2 size = glm::vec2(12.0f, 7.0f);
 	} camera;
 	//adjust for aspect ratio
