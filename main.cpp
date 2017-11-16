@@ -332,7 +332,7 @@ int main(int argc, char **argv) {
 		bool visible = false;  
 
 		float walk_sound = 2.0f;
-		float run_sound = 10.0f;
+		float run_sound = 6.0f;
 		float throw_sound = 6.0f;
 		float sound_time = 0.5f;
 		
@@ -621,14 +621,14 @@ int main(int argc, char **argv) {
 				else if (evt.key.keysym.sym == SDLK_a) {
 					if (evt.key.state == SDL_PRESSED) {
 						if (player.shifting) {
-							player.vel.x = -2.5f;
+							player.vel.x = -2.0f;
 							player.face_right = false;
 						} else {
 							player.vel.x = -1.0f;
 							player.face_right = false;
 						}
 					} else {
-						if (player.vel.x == -1.0f || player.vel.x == -2.5f) {
+						if (player.vel.x == -1.0f || player.vel.x == -2.0f) {
 							player.vel.x = 0.0f;
 						}
 					}
@@ -636,14 +636,14 @@ int main(int argc, char **argv) {
 				else if (evt.key.keysym.sym == SDLK_d) {
 					if (evt.key.state == SDL_PRESSED) {
 						if (player.shifting) {
-							player.vel.x = 2.5f;
+							player.vel.x = 2.0f;
 							player.face_right = true;
 						} else {
 							player.vel.x = 1.0f;
 							player.face_right = true;
 						}
 					} else {
-						if (player.vel.x == 1.0f || player.vel.x == 2.5f) {
+						if (player.vel.x == 1.0f || player.vel.x == 2.0f) {
 							player.vel.x = 0.0f;
 						}
 					}
@@ -662,17 +662,17 @@ int main(int argc, char **argv) {
 					if (evt.key.state == SDL_PRESSED) {
 						if (player.vel.x == 1.0f) {
 							player.face_right = true;
-							player.vel.x = 2.5f;
+							player.vel.x = 2.0f;
 						} else if (player.vel.x == -1.0f) {
 							player.face_right = false;
-							player.vel.x = -2.5f;
+							player.vel.x = -2.0f;
 						}
 						player.shifting = true;
 					} else {
-						if (player.vel.x == 2.5f) {
+						if (player.vel.x == 2.0f) {
 							player.face_right = true;
 							player.vel.x = 1.0f;
-						} else if (player.vel.x == -2.5f) {
+						} else if (player.vel.x == -2.0f) {
 							player.face_right = false;
 							player.vel.x = -1.0f;
 						}
@@ -900,7 +900,7 @@ int main(int argc, char **argv) {
 				float sound = 0.0f;
 				if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
 					sound = 0.5f * player.walk_sound;
-				} else if ((player.vel.x == 2.5f || player.vel.x == -2.5f) && !player.jumping && !player.behind_door) {
+				} else if ((player.vel.x == 2.0f || player.vel.x == -2.0f) && !player.jumping && !player.behind_door) {
 					sound = 0.5f * player.run_sound;
 				}
 
@@ -1172,7 +1172,7 @@ int main(int argc, char **argv) {
 				float sound = 0.0f;
 				if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
 					sound = player.walk_sound;
-				} else if ((player.vel.x == 2.5f || player.vel.x == -2.5f) && !player.jumping&& !player.behind_door) {
+				} else if ((player.vel.x == 2.0f || player.vel.x == -2.0f) && !player.jumping&& !player.behind_door) {
 					sound = player.run_sound;
 				}
 				draw_sprite(mouse.sprite_throw, glm::vec2(player.pos.x, player.pos.y - 0.5 * player.size.y), glm::vec2(sound));
