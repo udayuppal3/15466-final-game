@@ -492,7 +492,7 @@ int main(int argc, char **argv) {
 	const int num_enemies = 2;
 	const int num_doors = 1;	
 
-	bool on_platform = false;
+	//bool on_platform = false;
 
 	//for level 1:
 	Platform platforms[num_platforms];
@@ -770,6 +770,7 @@ int main(int argc, char **argv) {
 			// 	player.vel.y = 0.0f;
 			// }
 
+			/*
 			//set up ground floor first
 			if (player.pos.y < platforms[0].pos.y + platforms[0].size.y/2.0f + player.size.y/2.0f) {
 				player.jumping = false;
@@ -797,10 +798,43 @@ int main(int argc, char **argv) {
 			if (!on_platform && player.pos.y != 1.0f){
 				player.jumping = true;
 			}
+			*/
+			
+			// check collision with platforms
+			for (int i = 1; i < num_platforms; i++){
+				// Check collosion direction
+				if (fabs(player.pos.x - platforms[i].pos.x) < (player.size.x + platforms[i].size.x) / 2.0f) {
+					if ((fabs(player.pos.x - platforms[i].pos.x) * 2.0f / (player.size.x + platforms[i].size.x )) >
+							fabs((player.pos.y - platforms[i].pos.y) * 2.0f / (player.size.y + platforms[i].size.y))) {
+						if (player.vel.x > 0 && player.pos.x < platforms[i].pos.x) {
+							player.pos.x -= player.vel.x * elapsed;
+						} else if (player.vel.x < 0 && player.pos.x > platforms[i].pos.x) {
+							player.pos.x -= player.vel.x * elapsed;
+						} else {
+							if (player.pos.y > 1.0f) {
+								player.jumping = true;
+							}
+						}
+					} else if ((player.pos.y - platforms[i].pos.y) > 0 && (player.pos.y - platforms[i].pos.y) < (player.size.y + platforms[i].size.y) / 2.0f) {
+						// Upward collision
+						player.vel.y = 0.0f;
+						player.jumping = false;
+					} else if ((platforms[i].pos.y - player.pos.y) > 0 && (platforms[i].pos.y - player.pos.y) < (player.size.y + platforms[i].size.y)) {
+						//player.pos.y -= player.vel.y * elapsed;
+						player.vel.y = -fabs(player.vel.y);
+					}
+				}
+			}
+		
+	      		if (player.pos.y < 1.0f) {
+        			player.jumping = false;
+			        player.pos.y = 1.0f;
+        			player.vel.y = 0.0f;
+			}
 
 
 			//camera update ---------------------------------------------------------------
-			camera.pos.x += player.vel.x * elapsed;
+			camera.pos.x = player.pos.x;
 			if (player.pos.x < 6.0f) {
 				camera.pos.x = 6.0f;
 			} else if (player.pos.x > 14.0f) {
