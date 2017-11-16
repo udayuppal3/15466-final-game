@@ -260,7 +260,6 @@ int main(int argc, char **argv) {
 
 	//----------------- Variables --------------------------------------------
 
-
 	//----------------- Structs ----------------------------------------------
 	struct {
 		glm::vec2 pos = glm::vec2(6.0f, 2.5f);
@@ -896,7 +895,7 @@ int main(int argc, char **argv) {
 			//detect footsteps
 			for (int i = 0; i < num_enemies; i++){
 				float h_diff = enemies[i].pos.x - player.pos.x;
-				float v_diff = enemies[i].pos.y - (player.pos.y - 0.5f * player.size.y);
+				float v_diff = (enemies[i].pos.y + 0.35f * enemies[i].size.y) - (player.pos.y - 0.5f * player.size.y);
 				float sound = 0.0f;
 				if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
 					sound = 0.5f * player.walk_sound;
@@ -928,7 +927,7 @@ int main(int argc, char **argv) {
 					for (int j = 0; j < num_enemies; j++){
 						//enemies
 						float h_diff = enemies[j].pos.x - i->x;
-						float v_diff = enemies[j].pos.y - i->y;
+						float v_diff = (enemies[j].pos.y + 0.35f * enemies[j].size.y) - i->y;
 						if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 0.5f * player.throw_sound) {
 							if (i->x > enemies[j].pos.x) {
 								enemies[j].target = *i;
