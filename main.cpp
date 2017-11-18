@@ -1105,9 +1105,9 @@ int main(int argc, char **argv) {
 				mouse.remaining_time -= elapsed;
 				for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
 					if (i->y == 0.5) {
-						draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound));
+						draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound * (1.0f - mouse.remaining_time)));
 					} else {
-						draw_sprite(mouse.sprite_shoot, *i, glm::vec2(player.throw_sound));
+						draw_sprite(mouse.sprite_shoot, *i, glm::vec2(player.throw_sound * (1.0f - mouse.remaining_time)));
 					}
 				}
 
@@ -1166,16 +1166,17 @@ int main(int argc, char **argv) {
 
 			player.sound_time -= elapsed;
 			if (player.sound_time < 0.0f) {
-				player.sound_time = 0.5f;
-			} else if (player.sound_time < 0.15f) {
+				player.sound_time = 1.0f;
+			} else if (player.sound_time < 1.0f) {
 				float sound = 0.0f;
 				if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
 					sound = player.walk_sound;
 				} else if ((player.vel.x == 2.0f || player.vel.x == -2.0f) && !player.jumping&& !player.behind_door) {
 					sound = player.run_sound;
 				}
-				draw_sprite(mouse.sprite_throw, glm::vec2(player.pos.x, player.pos.y - 0.5 * player.size.y), glm::vec2(sound));
+				draw_sprite(mouse.sprite_throw, glm::vec2(player.pos.x, player.pos.y - 0.5 * player.size.y), glm::vec2(sound * (1.0f - player.sound_time)));
 			}
+
 			//-----------------------------------------------------------------------
 
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
