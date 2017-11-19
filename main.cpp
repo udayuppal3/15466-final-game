@@ -260,10 +260,9 @@ int main(int argc, char **argv) {
 
 	//----------------- Variables --------------------------------------------
 
-
 	//----------------- Structs ----------------------------------------------
 	struct {
-		glm::vec2 pos = glm::vec2(6.0f, 3.5f);
+		glm::vec2 pos = glm::vec2(6.0f, 2.5f);
 		glm::vec2 size = glm::vec2(12.0f, 7.0f);
 	} camera;
 	//adjust for aspect ratio
@@ -332,7 +331,7 @@ int main(int argc, char **argv) {
 		bool visible = false;  
 
 		float walk_sound = 2.0f;
-		float run_sound = 10.0f;
+		float run_sound = 6.0f;
 		float throw_sound = 6.0f;
 		float sound_time = 0.5f;
 		
@@ -654,14 +653,14 @@ int main(int argc, char **argv) {
 				else if (evt.key.keysym.sym == SDLK_a) {
 					if (evt.key.state == SDL_PRESSED) {
 						if (player.shifting) {
-							player.vel.x = -2.5f;
+							player.vel.x = -2.0f;
 							player.face_right = false;
 						} else {
 							player.vel.x = -1.0f;
 							player.face_right = false;
 						}
 					} else {
-						if (player.vel.x == -1.0f || player.vel.x == -2.5f) {
+						if (player.vel.x == -1.0f || player.vel.x == -2.0f) {
 							player.vel.x = 0.0f;
 						}
 					}
@@ -669,14 +668,14 @@ int main(int argc, char **argv) {
 				else if (evt.key.keysym.sym == SDLK_d) {
 					if (evt.key.state == SDL_PRESSED) {
 						if (player.shifting) {
-							player.vel.x = 2.5f;
+							player.vel.x = 2.0f;
 							player.face_right = true;
 						} else {
 							player.vel.x = 1.0f;
 							player.face_right = true;
 						}
 					} else {
-						if (player.vel.x == 1.0f || player.vel.x == 2.5f) {
+						if (player.vel.x == 1.0f || player.vel.x == 2.0f) {
 							player.vel.x = 0.0f;
 						}
 					}
@@ -695,17 +694,17 @@ int main(int argc, char **argv) {
 					if (evt.key.state == SDL_PRESSED) {
 						if (player.vel.x == 1.0f) {
 							player.face_right = true;
-							player.vel.x = 2.5f;
+							player.vel.x = 2.0f;
 						} else if (player.vel.x == -1.0f) {
 							player.face_right = false;
-							player.vel.x = -2.5f;
+							player.vel.x = -2.0f;
 						}
 						player.shifting = true;
 					} else {
-						if (player.vel.x == 2.5f) {
+						if (player.vel.x == 2.0f) {
 							player.face_right = true;
 							player.vel.x = 1.0f;
-						} else if (player.vel.x == -2.5f) {
+						} else if (player.vel.x == -2.0f) {
 							player.face_right = false;
 							player.vel.x = -1.0f;
 						}
@@ -928,12 +927,17 @@ int main(int argc, char **argv) {
 
 			//detect footsteps
 			for (int i = 0; i < num_enemies; i++){
+<<<<<<< HEAD
 				float h_diff = enemies.pos.x - player.pos.x;
 				float v_diff = enemies.pos.y - (player.pos.y - 0.5f * player.size.y);
+=======
+				float h_diff = enemies[i].pos.x - player.pos.x;
+				float v_diff = (enemies[i].pos.y + 0.35f * enemies[i].size.y) - (player.pos.y - 0.5f * player.size.y);
+>>>>>>> 6219c84498ff75eab82048478fabe69662850f2a
 				float sound = 0.0f;
 				if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
 					sound = 0.5f * player.walk_sound;
-				} else if ((player.vel.x == 2.5f || player.vel.x == -2.5f) && !player.jumping && !player.behind_door) {
+				} else if ((player.vel.x == 2.0f || player.vel.x == -2.0f) && !player.jumping && !player.behind_door) {
 					sound = 0.5f * player.run_sound;
 				}
 
@@ -960,8 +964,13 @@ int main(int argc, char **argv) {
 					
 					for (Enemy& enemy : Vector_Enemies) {
 						//enemies
+<<<<<<< HEAD
 						float h_diff = enemy.pos.x - i->x;
 						float v_diff = enemy.pos.y - i->y;
+=======
+						float h_diff = enemies[j].pos.x - i->x;
+						float v_diff = (enemies[j].pos.y + 0.35f * enemies[j].size.y) - i->y;
+>>>>>>> 6219c84498ff75eab82048478fabe69662850f2a
 						if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 0.5f * player.throw_sound) {
 							if (i->x > enemy.pos.x) {
 								enemy.target = *i;
@@ -1164,11 +1173,12 @@ int main(int argc, char **argv) {
 				float sound = 0.0f;
 				if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
 					sound = player.walk_sound;
-				} else if ((player.vel.x == 2.5f || player.vel.x == -2.5f) && !player.jumping&& !player.behind_door) {
+				} else if ((player.vel.x == 2.0f || player.vel.x == -2.0f) && !player.jumping&& !player.behind_door) {
 					sound = player.run_sound;
 				}
 				draw_sprite(mouse.sprite_throw, glm::vec2(player.pos.x, player.pos.y - 0.5 * player.size.y), glm::vec2(sound * (1.0f - player.sound_time)));
 			}
+
 			//-----------------------------------------------------------------------
 
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
