@@ -926,14 +926,9 @@ int main(int argc, char **argv) {
 				}
 
 			//detect footsteps
-			for (int i = 0; i < num_enemies; i++){
-<<<<<<< HEAD
+			for (Enemy& enemies : Vector_Enemies) {
 				float h_diff = enemies.pos.x - player.pos.x;
-				float v_diff = enemies.pos.y - (player.pos.y - 0.5f * player.size.y);
-=======
-				float h_diff = enemies[i].pos.x - player.pos.x;
-				float v_diff = (enemies[i].pos.y + 0.35f * enemies[i].size.y) - (player.pos.y - 0.5f * player.size.y);
->>>>>>> 6219c84498ff75eab82048478fabe69662850f2a
+				float v_diff = (enemies.pos.y + 0.35f * enemies.size.y) - (player.pos.y - 0.5f * player.size.y);
 				float sound = 0.0f;
 				if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
 					sound = 0.5f * player.walk_sound;
@@ -964,13 +959,8 @@ int main(int argc, char **argv) {
 					
 					for (Enemy& enemy : Vector_Enemies) {
 						//enemies
-<<<<<<< HEAD
 						float h_diff = enemy.pos.x - i->x;
-						float v_diff = enemy.pos.y - i->y;
-=======
-						float h_diff = enemies[j].pos.x - i->x;
-						float v_diff = (enemies[j].pos.y + 0.35f * enemies[j].size.y) - i->y;
->>>>>>> 6219c84498ff75eab82048478fabe69662850f2a
+						float v_diff = (enemy.pos.y + 0.35f * enemy.size.y) - i->y;
 						if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 0.5f * player.throw_sound) {
 							if (i->x > enemy.pos.x) {
 								enemy.target = *i;
