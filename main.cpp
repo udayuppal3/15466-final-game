@@ -12,6 +12,10 @@
 #include <stdexcept>
 #include <stdio.h>
 
+#include <iomanip>
+#include <fstream>
+using namespace std;
+
 const float PI = 3.1415f;
 static GLuint compile_shader(GLenum type, std::string const &source);
 static GLuint link_program(GLuint vertex_shader, GLuint fragment_shader);
@@ -506,33 +510,165 @@ int main(int argc, char **argv) {
 	 * object initialization, as well as the variables attached to each object.
 	 */
 
-	//---- Instantiate Obects ----
-	//delete this once import code is written
-	int num_lights = 5;
-	Light ceilingLight;
-	Light l0;
-	Light l1;
-	Light l2;
-	Light l3;
+	const int num_variables = 4;
 
-	int num_plats = 4;
-	Platform floor_plat_1;
-	Platform floor_plat_2;
-	Platform floor_plat_3;
-	Platform floor_plat_4;
+	int sum = 0;
+    int x;
+    float y;
+    int sizes[num_variables];
+    ifstream inFile;
+    
+    inFile.open("test-sizes.txt");
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+    
+    for (int i = 0; i < num_variables; i++){
+    	inFile >> x;
+    	sizes[i] = x;
+    }
 
-	int num_enemies = 3;
-	Enemy enemy_1;
-	Enemy enemy_2;
-	Enemy enemy_3;
+    inFile.close();
 
-	int num_doors = 1;
-	Door door_1;
+    //initialize the number of objects per things in level
+    int num_lights = sizes[0];
+	int num_plats = sizes[1];
+	int num_enemies = sizes[2];
+	int num_doors = sizes[3];
 
-	//uncomment for original level
-	//Platform platform;
-	//Enemy enemy;
-	//Door door;
+	//grab platform info
+    inFile.open("test-plat.txt");
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+
+    float* plat_pos_x;
+    float* plat_pos_y;
+    float* plat_size_x;
+    float* plat_size_y;
+	plat_pos_x = new float[num_plats];
+	plat_pos_y = new float[num_plats];
+	plat_size_x = new float[num_plats];
+	plat_size_y = new float[num_plats];
+
+	for (int i = 0; i < num_plats; i++){
+    	inFile >> y;
+    	plat_pos_x[i] = y;
+    	inFile >> y;
+    	plat_pos_y[i] = y;
+    	inFile >> y;
+    	plat_size_x[i] = y;
+    	inFile >> y;
+    	plat_size_y[i] = y;
+    }
+
+    inFile.close();
+
+    //grab enemy info
+    inFile.open("test-enemies.txt");
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+
+    float* enem_pos_x;
+    float* enem_pos_y;
+    float* enem_w1_x;
+    float* enem_w1_y;
+    float* enem_w2_x;
+    float* enem_w2_y;
+    float* enem_fs_x;
+    float* enem_fs_y;
+	enem_pos_x = new float[num_enemies];
+	enem_pos_y = new float[num_enemies];
+	enem_w1_x = new float[num_enemies];
+	enem_w1_y = new float[num_enemies];
+	enem_w2_x = new float[num_enemies];
+	enem_w2_y = new float[num_enemies];
+	enem_fs_x = new float[num_enemies];
+	enem_fs_y = new float[num_enemies];
+
+	for (int i = 0; i < num_enemies; i++){
+    	inFile >> y;
+    	enem_pos_x[i] = y;
+    	inFile >> y;
+    	enem_pos_y[i] = y;
+    	inFile >> y;
+    	enem_w1_x[i] = y;
+    	inFile >> y;
+    	enem_w1_y[i] = y;
+    	inFile >> y;
+    	enem_w2_x[i] = y;
+    	inFile >> y;
+    	enem_w2_y[i] = y;
+    	inFile >> y;
+    	enem_fs_x[i] = y;
+    	inFile >> y;
+    	enem_fs_y[i] = y;
+    }
+
+    inFile.close();
+
+	//grab lights info
+    inFile.open("test-lights.txt");
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+
+    float* lights_pos_x;
+    float* lights_pos_y;
+    float* lights_size_x;
+    float* lights_size_y;
+    float* lights_dir;
+	lights_pos_x = new float[num_lights];
+	lights_pos_y = new float[num_lights];
+	lights_size_x = new float[num_lights];
+	lights_size_y = new float[num_lights];
+	lights_dir = new float[num_lights];
+
+	for (int i = 0; i < num_lights; i++){
+    	inFile >> y;
+    	lights_pos_x[i] = y;
+    	inFile >> y;
+    	lights_pos_y[i] = y;
+    	inFile >> y;
+    	lights_size_x[i] = y;
+    	inFile >> y;
+    	lights_size_y[i] = y;
+    	inFile >> y;
+    	lights_dir[i] = y;
+    }
+
+    inFile.close();
+
+    //grab doors info
+    inFile.open("test-doors.txt");
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+
+    float* doors_pos_x;
+    float* doors_pos_y;
+	doors_pos_x = new float[num_doors];
+	doors_pos_y = new float[num_doors];
+
+	for (int i = 0; i < num_doors; i++){
+    	inFile >> y;
+    	doors_pos_x[i] = y;
+    	inFile >> y;
+    	doors_pos_y[i] = y;
+    }
+
+    inFile.close();
+
+
+    /***** done importing level, start initializing *****/
+
+
 	std::vector< Platform > Vector_Platforms = {};
 	std::vector< Door > Vector_Doors = {};
 	std::vector< Light > Vector_Lights = {};
@@ -546,11 +682,20 @@ int main(int argc, char **argv) {
 
 	bool on_platform = false;
 
-	//for level 1:
-	Platform platforms[4];
-	Light lights[5];
-	Enemy enemies[3];
-	Door door[1];
+
+
+	Platform* platforms;
+	Light* lights;
+	Enemy* enemies;
+	Door* door;
+
+	platforms = new Platform[num_plats];
+	lights = new Light[num_lights];
+	enemies = new Enemy[num_enemies];
+	door = new Door[num_doors];
+
+
+
 
 	for (int i = 0; i < num_plats; i++) {
 		Vector_Platforms.emplace_back(platforms[i]);
@@ -569,84 +714,87 @@ int main(int argc, char **argv) {
 	//---- Set Object Variables ---
 
 	//Platforms
-	//first floor
-	Vector_Platforms[0].pos = glm::vec2(10.0f, floor_height);
-	Vector_Platforms[1].pos = glm::vec2(11.0f, air_plat_height);
-	Vector_Platforms[2].pos = glm::vec2(15.0f, air_plat_height);
-	Vector_Platforms[3].pos = glm::vec2(18.5f, air_plat_height);
-
-	Vector_Platforms[0].size = glm::vec2(20.0f, 0.5f);
-	Vector_Platforms[1].size = glm::vec2(3.0f, 0.25f);
-	Vector_Platforms[2].size = glm::vec2(3.0f, 0.25f);
-	Vector_Platforms[3].size = glm::vec2(1.0f, 0.25f);
+	for (int i = 0; i < num_plats; i++) {
+		Vector_Platforms[i].pos = glm::vec2(plat_pos_x[i], plat_pos_y[i]);
+		Vector_Platforms[i].size = glm::vec2(plat_size_x[i], plat_size_y[i]);
+	}
 
 	//Enemies
+	for (int i = 0; i < num_enemies; i++) {
+		Vector_Enemies[i].pos = glm::vec2(enem_pos_x[i], enem_pos_y[i]);
+		Vector_Enemies[i].waypoints[0] = glm::vec2(enem_w1_x[i], enem_w1_y[i]);
+		Vector_Enemies[i].waypoints[1] = glm::vec2(enem_w2_x[i], enem_w2_y[i]);
+		Vector_Enemies[i].flashlight.size = glm::vec2(enem_fs_x[i], enem_fs_y[i]);
+	}
 
-	/**************** comment for easier debugging ********************/
-	Vector_Enemies[0].pos = glm::vec2(10.0f, 1.0f);
-	Vector_Enemies[1].pos = glm::vec2(19.0f, 1.0f);
-	Vector_Enemies[2].pos = glm::vec2(20.0f, 1.0f);
+	//Lights
+	for (int i = 0; i < num_lights; i++) {
+		Vector_Lights[i].pos = glm::vec2(lights_pos_x[i], lights_pos_y[i]);
+		Vector_Lights[i].size = glm::vec2(lights_size_x[i], lights_size_y[i]);
+		Vector_Lights[i].dir = PI * lights_dir[i];
+	}
 
-	Vector_Enemies[0].waypoints[0] = glm::vec2(10.0f, 1.0f);
-	Vector_Enemies[0].waypoints[1] = glm::vec2(4.0f, 1.0f);
-	Vector_Enemies[1].waypoints[0] = glm::vec2(17.0f, 1.0f);
-	Vector_Enemies[1].waypoints[1] = glm::vec2(15.0f, 1.0f);
-	Vector_Enemies[2].waypoints[0] = Vector_Enemies[2].pos;
-	Vector_Enemies[2].waypoints[1] = Vector_Enemies[2].pos;
+	//Doors
+	for (int i = 0; i < num_doors; i++) {
+		Vector_Doors[i].pos = glm::vec2(doors_pos_x[i], doors_pos_y[i]);
+	}
 
-	Vector_Enemies[0].flashlight.size = glm::vec2(3.0f, 3.0f);
-	Vector_Enemies[1].flashlight.size = glm::vec2(3.0f, 3.0f);
-	Vector_Enemies[2].flashlight.size = glm::vec2(3.0f, 3.0f);
-	/**************** comment for easier debugging ********************/
+	//free memory (initialization is done, we don't need these variable sized arrays)
 
-	/**************** for debugging **********************************/
-	
-	//commented code is to debug
-	/*for (int i = 0; i < num_enemies; i++){
-		enemies[i].pos = glm::vec2(10.0f, 1.0f);
-		enemies[i].waypoints[0] = glm::vec2(10.0f, 1.0f);
-		enemies[i].waypoints[1] = glm::vec2(4.0f, 1.0f);
-	}*/
+	delete [] platforms;  // Free memory allocated for the a array.
+	platforms = NULL;     // Be sure the deallocated memory isn't used.
+	delete [] lights;  // Free memory allocated for the a array.
+	lights = NULL;     // Be sure the deallocated memory isn't used.
+	delete [] enemies;  // Free memory allocated for the a array.
+	enemies = NULL;     // Be sure the deallocated memory isn't used.
+	delete [] door;  // Free memory allocated for the a array.
+	door = NULL;     // Be sure the deallocated memory isn't used.
 
-	/**************** for debugging **********************************/
+	delete [] plat_pos_x;
+	delete [] plat_pos_y;
+	delete [] plat_size_x;
+	delete [] plat_size_y;
 
-	//Light
-	// ceilingLight.pos = glm::vec2(10.0f, 3.0f);
-	// ceilingLight.size = glm::vec2(4.0f, 10.0f);
-	// ceilingLight.dir = PI * 1.5f;
+	plat_pos_x = NULL;
+	plat_pos_y = NULL;
+	plat_size_x = NULL;
+	plat_size_y = NULL;
 
-	// enemies[0].flashlight.size = glm::vec2(2.0f, 4.0f);
-	// enemies[0].flashlight.pos = enemies[0].pos + glm::vec2(enemies[0].flashlight.size.y - 0.35f, 0.0f);
-	// enemies[0].flashlight.dir = 0.0f;
-	// //rotate_light(enemies[0].flashlight);
-	
- //  	enemies[1].flashlight.size = glm::vec2(2.0f, 4.0f);
-	// enemies[1].flashlight.pos = enemies[1].pos + glm::vec2(enemies[1].flashlight.size.y - 0.35f, 0.0f);
-	// enemies[1].flashlight.dir = 0.0f;
-	//rotate_light(enemies[1].flashlight);
+	delete [] enem_pos_x;
+	delete [] enem_pos_y;
+	delete [] enem_w1_x;
+	delete [] enem_w1_y;
+	delete [] enem_w2_x;
+	delete [] enem_w2_y;
+	delete [] enem_fs_x;
+	delete [] enem_fs_y;
 
-	Vector_Lights[0].pos = glm::vec2(2.0f, 3.0f);
-	Vector_Lights[0].size = glm::vec2(1.5f, ceiling_height);
-	Vector_Lights[0].dir = PI * 1.5f;
+	enem_pos_x = NULL;
+	enem_pos_y = NULL;
+	enem_w1_x = NULL;
+	enem_w1_y = NULL;
+	enem_w2_x = NULL;
+	enem_w2_y = NULL;
+	enem_fs_x = NULL;
+	enem_fs_y = NULL;
 
-	Vector_Lights[1].pos = glm::vec2(5.0f, 3.0f);
-	Vector_Lights[1].size = glm::vec2(3.0f, ceiling_height);
-	Vector_Lights[1].dir = PI * 1.5f;
+	delete [] lights_pos_x;
+	delete [] lights_pos_y;
+	delete [] lights_size_x;
+	delete [] lights_size_y;
+	delete [] lights_dir;
 
-	Vector_Lights[2].pos = glm::vec2(8.5f, 3.0f);
-	Vector_Lights[2].size = glm::vec2(1.5f, ceiling_height);
-	Vector_Lights[2].dir = PI * 1.5f;
+	lights_pos_x = NULL;
+	lights_pos_y = NULL;
+	lights_size_x = NULL;
+	lights_size_y = NULL;
+	lights_dir = NULL;
 
-	Vector_Lights[3].pos = glm::vec2(15.0f, 5.125f);
-	Vector_Lights[3].size = glm::vec2(2.0f, 6.0f);
-	Vector_Lights[3].dir = PI * 1.5f;
+	delete [] doors_pos_x;
+	delete [] doors_pos_y;
 
-	// for (Light& light : Vector_Lights) {
-	// 	light.rotate();
-	// }
-
-	//Door
-	Vector_Doors[0].pos = glm::vec2(5.0f, 1.25f);
+	doors_pos_x = NULL;
+	doors_pos_y = NULL;
 
 	//------------ game loop ------------
 
