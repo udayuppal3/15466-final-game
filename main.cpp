@@ -508,44 +508,63 @@ int main(int argc, char **argv) {
 
 	//---- Instantiate Obects ----
 	//delete this once import code is written
+	int num_lights = 5;
 	Light ceilingLight;
 	Light l0;
 	Light l1;
 	Light l2;
 	Light l3;
 
+	int num_plats = 4;
 	Platform floor_plat_1;
 	Platform floor_plat_2;
 	Platform floor_plat_3;
 	Platform floor_plat_4;
 
+	int num_enemies = 3;
 	Enemy enemy_1;
 	Enemy enemy_2;
 	Enemy enemy_3;
 
+	int num_doors = 1;
 	Door door_1;
 
 	//uncomment for original level
 	//Platform platform;
 	//Enemy enemy;
 	//Door door;
-	std::vector< Platform > Vector_Platforms = {floor_plat_1, floor_plat_2, floor_plat_3, floor_plat_4};
-	std::vector< Door > Vector_Doors = {door_1};
-	std::vector< Light > Vector_Lights = {ceilingLight, l0, l1, l2, l3 };
-	std::vector< Enemy > Vector_Enemies = {enemy_1, enemy_2, enemy_3};
+	std::vector< Platform > Vector_Platforms = {};
+	std::vector< Door > Vector_Doors = {};
+	std::vector< Light > Vector_Lights = {};
+	std::vector< Enemy > Vector_Enemies = {};
 
 	const float ceiling_height = 10.0f;
 	const float floor_height = 0.25f;
 	const float level_end = 29.75f;
-	//for tutorial level, fix later
+	//for tutorial level, fix later but it looks like it works idk u tell me
 	const float air_plat_height = 2.0f;
 
 	bool on_platform = false;
 
 	//for level 1:
-	// Platform platforms[num_platforms];
-	// Enemy enemies[num_enemies];
-	// Door door[num_doors];
+	Platform platforms[4];
+	Light lights[5];
+	Enemy enemies[3];
+	Door door[1];
+
+	for (int i = 0; i < num_plats; i++) {
+		Vector_Platforms.emplace_back(platforms[i]);
+	}
+	for (int i = 0; i < num_lights; i++) {
+		Vector_Lights.emplace_back(lights[i]);
+	}
+	for (int i = 0; i < num_enemies; i++) {
+		Vector_Enemies.emplace_back(enemies[i]);
+	}
+	for (int i = 0; i < num_doors; i++) {
+		Vector_Doors.emplace_back(door[i]);
+	}
+
 
 	//---- Set Object Variables ---
 
