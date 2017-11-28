@@ -1,0 +1,5 @@
+doors:
+1 door
+
+X - position | Y - position
+5.0 1.25

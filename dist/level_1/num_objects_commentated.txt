@@ -1,0 +1,4 @@
+format:
+
+# lights | # platforms | # enemies | # doors
+4 4 3 1

@@ -518,7 +518,7 @@ int main(int argc, char **argv) {
     int sizes[num_variables];
     ifstream inFile;
     
-    inFile.open("test-sizes.txt");
+    inFile.open("level_1/num_objects.txt");
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -538,7 +538,7 @@ int main(int argc, char **argv) {
 	int num_doors = sizes[3];
 
 	//grab platform info
-    inFile.open("test-plat.txt");
+    inFile.open("level_1/plats.txt");
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -567,7 +567,7 @@ int main(int argc, char **argv) {
     inFile.close();
 
     //grab enemy info
-    inFile.open("test-enemies.txt");
+    inFile.open("level_1/enemies.txt");
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -612,7 +612,7 @@ int main(int argc, char **argv) {
     inFile.close();
 
 	//grab lights info
-    inFile.open("test-lights.txt");
+    inFile.open("level_1/lights.txt");
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -645,7 +645,7 @@ int main(int argc, char **argv) {
     inFile.close();
 
     //grab doors info
-    inFile.open("test-doors.txt");
+    inFile.open("level_1/doors.txt");
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
