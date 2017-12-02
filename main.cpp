@@ -396,7 +396,6 @@ int main(int argc, char **argv) {
 									   pos.y + (0.5f * -size.y));
 			}
 		}
-
 	};
 
 	struct Enemy {
@@ -406,8 +405,8 @@ int main(int argc, char **argv) {
 		glm::vec2 alert_size = glm::vec2(0.2, 0.4);
 		glm::vec2 waypoints [2] = { glm::vec2(10.0f, 1.0f), glm::vec2(4.0f, 1.0f) };
 		glm::vec2 target = glm::vec2(0.0f, 0.0f);
-		glm::vec2 right_flashlight_offset = glm::vec2(0.05f, 0.0f);
-		glm::vec2 left_flashlight_offset = glm::vec2(-1.5f, 0.0f);
+		glm::vec2 right_flashlight_offset = glm::vec2(2.7f, 0.0f);
+		glm::vec2 left_flashlight_offset = glm::vec2(-4.0f, 0.0f);
 
 		bool face_right = true;
 		bool alerted = false;
@@ -421,15 +420,13 @@ int main(int argc, char **argv) {
 
 		Light flashlight;
 
-		// Light() {
-		// 	flashlight.pos = glm::vec2(0.0f, 0.0f);
-		// }
-
 		void update_pos() {
 			if (face_right) {
+				flashlight.dir = 0.0f;
 				flashlight.pos = pos + right_flashlight_offset;
 			}
 			else {
+				flashlight.dir = PI;
 				flashlight.pos = pos + left_flashlight_offset;
 			}
 
@@ -446,9 +443,6 @@ int main(int argc, char **argv) {
 			glm::vec2(1776.0f/3503.0f, 1381.0f/1689.0f),
 			glm::vec2(1945.0f/3503.0f, 1.0f),
 		};
-
-		//This is a very large struct, but maybe it's supposed to be large idk
-
 	};
 
 	struct Door {
@@ -725,6 +719,8 @@ int main(int argc, char **argv) {
 		Vector_Enemies[i].waypoints[0] = glm::vec2(enem_w1_x[i], enem_w1_y[i]);
 		Vector_Enemies[i].waypoints[1] = glm::vec2(enem_w2_x[i], enem_w2_y[i]);
 		Vector_Enemies[i].flashlight.size = glm::vec2(enem_fs_x[i], enem_fs_y[i]);
+		Vector_Enemies[i].update_pos();
+		Vector_Enemies[i].flashlight.rotate();
 	}
 
 	//Lights
@@ -1119,6 +1115,12 @@ int main(int argc, char **argv) {
 
 			//detect footsteps
 			for (Enemy& enemy : Vector_Enemies) {
+				//debugging enemy movement
+				int counter = 0;
+				if (counter == 0)
+					printf("enemy[%d]:waypoints[0] = (%f,%f)\n", counter, enemy.waypoints[0].x, enemy.waypoints[0].y);
+				counter++;
+				//
 				float h_diff = enemy.pos.x - player.pos.x;
 				float v_diff = (enemy.pos.y + 0.35f * enemy.size.y) - (player.pos.y - 0.5f * player.size.y);
 				float sound = 0.0f;
