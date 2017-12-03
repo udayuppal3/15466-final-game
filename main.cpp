@@ -1031,7 +1031,9 @@ int main(int argc, char **argv) {
 			//camera.pos.y = 2.5f + (player.pos.y - 1.0f);
 
 			//enemy update --------------------------------------------------------------
+      int counter = 0;
 			for (Enemy& enemies : Vector_Enemies) {
+        counter += 1;
 				if (!enemies.alerted) {
 					if (!enemies.walking) {
 						enemies.remaining_wait -= elapsed;
@@ -1250,10 +1252,11 @@ int main(int argc, char **argv) {
 			
 			//draw enemies -----------------------------------------------------------
 			for (Enemy& enemy : Vector_Enemies){
+        glm::vec2 enemy_size = enemy.size;
 				if (enemy.face_right) {
-					enemy.size.x *= -1.0f;
+					enemy_size.x *= -1.0f;
 				}
-				draw_sprite(enemy.sprite_stand, enemy.pos, enemy.size);     
+				draw_sprite(enemy.sprite_stand, enemy.pos, enemy_size);     
 				if (enemy.alerted) {
 				glm::vec2 alert_pos = glm::vec2(enemy.pos.x, 
 							enemy.pos.y + 0.51f*enemy.size.y + 0.51f*enemy.alert_size.y );
