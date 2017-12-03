@@ -1112,15 +1112,10 @@ int main(int argc, char **argv) {
 						}
 					}
 				}
+      }
 
 			//detect footsteps
 			for (Enemy& enemy : Vector_Enemies) {
-				//debugging enemy movement
-				int counter = 0;
-				if (counter == 0)
-					printf("enemy[%d]:waypoints[0] = (%f,%f)\n", counter, enemy.waypoints[0].x, enemy.waypoints[0].y);
-				counter++;
-				//
 				float h_diff = enemy.pos.x - player.pos.x;
 				float v_diff = (enemy.pos.y + 0.35f * enemy.size.y) - (player.pos.y - 0.5f * player.size.y);
 				float sound = 0.0f;
@@ -1193,7 +1188,6 @@ int main(int argc, char **argv) {
 				    //rotate_light(enemy.flashlight);
 				}
 			}
-		}
 
 			//level win -----------------------------------------------------------
 			if (player.pos.x >= 20.0f) {
