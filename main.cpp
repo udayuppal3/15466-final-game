@@ -460,6 +460,36 @@ int main(int argc, char **argv) {
 		};
 	};
 
+	struct Ladder {
+		glm::vec2 pos = glm::vec2(0.0f);
+		glm::vec2 size = glm::vec2(1.0f, 1.5f);
+		bool in_use = false;
+		bool player_collision = false;
+
+		SpriteInfo sprite_empty = {
+			glm::vec2(0.0f, 481.0f/1689.0f),
+			glm::vec2(740.0f/3503.0f, 1.0f),
+		};
+		SpriteInfo sprite_used = {
+			glm::vec2(0.0f, 481.0f/1689.0f),
+			glm::vec2(740.0f/3503.0f, 1.0f),
+		};
+		void detect_collision(glm::vec2 player_pos, glm::vec2 player_size) {
+			if (((player_pos.y + player_size.y / 2.0f) <= (pos.y + size.y/2.0f)) &&
+				((player_pos.y - player_size.y / 2.0f) >= (pos.y - size.y/2.0f))) {
+				if (((player_pos.x + player_size.x / 2.0f) <= (pos.x + size.x/2.0f)) &&
+				((player_pos.x - player_size.x / 2.0f) >= (pos.x - size.x/2.0f))) {
+					player_collision = true;
+				}
+				else
+					player_collision = false;
+			}
+			else {
+				player_collision = false;
+			}
+		}
+	};
+
 	struct Platform {
 		glm::vec2 pos = glm::vec2(10.0f, 0.25f);
 		glm::vec2 size = glm::vec2(20.0f, 0.5f);
@@ -504,7 +534,7 @@ int main(int argc, char **argv) {
 	 * object initialization, as well as the variables attached to each object.
 	 */
 
-	const int num_variables = 4;
+	const int num_variables = 5;
 
 	int sum = 0;
     int x;
@@ -530,6 +560,7 @@ int main(int argc, char **argv) {
 	int num_plats = sizes[1];
 	int num_enemies = sizes[2];
 	int num_doors = sizes[3];
+	int num_ladders = sizes[4];
 
 	//grab platform info
     inFile.open("level_1/plats.txt");
@@ -659,6 +690,31 @@ int main(int argc, char **argv) {
 
     inFile.close();
 
+    //grab ladder info
+    inFile.open("level_1/ladders.txt");
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+
+    float* ladders_pos_x;
+    float* ladders_pos_y;
+    float* ladders_height;
+	ladders_pos_x = new float[num_ladders];
+	ladders_pos_y = new float[num_ladders];
+	ladders_height = new float[num_ladders];
+
+	for (int i = 0; i < num_ladders; i++){
+    	inFile >> y;
+    	ladders_pos_x[i] = y;
+    	inFile >> y;
+    	ladders_pos_y[i] = y;
+    	inFile >> y;
+    	ladders_height[i] = y;
+    }
+
+    inFile.close();
+
 
     /***** done importing level, start initializing *****/
 
@@ -667,6 +723,7 @@ int main(int argc, char **argv) {
 	std::vector< Door > Vector_Doors = {};
 	std::vector< Light > Vector_Lights = {};
 	std::vector< Enemy > Vector_Enemies = {};
+	std::vector< Ladder > Vector_Ladders = {};
 
 	const float ceiling_height = 10.0f;
 	const float floor_height = 0.25f;
@@ -675,6 +732,8 @@ int main(int argc, char **argv) {
 	const float air_plat_height = 2.0f;
 
 	bool on_platform = false;
+	bool on_ladder = false;
+	bool check_on_ladder = false;
 
 
 
@@ -682,11 +741,13 @@ int main(int argc, char **argv) {
 	Light* lights;
 	Enemy* enemies;
 	Door* door;
+	Ladder* ladders;
 
 	platforms = new Platform[num_plats];
 	lights = new Light[num_lights];
 	enemies = new Enemy[num_enemies];
 	door = new Door[num_doors];
+	ladders = new Ladder[num_ladders];
 
 
 
@@ -702,6 +763,9 @@ int main(int argc, char **argv) {
 	}
 	for (int i = 0; i < num_doors; i++) {
 		Vector_Doors.emplace_back(door[i]);
+	}
+	for (int i = 0; i < num_ladders; i++) {
+		Vector_Ladders.emplace_back(ladders[i]);
 	}
 
 
@@ -735,6 +799,13 @@ int main(int argc, char **argv) {
 		Vector_Doors[i].pos = glm::vec2(doors_pos_x[i], doors_pos_y[i]);
 	}
 
+	//Ladders
+	for (int i = 0; i < num_ladders; i++) {
+		Vector_Ladders[i].pos = glm::vec2(ladders_pos_x[i], ladders_pos_y[i]);
+		Vector_Ladders[i].size = glm::vec2(1.0f, ladders_height[i]);
+	}
+
+
 	//free memory (initialization is done, we don't need these variable sized arrays)
 
 	delete [] platforms;  // Free memory allocated for the a array.
@@ -745,6 +816,8 @@ int main(int argc, char **argv) {
 	enemies = NULL;     // Be sure the deallocated memory isn't used.
 	delete [] door;  // Free memory allocated for the a array.
 	door = NULL;     // Be sure the deallocated memory isn't used.
+	delete [] ladders;  // Free memory allocated for the a array.
+	ladders = NULL;     // Be sure the deallocated memory isn't used.
 
 	delete [] plat_pos_x;
 	delete [] plat_pos_y;
@@ -792,6 +865,14 @@ int main(int argc, char **argv) {
 	doors_pos_x = NULL;
 	doors_pos_y = NULL;
 
+	delete [] ladders_pos_x;
+	delete [] ladders_pos_y;
+	delete [] ladders_height;
+
+	ladders_pos_x = NULL;
+	ladders_pos_y = NULL;
+	ladders_height = NULL;
+
 	//------------ game loop ------------
 
   //Start audio playback
@@ -830,10 +911,35 @@ int main(int argc, char **argv) {
 			} 
 			else if (evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP) {
 				if (evt.key.keysym.sym == SDLK_w) {
-					if (!player.jumping && !player.behind_door && !player.aiming && evt.key.state == SDL_PRESSED) {
+					if (!on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
+						//climb onto the ladder
+						for (Ladder& ladder : Vector_Ladders){
+							ladder.detect_collision(player.pos, player.size);
+							on_ladder = on_ladder || ladder.player_collision;
+						}
+
+						if (on_ladder){
+							/****** add "player climbing" sprite *******/
+						}
+					}
+					if (on_ladder && evt.key.state == SDL_PRESSED) {
+						check_on_ladder = false;
+
+						//check if player will remain on ladder
+						for (Ladder& ladder : Vector_Ladders){
+							ladder.detect_collision(glm::vec2(player.pos.x, player.pos.y + 0.02f), player.size);
+							check_on_ladder = check_on_ladder || ladder.player_collision;
+						}
+
+						if (check_on_ladder){
+							//climb the actual ladder
+							player.pos.y += 0.02f;
+						}
+					}
+					/*if (!player.jumping && !player.behind_door && !player.aiming && evt.key.state == SDL_PRESSED) {
 						player.jumping = true;
 						player.vel.y = 6.0f;
-					}
+					}*/
 				} 
 				else if (evt.key.keysym.sym == SDLK_a) {
 					if (evt.key.state == SDL_PRESSED) {
@@ -843,6 +949,9 @@ int main(int argc, char **argv) {
 						} else {
 							player.vel.x = -1.0f;
 							player.face_right = false;
+						}
+						if (on_ladder){
+							on_ladder = false;
 						}
 					} else {
 						if (player.vel.x == -1.0f || player.vel.x == -2.0f) {
@@ -859,6 +968,31 @@ int main(int argc, char **argv) {
 							player.vel.x = 1.0f;
 							player.face_right = true;
 						}
+						if (on_ladder){
+							on_ladder = false;
+						}
+					} else {
+						if (player.vel.x == 1.0f || player.vel.x == 2.0f) {
+							player.vel.x = 0.0f;
+						}
+					}
+				} 
+				else if (evt.key.keysym.sym == SDLK_s) {
+					if (evt.key.state == SDL_PRESSED) {
+						if (on_ladder){
+							check_on_ladder = false;
+
+							//check if player will remain on ladder
+							for (Ladder& ladder : Vector_Ladders){
+								ladder.detect_collision(glm::vec2(player.pos.x, player.pos.y - 0.02f), player.size);
+								check_on_ladder = check_on_ladder || ladder.player_collision;
+							}
+
+							if (check_on_ladder){
+								//climb the actual ladder
+								player.pos.y -= 0.02f;
+							}
+						}
 					} else {
 						if (player.vel.x == 1.0f || player.vel.x == 2.0f) {
 							player.vel.x = 0.0f;
@@ -871,7 +1005,7 @@ int main(int argc, char **argv) {
 					}
 				} 
 				else if (evt.key.keysym.sym == SDLK_e) {
-					if (evt.key.state == SDL_PRESSED) {
+					if (!on_ladder && evt.key.state == SDL_PRESSED) {
 						player.ability_mode = 1;
 					}
 				} 
@@ -973,7 +1107,7 @@ int main(int argc, char **argv) {
 
 			// player update -----------------------------------------------------------------
 			if (player.behind_door == false) {
-				if (player.jumping) {
+				if (player.jumping && !on_ladder) {
 					player.vel.y -= elapsed * 9.0f;
 				}
 
@@ -1007,11 +1141,18 @@ int main(int argc, char **argv) {
 			for (Platform& platform : Vector_Platforms){
 				platform.detect_collision(player.pos, player.size);
 				on_platform = on_platform || platform.player_collision;
+				if (platform.player_collision && !on_ladder){
+					player.pos.y = platform.pos.y + platform.size.y/2.0f + player.pos.y/2.0f;
+				}
 			}
 			if (on_platform && (player.vel.y <= 0.0f)) {
 				player.jumping = false;
 				player.vel.y = 0.0f;
 				//player_pos.y = pos.y + size.y/2.0f + player_size.y/2.0f;
+			}
+
+			if (on_ladder){
+				player.vel.y = 0.0f;
 			}
 
 			if (!on_platform){
@@ -1031,9 +1172,9 @@ int main(int argc, char **argv) {
 			//camera.pos.y = 2.5f + (player.pos.y - 1.0f);
 
 			//enemy update --------------------------------------------------------------
-      int counter = 0;
+    		int counter = 0;
 			for (Enemy& enemies : Vector_Enemies) {
-        counter += 1;
+    	    counter += 1;
 				if (!enemies.alerted) {
 					if (!enemies.walking) {
 						enemies.remaining_wait -= elapsed;
@@ -1114,7 +1255,7 @@ int main(int argc, char **argv) {
 						}
 					}
 				}
-      }
+    		}
 
 			//detect footsteps
 			for (Enemy& enemy : Vector_Enemies) {
@@ -1239,6 +1380,11 @@ int main(int argc, char **argv) {
 			//draw doors ------------------------------------------------------------------
 			for (Door& door : Vector_Doors){
 				draw_sprite(door.sprite_empty, door.pos, door.size);
+			}
+
+			//draw ladders ------------------------------------------------------------------
+			for (Ladder& ladder : Vector_Ladders){
+				draw_sprite(ladder.sprite_empty, ladder.pos, ladder.size);
 			}
 
 			//draw player -----------------------------------------------------------
