@@ -542,7 +542,7 @@ int main(int argc, char **argv) {
     int sizes[num_variables];
     ifstream inFile;
     
-    inFile.open("level_1/num_objects.txt");
+    inFile.open("level0/num_objects.txt");
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -563,7 +563,7 @@ int main(int argc, char **argv) {
 	int num_ladders = sizes[4];
 
 	//grab platform info
-    inFile.open("level_1/plats.txt");
+    inFile.open("level0/plats.txt");
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -592,7 +592,7 @@ int main(int argc, char **argv) {
     inFile.close();
 
     //grab enemy info
-    inFile.open("level_1/enemies.txt");
+    inFile.open("level0/enemies.txt");
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -637,7 +637,7 @@ int main(int argc, char **argv) {
     inFile.close();
 
 	//grab lights info
-    inFile.open("level_1/lights.txt");
+    inFile.open("level0/lights.txt");
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -670,7 +670,7 @@ int main(int argc, char **argv) {
     inFile.close();
 
     //grab doors info
-    inFile.open("level_1/doors.txt");
+    inFile.open("level0/doors.txt");
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -691,7 +691,7 @@ int main(int argc, char **argv) {
     inFile.close();
 
     //grab ladder info
-    inFile.open("level_1/ladders.txt");
+    inFile.open("level0/ladders.txt");
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -727,7 +727,7 @@ int main(int argc, char **argv) {
 
 	const float ceiling_height = 10.0f;
 	const float floor_height = 0.25f;
-	const float level_end = 29.75f;
+	const float level_end = 40.0f;
 	//for tutorial level, fix later but it looks like it works idk u tell me
 	const float air_plat_height = 2.0f;
 
@@ -748,9 +748,6 @@ int main(int argc, char **argv) {
 	enemies = new Enemy[num_enemies];
 	door = new Door[num_doors];
 	ladders = new Ladder[num_ladders];
-
-
-
 
 	for (int i = 0; i < num_plats; i++) {
 		Vector_Platforms.emplace_back(platforms[i]);
@@ -1164,8 +1161,8 @@ int main(int argc, char **argv) {
 			camera.pos.x += player.vel.x * elapsed;
 			if (player.pos.x < 6.0f) {
 				camera.pos.x = 6.0f;
-			} else if (player.pos.x > 14.0f) {
-				camera.pos.x = 14.0f;
+			} else if (player.pos.x > level_end - 6.0f) {
+				camera.pos.x = level_end - 6.0f;
 			}
 
 			//have the camera vertically follow the player (for level 1)
@@ -1333,7 +1330,7 @@ int main(int argc, char **argv) {
 			}
 
 			//level win -----------------------------------------------------------
-			if (player.pos.x >= 20.0f) {
+			if (player.pos.x >= level_end) {
 				should_quit = true;
 			}
 
