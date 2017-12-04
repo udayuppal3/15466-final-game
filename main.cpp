@@ -285,10 +285,6 @@ int main(int argc, char **argv) {
 			glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
 			glm::vec2(1263.0f/3503.0f, 1.0f),
 		};
-		SpriteInfo sprite_shoot = {
-			glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
-			glm::vec2(1263.0f/3503.0f, 1.0f),
-		};
 
 		float remaining_time = 0.0f;
 	} mouse;
@@ -314,19 +310,7 @@ int main(int argc, char **argv) {
 			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
 			glm::vec2(1199.0f/3503.0f, 1.0f),
 		};
-		SpriteInfo sprite_throw = {
-			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
-			glm::vec2(1199.0f/3503.0f, 1.0f),
-		};
-		SpriteInfo sprite_shoot = {
-			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
-			glm::vec2(1199.0f/3503.0f, 1.0f),
-		};
 		
-		// 0: throwing
-		// 1: shooting
-		int ability_mode = 0;
-
 		bool face_right = false;
 		bool jumping = false;
 		bool shifting = false;
@@ -338,7 +322,8 @@ int main(int argc, char **argv) {
 		float run_sound = 6.0f;
 		float throw_sound = 6.0f;
 		float sound_time = 0.5f;
-		
+	
+    glm::vec2 aimed_pos;
 		std::vector<glm::vec2> projectiles_pos;
 		int num_projectiles = 5;
 	} player;
@@ -888,12 +873,8 @@ int main(int argc, char **argv) {
 				if (evt.button.button == SDL_BUTTON_LEFT) {
 					if (player.aiming && player.num_projectiles > 0) {
 						player.num_projectiles--;
-						if (player.ability_mode == 0) {
-							player.projectiles_pos.push_back(glm::vec2(mouse.pos.x, 0.5f));
-						} else if (player.ability_mode == 1) {
-							player.projectiles_pos.push_back(glm::vec2(mouse.pos.x, 7.0f));
+							player.projectiles_pos.push_back(player.aimed_pos);
 						}
-					} 
 				} else if (evt.button.button == SDL_BUTTON_RIGHT) {
 					if (mouse.remaining_time <= 0.0f) {
 						player.aiming = !player.aiming;
@@ -994,16 +975,6 @@ int main(int argc, char **argv) {
 						if (player.vel.x == 1.0f || player.vel.x == 2.0f) {
 							player.vel.x = 0.0f;
 						}
-					}
-				} 
-				else if (evt.key.keysym.sym == SDLK_q) {
-					if (evt.key.state == SDL_PRESSED) {
-						player.ability_mode = 0;
-					}
-				} 
-				else if (evt.key.keysym.sym == SDLK_e) {
-					if (!on_ladder && evt.key.state == SDL_PRESSED) {
-						player.ability_mode = 1;
 					}
 				} 
 				else if (evt.key.keysym.sym == SDLK_LSHIFT) {
@@ -1308,12 +1279,13 @@ int main(int argc, char **argv) {
 					}
 
 					//lights
-
-					// float h_diff_l = ceilingLight.pos.x - i->x;
-					// float v_diff_l = (ceilingLight.pos.y + 0.5f * ceilingLight.size.y) - i->y;
-					// if (sqrt(h_diff_l*h_diff_l + v_diff_l*v_diff_l) <= 2.0f) {
-					// 	ceilingLight.light_on = false;
-					// }
+          for (Light& light : Vector_Lights) {
+					  float h_diff = light.pos.x - i->x;
+					  float v_diff = light.pos.y + 0.5f * light.size.y - i->y;
+					  if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 1.5f) {
+					 	  light.light_on = false;
+            }
+          }
 				}       
 			}
 
@@ -1431,11 +1403,7 @@ int main(int argc, char **argv) {
 			if (!player.aiming && mouse.remaining_time > 0.0f) {
 				mouse.remaining_time -= elapsed;
 				for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
-					if (i->y == 0.5) {
 						draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound * (1.0f - mouse.remaining_time)));
-					} else {
-						draw_sprite(mouse.sprite_shoot, *i, glm::vec2(player.throw_sound * (1.0f - mouse.remaining_time)));
-					}
 				}
 
 				if (mouse.remaining_time <= 0.0f) {
@@ -1446,62 +1414,80 @@ int main(int argc, char **argv) {
 
 			if (player.aiming) {
 				for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
-					if (i->y == 0.5) {
 						draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound));
-					} else {
-						draw_sprite(mouse.sprite_shoot, *i, glm::vec2(player.throw_sound));
-					}
 				}
 
-				if (player.num_projectiles > 0) {
-					if (player.ability_mode == 0) {
-						float y1 = player.pos.y;
-						float y2 = 5.0f;
-						float y3 = 0.5f;
-						float x1 = player.pos.x;
-						float x2 = 0.5f*(mouse.pos.x + player.pos.x);
-						float x3 = mouse.pos.x;
-						//from https://stackoverflow.com/questions/16896577/using-points-to-generate-quadratic-equation-to-interpolate-data
-						float a = y1/((x1-x2)*(x1-x3)) 
-							+ y2/((x2-x1)*(x2-x3)) 
-							+ y3/((x3-x1)*(x3-x2));
-						float b = -y1*(x2+x3)/((x1-x2)*(x1-x3))
-							- y2*(x1+x3)/((x2-x1)*(x2-x3))
-							- y3*(x1+x2)/((x3-x1)*(x3-x2));
-						float c = y1*x2*x3/((x1-x2)*(x1-x3))
-							+ y2*x1*x3/((x2-x1)*(x2-x3))
-							+ y3*x1*x2/((x3-x1)*(x3-x2));
-						for (float x = player.pos.x; x > mouse.pos.x; x -= 0.3f) {
-							draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
-						}
-						for (float x = player.pos.x; x < mouse.pos.x; x += 0.3f) {
-							draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
-						}
-						draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 0.5f), glm::vec2(player.throw_sound));
-					} else {
-						float slope = (7.0f - player.pos.y) / (mouse.pos.x - player.pos.x);
-						for (float x = player.pos.x; x > mouse.pos.x; x -= 0.3f) {
-							draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), glm::vec2(0.03f * player.throw_sound));
-						}
-						for (float x = player.pos.x; x < mouse.pos.x; x += 0.3f) {
-							draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), glm::vec2(0.03f * player.throw_sound));
-						}
-						draw_sprite(mouse.sprite_throw, glm::vec2(mouse.pos.x, 7.0f), glm::vec2(player.throw_sound));
+        bool light_aimed = false;
+			  for (Light& light : Vector_Lights) {
+					float h_diff = light.pos.x - mouse.pos.x;
+					float v_diff = light.pos.y + 0.5f * light.size.y - mouse.pos.y;
+					if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 1.5f) {
+					 	light_aimed = true;
+            player.aimed_pos = glm::vec2(light.pos.x, light.pos.y + 0.5f * light.size.y);
+            float slope = (player.aimed_pos.y - player.pos.y) / (player.aimed_pos.x - player.pos.x);
+            for (float x = player.pos.x; x > player.aimed_pos.x; x -= 0.3f) {
+              draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), 
+                  glm::vec2(0.03f * player.throw_sound));
+            }
+            for (float x = player.pos.x; x < player.aimed_pos.x; x += 0.3f) {
+              draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), 
+                  glm::vec2(0.03f * player.throw_sound));
+            }
+				    draw_sprite(mouse.sprite_throw, glm::vec2(player.aimed_pos.x, player.aimed_pos.y), glm::vec2(player.throw_sound));
+            break;
 					}
-				}
+        }
+
+        if (!light_aimed) {
+         
+          float max_y = 0.5f;
+			    for (Platform& platform : Vector_Platforms) {
+           if (platform.pos.y + 0.5f * platform.size.y > max_y &&
+               platform.pos.x - 0.5f * platform.size.x <= mouse.pos.x &&
+               platform.pos.x + 0.5f * platform.size.x >= mouse.pos.x &&
+               platform.pos.y + 0.5f * platform.size.y <= mouse.pos.y) { 
+             max_y = platform.pos.y + 0.5f * platform.size.y;
+           }
+          }
+          player.aimed_pos = glm::vec2(mouse.pos.x, max_y);
+
+          float y1 = player.pos.y;
+				  float y2 = player.aimed_pos.y + 2.0;
+				  float y3 = player.aimed_pos.y;
+				  float x1 = player.pos.x;
+				  float x2 = 0.5f*(player.aimed_pos.x + player.pos.x);
+				  float x3 = player.aimed_pos.x;
+				  //from https://stackoverflow.com/questions/16896577/using-points-to-generate-quadratic-equation-to-interpolate-data
+				  float a = y1/((x1-x2)*(x1-x3)) 
+					  + y2/((x2-x1)*(x2-x3)) 
+					  + y3/((x3-x1)*(x3-x2));
+				  float b = -y1*(x2+x3)/((x1-x2)*(x1-x3))
+					  - y2*(x1+x3)/((x2-x1)*(x2-x3))
+					  - y3*(x1+x2)/((x3-x1)*(x3-x2));
+				  float c = y1*x2*x3/((x1-x2)*(x1-x3))
+					  + y2*x1*x3/((x2-x1)*(x2-x3))
+					  + y3*x1*x2/((x3-x1)*(x3-x2));
+				  for (float x = player.pos.x; x > player.aimed_pos.x; x -= 0.3f) {
+					  draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
+				  }
+				  for (float x = player.pos.x; x < player.aimed_pos.x; x += 0.3f) {
+					  draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
+				  }
+				  draw_sprite(mouse.sprite_throw, glm::vec2(player.aimed_pos.x, player.aimed_pos.y), glm::vec2(player.throw_sound));
+		    }
+      }
+
+		player.sound_time -= elapsed;
+		if (player.sound_time < 0.0f) {
+			player.sound_time = 1.0f;
+		} else if (player.sound_time < 1.0f) {
+			float sound = 0.0f;
+			if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
+				sound = player.walk_sound;
+			} else if ((player.vel.x == 2.0f || player.vel.x == -2.0f) && !player.jumping&& !player.behind_door) {
+				sound = player.run_sound;
 			}
-
-			player.sound_time -= elapsed;
-			if (player.sound_time < 0.0f) {
-				player.sound_time = 1.0f;
-			} else if (player.sound_time < 1.0f) {
-				float sound = 0.0f;
-				if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
-					sound = player.walk_sound;
-				} else if ((player.vel.x == 2.0f || player.vel.x == -2.0f) && !player.jumping&& !player.behind_door) {
-					sound = player.run_sound;
-				}
-				draw_sprite(mouse.sprite_throw, glm::vec2(player.pos.x, player.pos.y - 0.5 * player.size.y), glm::vec2(sound * (1.0f - player.sound_time)));
+			draw_sprite(mouse.sprite_throw, glm::vec2(player.pos.x, player.pos.y - 0.5 * player.size.y), glm::vec2(sound * (1.0f - player.sound_time)));
 			}
 
 			//-----------------------------------------------------------------------
