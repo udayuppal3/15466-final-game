@@ -1,0 +1,8 @@
+format:
+4 lights
+
+X - position | Y - position | Horizontal size | Vertical size | Direction
+2.0 3.0 1.5 10.0 1.5
+5.0 3.0 3.0 10.0 1.5
+8.5 3.0 1.5 10.0 1.5
+15.0 5.125 2.0 6.0 1.5
