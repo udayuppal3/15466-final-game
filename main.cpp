@@ -27,6 +27,21 @@ float dot(glm::vec2 a, glm::vec2 b) {
 static const char *BG_MUSIC_PATH = 
 "../sounds/Light_And_Shadow_Soundtrack.wav";
 
+static const char *ALERT_MUSIC_PATH =
+"../sounds/alert.wav";
+
+static const char *DOOR_MUSIC_PATH =
+"../sounds/door_grab.wav";
+
+static const char *LADDER_MUSIC_PATH =
+"../sounds/ladder_grab.wav";
+
+static const char *ORNAMENT_PATH =
+"../sounds/ornament_smash_3.wav";
+
+static const char *STEP_MUSIC_PATH =
+"../sounds/step.wav";
+
 struct AudioData {
   Uint8 *pos;
   Uint32 length;
@@ -787,6 +802,7 @@ int main(int argc, char **argv) {
     std::cerr << "Failed to load back ground music" << std::endl;
     exit(1);
   }
+  //if (SDL_LoadWAV(ALERT_MUSIC_PATH, ))
 
   AudioData audioData;
   audioData.pos = wavStart;
@@ -1034,7 +1050,7 @@ int main(int argc, char **argv) {
 
 						if (check_on_ladder){
 							//climb the actual ladder
-							player.pos.y += 0.05f;
+							player.pos.y += 0.1f;
 						}
 					}
 				} 
@@ -1302,6 +1318,7 @@ int main(int argc, char **argv) {
 							enemies.remaining_wait = enemies.wait_timers[enemies.curr_index];
 							enemies.walking = false;
 							enemies.vel.x = 0.0f;
+							enemies.update_pos();
 						}
 					}
 				} else {
