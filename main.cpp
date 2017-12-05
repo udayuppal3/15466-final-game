@@ -183,7 +183,7 @@ struct Enemy {
 
 	float wait_timers [2] = { 5.0f, 5.0f };
 	float remaining_wait = 5.0f;
-	float sight_range = 4.0f;
+	float sight_range = 8.0f;
 	float catch_range = 0.5f;
 	int curr_index  = 0;
 
