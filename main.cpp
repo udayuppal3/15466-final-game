@@ -28,6 +28,21 @@ float dot(glm::vec2 a, glm::vec2 b) {
 static const char *BG_MUSIC_PATH = 
 "../sounds/Light_And_Shadow_Soundtrack.wav";
 
+static const char *ALERT_MUSIC_PATH =
+"../sounds/alert.wav";
+
+static const char *DOOR_MUSIC_PATH =
+"../sounds/door_grab.wav";
+
+static const char *LADDER_MUSIC_PATH =
+"../sounds/ladder_grab.wav";
+
+static const char *ORNAMENT_PATH =
+"../sounds/ornament_smash_3.wav";
+
+static const char *STEP_MUSIC_PATH =
+"../sounds/step.wav";
+
 struct AudioData {
   Uint8 *pos;
   Uint32 length;
@@ -168,7 +183,7 @@ struct Enemy {
 
 	float wait_timers [2] = { 5.0f, 5.0f };
 	float remaining_wait = 5.0f;
-	float sight_range = 4.0f;
+	float sight_range = 6.0f;
 	float catch_range = 0.5f;
 	int curr_index  = 0;
 
@@ -788,6 +803,7 @@ int main(int argc, char **argv) {
     std::cerr << "Failed to load back ground music" << std::endl;
     exit(1);
   }
+  //if (SDL_LoadWAV(ALERT_MUSIC_PATH, ))
 
   AudioData audioData;
   audioData.pos = wavStart;
@@ -983,11 +999,11 @@ int main(int argc, char **argv) {
 	glm::vec2 default_player_pos = glm::vec2(0.25f, 1.0f);
 	glm::vec2 default_player_vel = glm::vec2(0.0f);
 
-	const float ceiling_height = 10.0f;
+	//const float ceiling_height = 10.0f;
 	const float floor_height = 0.25f;
 	const float level_end = 40.0f;
 	//for tutorial level, fix later but it looks like it works idk u tell me
-	const float air_plat_height = 2.0f;
+	//const float air_plat_height = 2.0f;
 
 	bool on_platform = false;
 	bool on_ladder = false;
@@ -1038,7 +1054,7 @@ int main(int argc, char **argv) {
 
 						if (check_on_ladder){
 							//climb the actual ladder
-							player.pos.y += 0.05f;
+							player.pos.y += 0.1f;
 						}
 					}
 				} 
@@ -1320,6 +1336,7 @@ int main(int argc, char **argv) {
 							enemies.remaining_wait = enemies.wait_timers[enemies.curr_index];
 							enemies.walking = false;
 							enemies.vel.x = 0.0f;
+							enemies.update_pos();
 						}
 					}
 				} else {

@@ -1,29 +1,6 @@
 NOTE: please fill in the first section with information about your game.
 
-# *Game Title*
-
-*Game Title* is *Your Name*'s implementation of [*Design Document*](http://graphics.cs.cmu.edu/courses/15-466-f17/game1-designs/put-real-link-here) for game1 in 15-466-f17.
-
-*Include a Screenshot Here*
-
-## Build Notes
-
-*Include any special notes or steps required to build your game here. If there are no special notes, delete this section.*
-
-## Asset Pipeline
-
-*Briefly describe the asset pipeline for this game. What sorts of source files are used? How are they processed? How are they loaded?*
-
-## Architecture
-
-*Provide a brief introduction to how you implemented the design. Talk about the basic structure of your code.*
-
-## Reflection
-
-*Reflect on the assignment. What was difficult? What worked well? If you were doing it again, what would you change?*
-
-*Reflect on the design document. What was clear and what was ambiguous? How did you resolve the ambiguities?*
-
+# *Light and Shadow*
 
 # About Base1
 
