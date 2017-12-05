@@ -34,7 +34,681 @@ struct AudioData {
   Uint32 init_length;
 };
 
+//----------------- Structs ----------------------------------------------
+struct CameraInfo{
+	glm::vec2 pos = glm::vec2(6.0f, 2.5f);
+	glm::vec2 size = glm::vec2(12.0f, 7.0f);
+};
+
+struct SpriteInfo {
+	glm::vec2 min_uv;
+	glm::vec2 max_uv;
+};
+
+struct MouseInfo{
+	glm::vec2 pos = glm::vec2(0.0f);
+	glm::vec2 size = glm::vec2(6.0f);
+	
+	SpriteInfo sprite_throw = {
+		glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
+		glm::vec2(1263.0f/3503.0f, 1.0f),
+	};
+
+	float remaining_time = 0.0f;
+};
+
+struct PlayerInfo{
+	glm::vec2 pos = glm::vec2(0.25f, 1.0f);
+	glm::vec2 size = glm::vec2(0.5f, 1.0f);
+	glm::vec2 vel = glm::vec2(0.0f);
+	
+	SpriteInfo sprite_stand = {
+		glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+		glm::vec2(1199.0f/3503.0f, 1.0f),
+	};
+	SpriteInfo sprite_walk = {
+		glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+		glm::vec2(1199.0f/3503.0f, 1.0f),
+	};
+	SpriteInfo sprite_run = {
+		glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+		glm::vec2(1199.0f/3503.0f, 1.0f),
+	};
+	SpriteInfo sprite_jump = {
+		glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+		glm::vec2(1199.0f/3503.0f, 1.0f),
+	};
+	
+	bool face_right = false;
+	bool jumping = false;
+	bool shifting = false;
+	bool behind_door = false;
+	bool aiming = false;
+	bool visible = false;  
+
+	float walk_sound = 2.0f;
+	float run_sound = 6.0f;
+	float throw_sound = 6.0f;
+	float sound_time = 0.5f;
+
+	glm::vec2 aimed_pos;
+	std::vector<glm::vec2> projectiles_pos;
+	int num_projectiles = 5;
+};
+
+struct Light {
+	glm::vec2 pos = glm::vec2(0.0f, 0.0f);
+	glm::vec2 size = glm::vec2(0.0f, 0.0f);
+	float dir = PI * 1.5f;
+	bool light_on = true;
+	glm::u8vec4 color = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
+
+	SpriteInfo sprite = {
+		glm::vec2(1945.0f/3503.0f, 1289.0f/1689.0f),
+		glm::vec2(2585.0f/3503.0f, 1.0f),
+	};
+
+	glm::vec2 vectors [3] = { glm::vec2(pos.x, 
+										pos.y + (0.5f * size.y)),
+							  glm::vec2(pos.x + (0.5f * size.x), 
+										pos.y + (0.5f * -size.y)),
+							  glm::vec2(pos.x + (0.5f * -size.x),
+										pos.y + (0.5f * -size.y)) };
+
+	void rotate() {
+		if (dir == 0.0f) {
+			vectors[0] = glm::vec2(pos.x + (0.5f + -size.y), 
+								   pos.y);
+			vectors[1] = glm::vec2(pos.x + (0.5f * size.y), 
+								   pos.y + (0.5f * size.x));
+			vectors[2] = glm::vec2(pos.x + (0.5f * size.y),
+								   pos.y + (0.5f * -size.x));
+		}
+		else if (dir == (PI * 0.5f)) {
+			vectors[0] = glm::vec2(pos.x, 
+								   pos.y + (0.5f * -size.y));
+			vectors[1] = glm::vec2(pos.x + (0.5f * -size.x), 
+								   pos.y + (0.5f * size.y));
+			vectors[2] = glm::vec2(pos.x + (0.5f * size.x),
+							       pos.y + (0.5f * size.y));
+		}
+		else if (dir == PI) {
+			vectors[0] = glm::vec2(pos.x + (0.5f + size.y), 
+								   pos.y);
+			vectors[1] = glm::vec2(pos.x + (0.5f * -size.y), 
+								   pos.y + (0.5f * size.x));
+			vectors[2] = glm::vec2(pos.x + (0.5f * -size.y),
+								   pos.y + (0.5f * -size.x));
+		}
+		else {
+			vectors[0] = glm::vec2(pos.x, 
+								   pos.y + (0.5f * size.y));
+			vectors[1] = glm::vec2(pos.x + (0.5f * size.x), 
+								   pos.y + (0.5f * -size.y));
+			vectors[2] = glm::vec2(pos.x + (0.5f * -size.x),
+								   pos.y + (0.5f * -size.y));
+		}
+	}
+};
+
+struct Enemy {
+	glm::vec2 pos = glm::vec2(10.0f, 1.0f);
+	glm::vec2 vel = glm::vec2(0.0f);
+	glm::vec2 size = glm::vec2(0.5, 1.0f);
+	glm::vec2 alert_size = glm::vec2(0.2, 0.4);
+	glm::vec2 waypoints [2] = { glm::vec2(10.0f, 1.0f), glm::vec2(4.0f, 1.0f) };
+	glm::vec2 target = glm::vec2(0.0f, 0.0f);
+	glm::vec2 right_flashlight_offset = glm::vec2(2.7f, 0.0f);
+	glm::vec2 left_flashlight_offset = glm::vec2(-4.0f, 0.0f);
+
+	bool face_right = true;
+	bool alerted = false;
+	bool walking = false;
+
+	float wait_timers [2] = { 5.0f, 5.0f };
+	float remaining_wait = 5.0f;
+	float sight_range = 4.0f;
+	float catch_range = 0.5f;
+	int curr_index  = 0;
+
+	Light flashlight;
+
+	void update_pos() {
+		if (face_right) {
+			flashlight.dir = 0.0f;
+			flashlight.pos = pos + right_flashlight_offset;
+		}
+		else {
+			flashlight.dir = PI;
+			flashlight.pos = pos + left_flashlight_offset;
+		}
+
+	}
+	SpriteInfo sprite_stand = {
+		glm::vec2(1263.0f/3503.0f, 741.0f/1689.0f),
+		glm::vec2(1776.0f/3503.0f, 1.0f),
+	};
+	SpriteInfo sprite_walk = {
+		glm::vec2(1263.0f/3503.0f, 741.0f/1689.0f),
+		glm::vec2(1776.0f/3503.0f, 1.0f),
+	};
+	SpriteInfo sprite_alert = {
+		glm::vec2(1776.0f/3503.0f, 1381.0f/1689.0f),
+		glm::vec2(1945.0f/3503.0f, 1.0f),
+	};
+};
+
+struct Door {
+	glm::vec2 pos = glm::vec2(0.0f);
+	glm::vec2 size = glm::vec2(1.0f, 1.5f);
+	bool in_use = false;
+
+	SpriteInfo sprite_empty = {
+		glm::vec2(0.0f, 481.0f/1689.0f),
+		glm::vec2(740.0f/3503.0f, 1.0f),
+	};
+	SpriteInfo sprite_used = {
+		glm::vec2(0.0f, 481.0f/1689.0f),
+		glm::vec2(740.0f/3503.0f, 1.0f),
+	};
+};
+
+struct Ladder {
+	glm::vec2 pos = glm::vec2(0.0f);
+	glm::vec2 size = glm::vec2(1.0f, 1.5f);
+	bool in_use = false;
+	bool player_collision = false;
+
+	SpriteInfo sprite_empty = {
+		glm::vec2(0.0f, 481.0f/1689.0f),
+		glm::vec2(740.0f/3503.0f, 1.0f),
+	};
+	SpriteInfo sprite_used = {
+		glm::vec2(0.0f, 481.0f/1689.0f),
+		glm::vec2(740.0f/3503.0f, 1.0f),
+	};
+	void detect_collision(glm::vec2 player_pos, glm::vec2 player_size) {
+		if (((player_pos.y + player_size.y / 2.0f) <= (pos.y + size.y/2.0f)) &&
+			((player_pos.y - player_size.y / 2.0f) >= (pos.y - size.y/2.0f))) {
+			if (((player_pos.x + player_size.x / 2.0f) <= (pos.x + size.x/2.0f)) &&
+			((player_pos.x - player_size.x / 2.0f) >= (pos.x - size.x/2.0f))) {
+				player_collision = true;
+			}
+			else
+				player_collision = false;
+		}
+		else {
+			player_collision = false;
+		}
+	}
+};
+
+struct Platform {
+	glm::vec2 pos = glm::vec2(10.0f, 0.25f);
+	glm::vec2 size = glm::vec2(20.0f, 0.5f);
+	bool player_collision = false;
+
+	SpriteInfo sprite = {
+		glm::vec2(0.0f),
+		glm::vec2(1.0f, 481.0f/1689.0f),
+	};
+	void detect_collision(glm::vec2 player_pos, glm::vec2 player_size) {
+		if (((player_pos.y + player_size.y / 2.0f) >= (pos.y + size.y/2.0f)) &&
+			((player_pos.y - player_size.y / 2.0f) <= (pos.y + size.y/2.0f))) {
+			if (((player_pos.x + player_size.x / 2.0f) <= (pos.x + size.x/2.0f)) &&
+			((player_pos.x - player_size.x / 2.0f) >= (pos.x - size.x/2.0f))) {
+				player_collision = true;
+			}
+			else
+				player_collision = false;
+		}
+		else {
+			player_collision = false;
+		}
+	}
+};
+
+struct Air_Platform {
+	glm::vec2 pos = glm::vec2(10.0f, 1.4f);
+	glm::vec2 size = glm::vec2(5.0f, 0.5f);
+
+	SpriteInfo sprite = {
+		glm::vec2(0.0f),
+		glm::vec2(1.0f, 481.0f/1689.0f),
+	};
+};
+
 static void playTone(void *userdata, Uint8 *stream, int streamlength);
+
+void readSizes(int level,
+			   void *sizes_p){
+
+	int *sizes = reinterpret_cast<int*>(sizes_p);
+
+	const int num_variables = 5;
+    int x;
+    ifstream inFile;
+
+    char buffer[50];
+
+    sprintf_s(buffer, "level%d/num_objects.txt", level);
+    
+    inFile.open(buffer);
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+    
+    for (int i = 0; i < num_variables; i++){
+    	inFile >> x;
+    	sizes[i] = x;
+    }
+
+    inFile.close();
+}
+
+void readLevel(int level,
+			   void *sizes_p,
+			   void* plat_pos_x_p, void* plat_pos_y_p, void* plat_size_x_p, void* plat_size_y_p,
+			   void* enem_pos_x_p, void* enem_pos_y_p, void* enem_w1_x_p, void* enem_w1_y_p, void* enem_w2_x_p, void* enem_w2_y_p, void* enem_fs_x_p, void* enem_fs_y_p,
+			   void* lights_pos_x_p, void* lights_pos_y_p, void* lights_size_x_p, void* lights_size_y_p, void* lights_dir_p,
+			   void* doors_pos_x_p, void* doors_pos_y_p,
+			   void* ladders_pos_x_p, void* ladders_pos_y_p, void* ladders_height_p){
+
+	int *sizes = reinterpret_cast<int*>(sizes_p);
+
+	//platforms
+	float *plat_pos_x = reinterpret_cast<float*>(plat_pos_x_p);
+	float *plat_pos_y = reinterpret_cast<float*>(plat_pos_y_p);
+	float *plat_size_x = reinterpret_cast<float*>(plat_size_x_p);
+	float *plat_size_y = reinterpret_cast<float*>(plat_size_y_p);
+
+	//enemies
+	float *enem_pos_x = reinterpret_cast<float*>(enem_pos_x_p);
+	float *enem_pos_y = reinterpret_cast<float*>(enem_pos_y_p);
+	float *enem_w1_x = reinterpret_cast<float*>(enem_w1_x_p);
+	float *enem_w1_y = reinterpret_cast<float*>(enem_w1_y_p);
+	float *enem_w2_x = reinterpret_cast<float*>(enem_w2_x_p);
+	float *enem_w2_y = reinterpret_cast<float*>(enem_w2_y_p);
+	float *enem_fs_x = reinterpret_cast<float*>(enem_fs_x_p);
+	float *enem_fs_y = reinterpret_cast<float*>(enem_fs_y_p);
+
+	//lights
+	float *lights_pos_x = reinterpret_cast<float*>(lights_pos_x_p);
+	float *lights_pos_y = reinterpret_cast<float*>(lights_pos_y_p);
+	float *lights_size_x = reinterpret_cast<float*>(lights_size_x_p);
+	float *lights_size_y = reinterpret_cast<float*>(lights_size_y_p);
+	float *lights_dir = reinterpret_cast<float*>(lights_dir_p);
+
+	//doors
+	float *doors_pos_x = reinterpret_cast<float*>(doors_pos_x_p);
+	float *doors_pos_y = reinterpret_cast<float*>(doors_pos_y_p);
+
+	//ladders
+	float *ladders_pos_x = reinterpret_cast<float*>(ladders_pos_x_p);
+	float *ladders_pos_y = reinterpret_cast<float*>(ladders_pos_y_p);
+	float *ladders_height = reinterpret_cast<float*>(ladders_height_p);
+
+    float y;
+    ifstream inFile;
+
+    //initialize the number of objects per things in level
+    int num_lights = sizes[0];
+	int num_plats = sizes[1];
+	int num_enemies = sizes[2];
+	int num_doors = sizes[3];
+	int num_ladders = sizes[4];
+
+	//grab platform info
+	char buffer[50];
+
+    sprintf_s(buffer, "level%d/plats.txt", level);
+
+    inFile.open(buffer);
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+
+	for (int i = 0; i < num_plats; i++){
+    	inFile >> y;
+    	plat_pos_x[i] = y;
+    	inFile >> y;
+    	plat_pos_y[i] = y;
+    	inFile >> y;
+    	plat_size_x[i] = y;
+    	inFile >> y;
+    	plat_size_y[i] = y;
+    }
+
+    inFile.close();
+
+    //grab enemy info
+    sprintf_s(buffer, "level%d/enemies.txt", level);
+
+    inFile.open(buffer);
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+
+	for (int i = 0; i < num_enemies; i++){
+    	inFile >> y;
+    	enem_pos_x[i] = y;
+    	inFile >> y;
+    	enem_pos_y[i] = y;
+    	inFile >> y;
+    	enem_w1_x[i] = y;
+    	inFile >> y;
+    	enem_w1_y[i] = y;
+    	inFile >> y;
+    	enem_w2_x[i] = y;
+    	inFile >> y;
+    	enem_w2_y[i] = y;
+    	inFile >> y;
+    	enem_fs_x[i] = y;
+    	inFile >> y;
+    	enem_fs_y[i] = y;
+    }
+
+    inFile.close();
+
+	//grab lights info
+    sprintf_s(buffer, "level%d/lights.txt", level);
+
+    inFile.open(buffer);
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+
+	for (int i = 0; i < num_lights; i++){
+    	inFile >> y;
+    	lights_pos_x[i] = y;
+    	inFile >> y;
+    	lights_pos_y[i] = y;
+    	inFile >> y;
+    	lights_size_x[i] = y;
+    	inFile >> y;
+    	lights_size_y[i] = y;
+    	inFile >> y;
+    	lights_dir[i] = y;
+    }
+
+    inFile.close();
+
+    //grab doors info
+    sprintf_s(buffer, "level%d/doors.txt", level);
+
+    inFile.open(buffer);
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+
+	for (int i = 0; i < num_doors; i++){
+    	inFile >> y;
+    	doors_pos_x[i] = y;
+    	inFile >> y;
+    	doors_pos_y[i] = y;
+    }
+
+    inFile.close();
+
+    //grab ladder info
+    sprintf_s(buffer, "level%d/ladders.txt", level);
+
+    inFile.open(buffer);
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+
+	for (int i = 0; i < num_ladders; i++){
+    	inFile >> y;
+    	ladders_pos_x[i] = y;
+    	inFile >> y;
+    	ladders_pos_y[i] = y;
+    	inFile >> y;
+    	ladders_height[i] = y;
+    }
+
+    inFile.close();
+}
+
+void loadLevel(int level,
+			   void* Vector_Platforms_p,
+			   void* Vector_Doors_p,
+			   void* Vector_Lights_p,
+			   void* Vector_Enemies_p,
+			   void* Vector_Ladders_p){
+
+	std::vector< Platform >* Vector_Platforms_point = reinterpret_cast< std::vector< Platform > *>(Vector_Platforms_p);
+	std::vector< Door >* Vector_Doors_point = reinterpret_cast< std::vector< Door > *>(Vector_Doors_p);
+	std::vector< Light >* Vector_Lights_point = reinterpret_cast< std::vector< Light > *>(Vector_Lights_p);
+	std::vector< Enemy >* Vector_Enemies_point = reinterpret_cast< std::vector< Enemy > *>(Vector_Enemies_p);
+	std::vector< Ladder >* Vector_Ladders_point = reinterpret_cast< std::vector< Ladder > *>(Vector_Ladders_p);
+
+	//---- Level Loading ----
+	/* Levels will be imported from outside code / txt file. Levels will define
+	 * object initialization, as well as the variables attached to each object.
+	 */
+
+	const int num_variables = 5;
+
+    int sizes[num_variables];
+
+    readSizes(level, reinterpret_cast<void*>(sizes));
+
+    printf("read sizes successful\n");
+
+    //initialize the number of objects per things in level
+    int num_lights = sizes[0];
+	int num_plats = sizes[1];
+	int num_enemies = sizes[2];
+	int num_doors = sizes[3];
+	int num_ladders = sizes[4];
+
+    float* plat_pos_x;
+    float* plat_pos_y;
+    float* plat_size_x;
+    float* plat_size_y;
+	plat_pos_x = new float[num_plats];
+	plat_pos_y = new float[num_plats];
+	plat_size_x = new float[num_plats];
+	plat_size_y = new float[num_plats];
+
+    float* enem_pos_x;
+    float* enem_pos_y;
+    float* enem_w1_x;
+    float* enem_w1_y;
+    float* enem_w2_x;
+    float* enem_w2_y;
+    float* enem_fs_x;
+    float* enem_fs_y;
+	enem_pos_x = new float[num_enemies];
+	enem_pos_y = new float[num_enemies];
+	enem_w1_x = new float[num_enemies];
+	enem_w1_y = new float[num_enemies];
+	enem_w2_x = new float[num_enemies];
+	enem_w2_y = new float[num_enemies];
+	enem_fs_x = new float[num_enemies];
+	enem_fs_y = new float[num_enemies];
+
+    float* lights_pos_x;
+    float* lights_pos_y;
+    float* lights_size_x;
+    float* lights_size_y;
+    float* lights_dir;
+	lights_pos_x = new float[num_lights];
+	lights_pos_y = new float[num_lights];
+	lights_size_x = new float[num_lights];
+	lights_size_y = new float[num_lights];
+	lights_dir = new float[num_lights];
+
+    float* doors_pos_x;
+    float* doors_pos_y;
+	doors_pos_x = new float[num_doors];
+	doors_pos_y = new float[num_doors];
+
+    float* ladders_pos_x;
+    float* ladders_pos_y;
+    float* ladders_height;
+	ladders_pos_x = new float[num_ladders];
+	ladders_pos_y = new float[num_ladders];
+	ladders_height = new float[num_ladders];
+
+	readLevel(level,
+			  reinterpret_cast<void*>(sizes),
+			  reinterpret_cast<void*>(plat_pos_x), reinterpret_cast<void*>(plat_pos_y), reinterpret_cast<void*>(plat_size_x), reinterpret_cast<void*>(plat_size_y),
+			  reinterpret_cast<void*>(enem_pos_x), reinterpret_cast<void*>(enem_pos_y), reinterpret_cast<void*>(enem_w1_x), reinterpret_cast<void*>(enem_w1_y), 
+			  reinterpret_cast<void*>(enem_w2_x), reinterpret_cast<void*>(enem_w2_y), reinterpret_cast<void*>(enem_fs_x), reinterpret_cast<void*>(enem_fs_y),
+			  reinterpret_cast<void*>(lights_pos_x), reinterpret_cast<void*>(lights_pos_y), reinterpret_cast<void*>(lights_size_x), reinterpret_cast<void*>(lights_size_y), reinterpret_cast<void*>(lights_dir),
+			  reinterpret_cast<void*>(doors_pos_x), reinterpret_cast<void*>(doors_pos_y),
+			  reinterpret_cast<void*>(ladders_pos_x), reinterpret_cast<void*>(ladders_pos_y), reinterpret_cast<void*>(ladders_height));
+
+	printf("read level successful\n");
+
+
+    /***** done importing level, start initializing *****/
+
+    Platform* platforms;
+	Light* lights;
+	Enemy* enemies;
+	Door* door;
+	Ladder* ladders;
+
+	platforms = new Platform[num_plats];
+	lights = new Light[num_lights];
+	enemies = new Enemy[num_enemies];
+	door = new Door[num_doors];
+	ladders = new Ladder[num_ladders];
+
+	for (int i = 0; i < num_plats; i++) {
+		(*Vector_Platforms_point).emplace_back(platforms[i]);
+	}
+	for (int i = 0; i < num_lights; i++) {
+		(*Vector_Lights_point).emplace_back(lights[i]);
+	}
+	for (int i = 0; i < num_enemies; i++) {
+		(*Vector_Enemies_point).emplace_back(enemies[i]);
+	}
+	for (int i = 0; i < num_doors; i++) {
+		(*Vector_Doors_point).emplace_back(door[i]);
+	}
+	for (int i = 0; i < num_ladders; i++) {
+		(*Vector_Ladders_point).emplace_back(ladders[i]);
+	}
+
+
+	//---- Set Object Variables ---
+
+	//Platforms
+	for (int i = 0; i < num_plats; i++) {
+		(*Vector_Platforms_point)[i].pos = glm::vec2(plat_pos_x[i], plat_pos_y[i]);
+		(*Vector_Platforms_point)[i].size = glm::vec2(plat_size_x[i], plat_size_y[i]);
+	}
+
+	//Enemies
+	for (int i = 0; i < num_enemies; i++) {
+		(*Vector_Enemies_point)[i].pos = glm::vec2(enem_pos_x[i], enem_pos_y[i]);
+		(*Vector_Enemies_point)[i].waypoints[0] = glm::vec2(enem_w1_x[i], enem_w1_y[i]);
+		(*Vector_Enemies_point)[i].waypoints[1] = glm::vec2(enem_w2_x[i], enem_w2_y[i]);
+		(*Vector_Enemies_point)[i].flashlight.size = glm::vec2(enem_fs_x[i], enem_fs_y[i]);
+		(*Vector_Enemies_point)[i].update_pos();
+		(*Vector_Enemies_point)[i].flashlight.rotate();
+	}
+
+	//Lights
+	for (int i = 0; i < num_lights; i++) {
+		(*Vector_Lights_point)[i].pos = glm::vec2(lights_pos_x[i], lights_pos_y[i]);
+		(*Vector_Lights_point)[i].size = glm::vec2(lights_size_x[i], lights_size_y[i]);
+		(*Vector_Lights_point)[i].dir = PI * lights_dir[i];
+	}
+
+	//Doors
+	for (int i = 0; i < num_doors; i++) {
+		(*Vector_Doors_point)[i].pos = glm::vec2(doors_pos_x[i], doors_pos_y[i]);
+	}
+
+	//Ladders
+	for (int i = 0; i < num_ladders; i++) {
+		(*Vector_Ladders_point)[i].pos = glm::vec2(ladders_pos_x[i], ladders_pos_y[i]);
+		(*Vector_Ladders_point)[i].size = glm::vec2(1.0f, ladders_height[i]);
+	}
+
+	printf("finished initialization\n");
+
+
+	//free memory (initialization is done, we don't need these variable sized arrays)
+
+	delete [] platforms;  // Free memory allocated for the a array.
+	platforms = NULL;     // Be sure the deallocated memory isn't used.
+	delete [] lights;  // Free memory allocated for the a array.
+	lights = NULL;     // Be sure the deallocated memory isn't used.
+	delete [] enemies;  // Free memory allocated for the a array.
+	enemies = NULL;     // Be sure the deallocated memory isn't used.
+	delete [] door;  // Free memory allocated for the a array.
+	door = NULL;     // Be sure the deallocated memory isn't used.
+	delete [] ladders;  // Free memory allocated for the a array.
+	ladders = NULL;     // Be sure the deallocated memory isn't used.
+
+	delete [] plat_pos_x;
+	delete [] plat_pos_y;
+	delete [] plat_size_x;
+	delete [] plat_size_y;
+
+	plat_pos_x = NULL;
+	plat_pos_y = NULL;
+	plat_size_x = NULL;
+	plat_size_y = NULL;
+
+	delete [] enem_pos_x;
+	delete [] enem_pos_y;
+	delete [] enem_w1_x;
+	delete [] enem_w1_y;
+	delete [] enem_w2_x;
+	delete [] enem_w2_y;
+	delete [] enem_fs_x;
+	delete [] enem_fs_y;
+
+	enem_pos_x = NULL;
+	enem_pos_y = NULL;
+	enem_w1_x = NULL;
+	enem_w1_y = NULL;
+	enem_w2_x = NULL;
+	enem_w2_y = NULL;
+	enem_fs_x = NULL;
+	enem_fs_y = NULL;
+
+	delete [] lights_pos_x;
+	delete [] lights_pos_y;
+	delete [] lights_size_x;
+	delete [] lights_size_y;
+	delete [] lights_dir;
+
+	lights_pos_x = NULL;
+	lights_pos_y = NULL;
+	lights_size_x = NULL;
+	lights_size_y = NULL;
+	lights_dir = NULL;
+
+	delete [] doors_pos_x;
+	delete [] doors_pos_y;
+
+	doors_pos_x = NULL;
+	doors_pos_y = NULL;
+
+	delete [] ladders_pos_x;
+	delete [] ladders_pos_y;
+	delete [] ladders_height;
+
+	ladders_pos_x = NULL;
+	ladders_pos_y = NULL;
+	ladders_height = NULL;
+
+	printf("finished freeing\n");
+}
 
 int main(int argc, char **argv) {
 	//Configuration:
@@ -264,451 +938,35 @@ int main(int argc, char **argv) {
 
 	//----------------- Variables --------------------------------------------
 
-	//----------------- Structs ----------------------------------------------
-	struct {
-		glm::vec2 pos = glm::vec2(6.0f, 2.5f);
-		glm::vec2 size = glm::vec2(12.0f, 7.0f);
-	} camera;
+	CameraInfo camera;
+	MouseInfo mouse;
+	PlayerInfo player;
+
 	//adjust for aspect ratio
 	camera.size.x = camera.size.y * (float(config.size.x) / float(config.size.y));
-
-	struct SpriteInfo {
-		glm::vec2 min_uv;
-		glm::vec2 max_uv;
-	};
-
-	struct {
-		glm::vec2 pos = glm::vec2(0.0f);
-		glm::vec2 size = glm::vec2(6.0f);
-		
-		SpriteInfo sprite_throw = {
-			glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
-			glm::vec2(1263.0f/3503.0f, 1.0f),
-		};
-
-		float remaining_time = 0.0f;
-	} mouse;
-	
-	struct {
-		glm::vec2 pos = glm::vec2(0.25f, 1.0f);
-		glm::vec2 size = glm::vec2(0.5f, 1.0f);
-		glm::vec2 vel = glm::vec2(0.0f);
-		
-		SpriteInfo sprite_stand = {
-			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
-			glm::vec2(1199.0f/3503.0f, 1.0f),
-		};
-		SpriteInfo sprite_walk = {
-			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
-			glm::vec2(1199.0f/3503.0f, 1.0f),
-		};
-		SpriteInfo sprite_run = {
-			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
-			glm::vec2(1199.0f/3503.0f, 1.0f),
-		};
-		SpriteInfo sprite_jump = {
-			glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
-			glm::vec2(1199.0f/3503.0f, 1.0f),
-		};
-		
-		bool face_right = false;
-		bool jumping = false;
-		bool shifting = false;
-		bool behind_door = false;
-		bool aiming = false;
-		bool visible = false;  
-
-		float walk_sound = 2.0f;
-		float run_sound = 6.0f;
-		float throw_sound = 6.0f;
-		float sound_time = 0.5f;
-	
-    glm::vec2 aimed_pos;
-		std::vector<glm::vec2> projectiles_pos;
-		int num_projectiles = 5;
-	} player;
-
-	struct Light {
-		glm::vec2 pos = glm::vec2(0.0f, 0.0f);
-		glm::vec2 size = glm::vec2(0.0f, 0.0f);
-		float dir = PI * 1.5f;
-		bool light_on = true;
-		glm::u8vec4 color = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
-
-		SpriteInfo sprite = {
-			glm::vec2(1945.0f/3503.0f, 1289.0f/1689.0f),
-			glm::vec2(2585.0f/3503.0f, 1.0f),
-		};
-
-		glm::vec2 vectors [3] = { glm::vec2(pos.x, 
-											pos.y + (0.5f * size.y)),
-								  glm::vec2(pos.x + (0.5f * size.x), 
-											pos.y + (0.5f * -size.y)),
-								  glm::vec2(pos.x + (0.5f * -size.x),
-											pos.y + (0.5f * -size.y)) };
-
-		void rotate() {
-			if (dir == 0.0f) {
-				vectors[0] = glm::vec2(pos.x + (0.5f + -size.y), 
-									   pos.y);
-				vectors[1] = glm::vec2(pos.x + (0.5f * size.y), 
-									   pos.y + (0.5f * size.x));
-				vectors[2] = glm::vec2(pos.x + (0.5f * size.y),
-									   pos.y + (0.5f * -size.x));
-			}
-			else if (dir == (PI * 0.5f)) {
-				vectors[0] = glm::vec2(pos.x, 
-									   pos.y + (0.5f * -size.y));
-				vectors[1] = glm::vec2(pos.x + (0.5f * -size.x), 
-									   pos.y + (0.5f * size.y));
-				vectors[2] = glm::vec2(pos.x + (0.5f * size.x),
-								       pos.y + (0.5f * size.y));
-			}
-			else if (dir == PI) {
-				vectors[0] = glm::vec2(pos.x + (0.5f + size.y), 
-									   pos.y);
-				vectors[1] = glm::vec2(pos.x + (0.5f * -size.y), 
-									   pos.y + (0.5f * size.x));
-				vectors[2] = glm::vec2(pos.x + (0.5f * -size.y),
-									   pos.y + (0.5f * -size.x));
-			}
-			else {
-				vectors[0] = glm::vec2(pos.x, 
-									   pos.y + (0.5f * size.y));
-				vectors[1] = glm::vec2(pos.x + (0.5f * size.x), 
-									   pos.y + (0.5f * -size.y));
-				vectors[2] = glm::vec2(pos.x + (0.5f * -size.x),
-									   pos.y + (0.5f * -size.y));
-			}
-		}
-	};
-
-	struct Enemy {
-		glm::vec2 pos = glm::vec2(10.0f, 1.0f);
-		glm::vec2 vel = glm::vec2(0.0f);
-		glm::vec2 size = glm::vec2(0.5, 1.0f);
-		glm::vec2 alert_size = glm::vec2(0.2, 0.4);
-		glm::vec2 waypoints [2] = { glm::vec2(10.0f, 1.0f), glm::vec2(4.0f, 1.0f) };
-		glm::vec2 target = glm::vec2(0.0f, 0.0f);
-		glm::vec2 right_flashlight_offset = glm::vec2(2.7f, 0.0f);
-		glm::vec2 left_flashlight_offset = glm::vec2(-4.0f, 0.0f);
-
-		bool face_right = true;
-		bool alerted = false;
-		bool walking = false;
-
-		float wait_timers [2] = { 5.0f, 5.0f };
-		float remaining_wait = 5.0f;
-		float sight_range = 4.0f;
-		float catch_range = 0.5f;
-		int curr_index  = 0;
-
-		Light flashlight;
-
-		void update_pos() {
-			if (face_right) {
-				flashlight.dir = 0.0f;
-				flashlight.pos = pos + right_flashlight_offset;
-			}
-			else {
-				flashlight.dir = PI;
-				flashlight.pos = pos + left_flashlight_offset;
-			}
-
-		}
-		SpriteInfo sprite_stand = {
-			glm::vec2(1263.0f/3503.0f, 741.0f/1689.0f),
-			glm::vec2(1776.0f/3503.0f, 1.0f),
-		};
-		SpriteInfo sprite_walk = {
-			glm::vec2(1263.0f/3503.0f, 741.0f/1689.0f),
-			glm::vec2(1776.0f/3503.0f, 1.0f),
-		};
-		SpriteInfo sprite_alert = {
-			glm::vec2(1776.0f/3503.0f, 1381.0f/1689.0f),
-			glm::vec2(1945.0f/3503.0f, 1.0f),
-		};
-	};
-
-	struct Door {
-		glm::vec2 pos = glm::vec2(0.0f);
-		glm::vec2 size = glm::vec2(1.0f, 1.5f);
-		bool in_use = false;
-
-		SpriteInfo sprite_empty = {
-			glm::vec2(0.0f, 481.0f/1689.0f),
-			glm::vec2(740.0f/3503.0f, 1.0f),
-		};
-		SpriteInfo sprite_used = {
-			glm::vec2(0.0f, 481.0f/1689.0f),
-			glm::vec2(740.0f/3503.0f, 1.0f),
-		};
-	};
-
-	struct Ladder {
-		glm::vec2 pos = glm::vec2(0.0f);
-		glm::vec2 size = glm::vec2(1.0f, 1.5f);
-		bool in_use = false;
-		bool player_collision = false;
-
-		SpriteInfo sprite_empty = {
-			glm::vec2(0.0f, 481.0f/1689.0f),
-			glm::vec2(740.0f/3503.0f, 1.0f),
-		};
-		SpriteInfo sprite_used = {
-			glm::vec2(0.0f, 481.0f/1689.0f),
-			glm::vec2(740.0f/3503.0f, 1.0f),
-		};
-		void detect_collision(glm::vec2 player_pos, glm::vec2 player_size) {
-			if (((player_pos.y + player_size.y / 2.0f) <= (pos.y + size.y/2.0f)) &&
-				((player_pos.y - player_size.y / 2.0f) >= (pos.y - size.y/2.0f))) {
-				if (((player_pos.x + player_size.x / 2.0f) <= (pos.x + size.x/2.0f)) &&
-				((player_pos.x - player_size.x / 2.0f) >= (pos.x - size.x/2.0f))) {
-					player_collision = true;
-				}
-				else
-					player_collision = false;
-			}
-			else {
-				player_collision = false;
-			}
-		}
-	};
-
-	struct Platform {
-		glm::vec2 pos = glm::vec2(10.0f, 0.25f);
-		glm::vec2 size = glm::vec2(20.0f, 0.5f);
-		bool player_collision = false;
-
-		SpriteInfo sprite = {
-			glm::vec2(0.0f),
-			glm::vec2(1.0f, 481.0f/1689.0f),
-		};
-		void detect_collision(glm::vec2 player_pos, glm::vec2 player_size) {
-			if (((player_pos.y + player_size.y / 2.0f) >= (pos.y + size.y/2.0f)) &&
-				((player_pos.y - player_size.y / 2.0f) <= (pos.y + size.y/2.0f))) {
-				if (((player_pos.x + player_size.x / 2.0f) <= (pos.x + size.x/2.0f)) &&
-				((player_pos.x - player_size.x / 2.0f) >= (pos.x - size.x/2.0f))) {
-					player_collision = true;
-				}
-				else
-					player_collision = false;
-			}
-			else {
-				player_collision = false;
-			}
-		}
-	};
-
-	struct Air_Platform {
-		glm::vec2 pos = glm::vec2(10.0f, 1.4f);
-		glm::vec2 size = glm::vec2(5.0f, 0.5f);
-
-		SpriteInfo sprite = {
-			glm::vec2(0.0f),
-			glm::vec2(1.0f, 481.0f/1689.0f),
-		};
-	};
 
 
 	//------------ Initialization ---------------------------------------------
 
+	//load the starting level (starting level should be main menu later)
 
-	//---- Level Loading ----
-	/* Levels will be imported from outside code / txt file. Levels will define
-	 * object initialization, as well as the variables attached to each object.
-	 */
-
-	const int num_variables = 5;
-
-	int sum = 0;
-    int x;
-    float y;
-    int sizes[num_variables];
-    ifstream inFile;
-    
-    inFile.open("level0/num_objects.txt");
-    if (!inFile) {
-        cout << "Unable to open file";
-        exit(1); // terminate with error
-    }
-    
-    for (int i = 0; i < num_variables; i++){
-    	inFile >> x;
-    	sizes[i] = x;
-    }
-
-    inFile.close();
-
-    //initialize the number of objects per things in level
-    int num_lights = sizes[0];
-	int num_plats = sizes[1];
-	int num_enemies = sizes[2];
-	int num_doors = sizes[3];
-	int num_ladders = sizes[4];
-
-	//grab platform info
-    inFile.open("level0/plats.txt");
-    if (!inFile) {
-        cout << "Unable to open file";
-        exit(1); // terminate with error
-    }
-
-    float* plat_pos_x;
-    float* plat_pos_y;
-    float* plat_size_x;
-    float* plat_size_y;
-	plat_pos_x = new float[num_plats];
-	plat_pos_y = new float[num_plats];
-	plat_size_x = new float[num_plats];
-	plat_size_y = new float[num_plats];
-
-	for (int i = 0; i < num_plats; i++){
-    	inFile >> y;
-    	plat_pos_x[i] = y;
-    	inFile >> y;
-    	plat_pos_y[i] = y;
-    	inFile >> y;
-    	plat_size_x[i] = y;
-    	inFile >> y;
-    	plat_size_y[i] = y;
-    }
-
-    inFile.close();
-
-    //grab enemy info
-    inFile.open("level0/enemies.txt");
-    if (!inFile) {
-        cout << "Unable to open file";
-        exit(1); // terminate with error
-    }
-
-    float* enem_pos_x;
-    float* enem_pos_y;
-    float* enem_w1_x;
-    float* enem_w1_y;
-    float* enem_w2_x;
-    float* enem_w2_y;
-    float* enem_fs_x;
-    float* enem_fs_y;
-	enem_pos_x = new float[num_enemies];
-	enem_pos_y = new float[num_enemies];
-	enem_w1_x = new float[num_enemies];
-	enem_w1_y = new float[num_enemies];
-	enem_w2_x = new float[num_enemies];
-	enem_w2_y = new float[num_enemies];
-	enem_fs_x = new float[num_enemies];
-	enem_fs_y = new float[num_enemies];
-
-	for (int i = 0; i < num_enemies; i++){
-    	inFile >> y;
-    	enem_pos_x[i] = y;
-    	inFile >> y;
-    	enem_pos_y[i] = y;
-    	inFile >> y;
-    	enem_w1_x[i] = y;
-    	inFile >> y;
-    	enem_w1_y[i] = y;
-    	inFile >> y;
-    	enem_w2_x[i] = y;
-    	inFile >> y;
-    	enem_w2_y[i] = y;
-    	inFile >> y;
-    	enem_fs_x[i] = y;
-    	inFile >> y;
-    	enem_fs_y[i] = y;
-    }
-
-    inFile.close();
-
-	//grab lights info
-    inFile.open("level0/lights.txt");
-    if (!inFile) {
-        cout << "Unable to open file";
-        exit(1); // terminate with error
-    }
-
-    float* lights_pos_x;
-    float* lights_pos_y;
-    float* lights_size_x;
-    float* lights_size_y;
-    float* lights_dir;
-	lights_pos_x = new float[num_lights];
-	lights_pos_y = new float[num_lights];
-	lights_size_x = new float[num_lights];
-	lights_size_y = new float[num_lights];
-	lights_dir = new float[num_lights];
-
-	for (int i = 0; i < num_lights; i++){
-    	inFile >> y;
-    	lights_pos_x[i] = y;
-    	inFile >> y;
-    	lights_pos_y[i] = y;
-    	inFile >> y;
-    	lights_size_x[i] = y;
-    	inFile >> y;
-    	lights_size_y[i] = y;
-    	inFile >> y;
-    	lights_dir[i] = y;
-    }
-
-    inFile.close();
-
-    //grab doors info
-    inFile.open("level0/doors.txt");
-    if (!inFile) {
-        cout << "Unable to open file";
-        exit(1); // terminate with error
-    }
-
-    float* doors_pos_x;
-    float* doors_pos_y;
-	doors_pos_x = new float[num_doors];
-	doors_pos_y = new float[num_doors];
-
-	for (int i = 0; i < num_doors; i++){
-    	inFile >> y;
-    	doors_pos_x[i] = y;
-    	inFile >> y;
-    	doors_pos_y[i] = y;
-    }
-
-    inFile.close();
-
-    //grab ladder info
-    inFile.open("level0/ladders.txt");
-    if (!inFile) {
-        cout << "Unable to open file";
-        exit(1); // terminate with error
-    }
-
-    float* ladders_pos_x;
-    float* ladders_pos_y;
-    float* ladders_height;
-	ladders_pos_x = new float[num_ladders];
-	ladders_pos_y = new float[num_ladders];
-	ladders_height = new float[num_ladders];
-
-	for (int i = 0; i < num_ladders; i++){
-    	inFile >> y;
-    	ladders_pos_x[i] = y;
-    	inFile >> y;
-    	ladders_pos_y[i] = y;
-    	inFile >> y;
-    	ladders_height[i] = y;
-    }
-
-    inFile.close();
-
-
-    /***** done importing level, start initializing *****/
-
+    int level = 0;
 
 	std::vector< Platform > Vector_Platforms = {};
 	std::vector< Door > Vector_Doors = {};
 	std::vector< Light > Vector_Lights = {};
 	std::vector< Enemy > Vector_Enemies = {};
 	std::vector< Ladder > Vector_Ladders = {};
+
+	loadLevel(level,
+			  reinterpret_cast<void*>(&Vector_Platforms),
+			  reinterpret_cast<void*>(&Vector_Doors),
+			  reinterpret_cast<void*>(&Vector_Lights),
+			  reinterpret_cast<void*>(&Vector_Enemies),
+			  reinterpret_cast<void*>(&Vector_Ladders));
+
+	glm::vec2 default_player_pos = glm::vec2(0.25f, 1.0f);
+	glm::vec2 default_player_vel = glm::vec2(0.0f);
 
 	const float ceiling_height = 10.0f;
 	const float floor_height = 0.25f;
@@ -719,141 +977,6 @@ int main(int argc, char **argv) {
 	bool on_platform = false;
 	bool on_ladder = false;
 	bool check_on_ladder = false;
-
-
-
-	Platform* platforms;
-	Light* lights;
-	Enemy* enemies;
-	Door* door;
-	Ladder* ladders;
-
-	platforms = new Platform[num_plats];
-	lights = new Light[num_lights];
-	enemies = new Enemy[num_enemies];
-	door = new Door[num_doors];
-	ladders = new Ladder[num_ladders];
-
-	for (int i = 0; i < num_plats; i++) {
-		Vector_Platforms.emplace_back(platforms[i]);
-	}
-	for (int i = 0; i < num_lights; i++) {
-		Vector_Lights.emplace_back(lights[i]);
-	}
-	for (int i = 0; i < num_enemies; i++) {
-		Vector_Enemies.emplace_back(enemies[i]);
-	}
-	for (int i = 0; i < num_doors; i++) {
-		Vector_Doors.emplace_back(door[i]);
-	}
-	for (int i = 0; i < num_ladders; i++) {
-		Vector_Ladders.emplace_back(ladders[i]);
-	}
-
-
-	//---- Set Object Variables ---
-
-	//Platforms
-	for (int i = 0; i < num_plats; i++) {
-		Vector_Platforms[i].pos = glm::vec2(plat_pos_x[i], plat_pos_y[i]);
-		Vector_Platforms[i].size = glm::vec2(plat_size_x[i], plat_size_y[i]);
-	}
-
-	//Enemies
-	for (int i = 0; i < num_enemies; i++) {
-		Vector_Enemies[i].pos = glm::vec2(enem_pos_x[i], enem_pos_y[i]);
-		Vector_Enemies[i].waypoints[0] = glm::vec2(enem_w1_x[i], enem_w1_y[i]);
-		Vector_Enemies[i].waypoints[1] = glm::vec2(enem_w2_x[i], enem_w2_y[i]);
-		Vector_Enemies[i].flashlight.size = glm::vec2(enem_fs_x[i], enem_fs_y[i]);
-		Vector_Enemies[i].update_pos();
-		Vector_Enemies[i].flashlight.rotate();
-	}
-
-	//Lights
-	for (int i = 0; i < num_lights; i++) {
-		Vector_Lights[i].pos = glm::vec2(lights_pos_x[i], lights_pos_y[i]);
-		Vector_Lights[i].size = glm::vec2(lights_size_x[i], lights_size_y[i]);
-		Vector_Lights[i].dir = PI * lights_dir[i];
-	}
-
-	//Doors
-	for (int i = 0; i < num_doors; i++) {
-		Vector_Doors[i].pos = glm::vec2(doors_pos_x[i], doors_pos_y[i]);
-	}
-
-	//Ladders
-	for (int i = 0; i < num_ladders; i++) {
-		Vector_Ladders[i].pos = glm::vec2(ladders_pos_x[i], ladders_pos_y[i]);
-		Vector_Ladders[i].size = glm::vec2(1.0f, ladders_height[i]);
-	}
-
-
-	//free memory (initialization is done, we don't need these variable sized arrays)
-
-	delete [] platforms;  // Free memory allocated for the a array.
-	platforms = NULL;     // Be sure the deallocated memory isn't used.
-	delete [] lights;  // Free memory allocated for the a array.
-	lights = NULL;     // Be sure the deallocated memory isn't used.
-	delete [] enemies;  // Free memory allocated for the a array.
-	enemies = NULL;     // Be sure the deallocated memory isn't used.
-	delete [] door;  // Free memory allocated for the a array.
-	door = NULL;     // Be sure the deallocated memory isn't used.
-	delete [] ladders;  // Free memory allocated for the a array.
-	ladders = NULL;     // Be sure the deallocated memory isn't used.
-
-	delete [] plat_pos_x;
-	delete [] plat_pos_y;
-	delete [] plat_size_x;
-	delete [] plat_size_y;
-
-	plat_pos_x = NULL;
-	plat_pos_y = NULL;
-	plat_size_x = NULL;
-	plat_size_y = NULL;
-
-	delete [] enem_pos_x;
-	delete [] enem_pos_y;
-	delete [] enem_w1_x;
-	delete [] enem_w1_y;
-	delete [] enem_w2_x;
-	delete [] enem_w2_y;
-	delete [] enem_fs_x;
-	delete [] enem_fs_y;
-
-	enem_pos_x = NULL;
-	enem_pos_y = NULL;
-	enem_w1_x = NULL;
-	enem_w1_y = NULL;
-	enem_w2_x = NULL;
-	enem_w2_y = NULL;
-	enem_fs_x = NULL;
-	enem_fs_y = NULL;
-
-	delete [] lights_pos_x;
-	delete [] lights_pos_y;
-	delete [] lights_size_x;
-	delete [] lights_size_y;
-	delete [] lights_dir;
-
-	lights_pos_x = NULL;
-	lights_pos_y = NULL;
-	lights_size_x = NULL;
-	lights_size_y = NULL;
-	lights_dir = NULL;
-
-	delete [] doors_pos_x;
-	delete [] doors_pos_y;
-
-	doors_pos_x = NULL;
-	doors_pos_y = NULL;
-
-	delete [] ladders_pos_x;
-	delete [] ladders_pos_y;
-	delete [] ladders_height;
-
-	ladders_pos_x = NULL;
-	ladders_pos_y = NULL;
-	ladders_height = NULL;
 
 	//------------ game loop ------------
 
@@ -911,13 +1034,41 @@ int main(int argc, char **argv) {
 
 						if (check_on_ladder){
 							//climb the actual ladder
-							player.pos.y += 0.02f;
+							player.pos.y += 0.05f;
 						}
 					}
-					/*if (!player.jumping && !player.behind_door && !player.aiming && evt.key.state == SDL_PRESSED) {
-						player.jumping = true;
-						player.vel.y = 6.0f;
-					}*/
+				} 
+				//testing level loading using u
+				else if (evt.key.keysym.sym == SDLK_u) {
+					//reset player statuses
+					player.pos = default_player_pos;
+					player.vel = default_player_vel;
+
+					on_platform = false;
+					on_ladder = false;
+					check_on_ladder = false;
+
+					player.face_right = false;
+					player.jumping = false;
+					player.shifting = false;
+					player.behind_door = false;
+					player.aiming = false;
+					player.visible = false; 
+
+					level = 1;
+
+					Vector_Platforms = {};
+					Vector_Doors = {};
+					Vector_Lights = {};
+					Vector_Enemies = {};
+					Vector_Ladders = {};
+
+					loadLevel(level,
+							  reinterpret_cast<void*>(&Vector_Platforms),
+							  reinterpret_cast<void*>(&Vector_Doors),
+							  reinterpret_cast<void*>(&Vector_Lights),
+							  reinterpret_cast<void*>(&Vector_Enemies),
+							  reinterpret_cast<void*>(&Vector_Ladders));
 				} 
 				else if (evt.key.keysym.sym == SDLK_a) {
 					if (evt.key.state == SDL_PRESSED) {
@@ -968,7 +1119,7 @@ int main(int argc, char **argv) {
 
 							if (check_on_ladder){
 								//climb the actual ladder
-								player.pos.y -= 0.02f;
+								player.pos.y -= 0.05f;
 							}
 						}
 					} else {
@@ -1088,21 +1239,6 @@ int main(int argc, char **argv) {
 				}
 			}
 
-			//uncomment for original level
-
-			// if (player.pos.y < 1.0f) {
-			// 	player.jumping = false;
-			// 	player.pos.y = 1.0f;
-			// 	player.vel.y = 0.0f;
-			// }
-
-			//set up ground floor first
-			// if (player.pos.y < platforms[0].pos.y + platforms[0].size.y/2.0f + player.size.y/2.0f) {
-			// 	player.jumping = false;
-			// 	player.pos.y = platforms[0].pos.y + platforms[0].size.y/2.0f + player.size.y/2.0f;
-			// 	player.vel.y = 0.0f;
-			// }
-
 			on_platform = false;
 
 			//set up every other platform
@@ -1110,7 +1246,7 @@ int main(int argc, char **argv) {
 				platform.detect_collision(player.pos, player.size);
 				on_platform = on_platform || platform.player_collision;
 				if (platform.player_collision && !on_ladder){
-					player.pos.y = platform.pos.y + platform.size.y/2.0f + player.pos.y/2.0f;
+					player.pos.y = platform.pos.y + platform.size.y/2.0f + player.size.y/2.0f;
 				}
 			}
 			if (on_platform && (player.vel.y <= 0.0f)) {
@@ -1303,7 +1439,38 @@ int main(int argc, char **argv) {
 
 			//level win -----------------------------------------------------------
 			if (player.pos.x >= level_end) {
-				should_quit = true;
+				/* go on to the next level (currently goes to level 1) */
+
+				//reset player statuses
+				player.pos = default_player_pos;
+				player.vel = default_player_vel;
+
+				on_platform = false;
+				on_ladder = false;
+				check_on_ladder = false;
+
+				player.face_right = false;
+				player.jumping = false;
+				player.shifting = false;
+				player.behind_door = false;
+				player.aiming = false;
+				player.visible = false; 
+
+				level = 1;
+
+				Vector_Platforms = {};
+				Vector_Doors = {};
+				Vector_Lights = {};
+				Vector_Enemies = {};
+				Vector_Ladders = {};
+
+				loadLevel(level,
+						  reinterpret_cast<void*>(&Vector_Platforms),
+						  reinterpret_cast<void*>(&Vector_Doors),
+						  reinterpret_cast<void*>(&Vector_Lights),
+						  reinterpret_cast<void*>(&Vector_Enemies),
+						  reinterpret_cast<void*>(&Vector_Ladders));
+				//should_quit = true;
 			}
 
 		}
@@ -1367,7 +1534,7 @@ int main(int argc, char **argv) {
 			
 			//draw enemies -----------------------------------------------------------
 			for (Enemy& enemy : Vector_Enemies){
-        glm::vec2 enemy_size = enemy.size;
+        		glm::vec2 enemy_size = enemy.size;
 				if (enemy.face_right) {
 					enemy_size.x *= -1.0f;
 				}
@@ -1417,25 +1584,25 @@ int main(int argc, char **argv) {
 						draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound));
 				}
 
-        bool light_aimed = false;
-			  for (Light& light : Vector_Lights) {
+		        bool light_aimed = false;
+				 for (Light& light : Vector_Lights) {
 					float h_diff = light.pos.x - mouse.pos.x;
 					float v_diff = light.pos.y + 0.5f * light.size.y - mouse.pos.y;
 					if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 1.5f) {
 					 	light_aimed = true;
-            player.aimed_pos = glm::vec2(light.pos.x, light.pos.y + 0.5f * light.size.y);
-            float slope = (player.aimed_pos.y - player.pos.y) / (player.aimed_pos.x - player.pos.x);
-            for (float x = player.pos.x; x > player.aimed_pos.x; x -= 0.3f) {
-              draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), 
-                  glm::vec2(0.03f * player.throw_sound));
-            }
-            for (float x = player.pos.x; x < player.aimed_pos.x; x += 0.3f) {
-              draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), 
-                  glm::vec2(0.03f * player.throw_sound));
-            }
-				    draw_sprite(mouse.sprite_throw, glm::vec2(player.aimed_pos.x, player.aimed_pos.y), glm::vec2(player.throw_sound));
-            break;
-					}
+	            player.aimed_pos = glm::vec2(light.pos.x, light.pos.y + 0.5f * light.size.y);
+	            float slope = (player.aimed_pos.y - player.pos.y) / (player.aimed_pos.x - player.pos.x);
+	            for (float x = player.pos.x; x > player.aimed_pos.x; x -= 0.3f) {
+	             	draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), 
+	                			glm::vec2(0.03f * player.throw_sound));
+	            }
+	            for (float x = player.pos.x; x < player.aimed_pos.x; x += 0.3f) {
+	            	draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), 
+	                	glm::vec2(0.03f * player.throw_sound));
+	            }
+				draw_sprite(mouse.sprite_throw, glm::vec2(player.aimed_pos.x, player.aimed_pos.y), glm::vec2(player.throw_sound));
+	            break;
+			}
         }
 
         if (!light_aimed) {
@@ -1452,7 +1619,7 @@ int main(int argc, char **argv) {
           player.aimed_pos = glm::vec2(mouse.pos.x, max_y);
 
           float y1 = player.pos.y;
-				  float y2 = player.aimed_pos.y + 2.0;
+				  float y2 = player.aimed_pos.y + 2.0f;
 				  float y3 = player.aimed_pos.y;
 				  float x1 = player.pos.x;
 				  float x2 = 0.5f*(player.aimed_pos.x + player.pos.x);
