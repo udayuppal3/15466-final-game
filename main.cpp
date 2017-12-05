@@ -11,6 +11,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <stdio.h>
+#include <string.h>
 
 #include <iomanip>
 #include <fstream>
@@ -289,11 +290,11 @@ void readSizes(int level,
     int x;
     ifstream inFile;
 
-    char buffer[50];
-
-    sprintf_s(buffer, "level%d/num_objects.txt", level);
+    std::string prefix = "level";
+    std::string level_str = std::to_string(level);
+    std::string suffix = "/num_objects.txt";
     
-    inFile.open(buffer);
+    inFile.open(prefix + level_str + suffix);
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -360,11 +361,11 @@ void readLevel(int level,
 	int num_ladders = sizes[4];
 
 	//grab platform info
-	char buffer[50];
-
-    sprintf_s(buffer, "level%d/plats.txt", level);
-
-    inFile.open(buffer);
+    std::string prefix = "level";
+    std::string level_str = std::to_string(level);
+    std::string suffix = "/plats.txt";
+    
+    inFile.open(prefix + level_str + suffix);
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -384,9 +385,9 @@ void readLevel(int level,
     inFile.close();
 
     //grab enemy info
-    sprintf_s(buffer, "level%d/enemies.txt", level);
-
-    inFile.open(buffer);
+	suffix = "/enemies.txt";
+    
+    inFile.open(prefix + level_str + suffix);
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -414,9 +415,9 @@ void readLevel(int level,
     inFile.close();
 
 	//grab lights info
-    sprintf_s(buffer, "level%d/lights.txt", level);
-
-    inFile.open(buffer);
+	suffix = "/lights.txt";
+    
+    inFile.open(prefix + level_str + suffix);
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -438,9 +439,9 @@ void readLevel(int level,
     inFile.close();
 
     //grab doors info
-    sprintf_s(buffer, "level%d/doors.txt", level);
-
-    inFile.open(buffer);
+    suffix = "/doors.txt";
+    
+    inFile.open(prefix + level_str + suffix);
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
@@ -456,9 +457,9 @@ void readLevel(int level,
     inFile.close();
 
     //grab ladder info
-    sprintf_s(buffer, "level%d/ladders.txt", level);
-
-    inFile.open(buffer);
+    suffix = "/ladders.txt";
+    
+    inFile.open(prefix + level_str + suffix);
     if (!inFile) {
         cout << "Unable to open file";
         exit(1); // terminate with error
