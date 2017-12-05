@@ -985,11 +985,11 @@ int main(int argc, char **argv) {
 	glm::vec2 default_player_pos = glm::vec2(0.25f, 1.0f);
 	glm::vec2 default_player_vel = glm::vec2(0.0f);
 
-	const float ceiling_height = 10.0f;
+	//const float ceiling_height = 10.0f;
 	const float floor_height = 0.25f;
 	const float level_end = 40.0f;
 	//for tutorial level, fix later but it looks like it works idk u tell me
-	const float air_plat_height = 2.0f;
+	//const float air_plat_height = 2.0f;
 
 	bool on_platform = false;
 	bool on_ladder = false;
