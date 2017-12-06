@@ -1165,7 +1165,7 @@ int main(int argc, char **argv) {
 
 							if (check_on_ladder){
 								//climb the actual ladder
-								player.pos.y -= 0.05f;
+								player.pos.y -= 0.1f;
 							}
 						}
 					} else {
