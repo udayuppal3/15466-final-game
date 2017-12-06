@@ -183,7 +183,7 @@ struct Enemy {
 
 	float wait_timers [2] = { 5.0f, 5.0f };
 	float remaining_wait = 5.0f;
-	float sight_range = 4.0f;
+	float sight_range = 5.0f;
 	float catch_range = 0.5f;
 	int curr_index  = 0;
 
@@ -516,7 +516,7 @@ void loadLevel(int level,
 
     readSizes(level, reinterpret_cast<void*>(sizes));
 
-    printf("read sizes successful\n");
+    // printf("read sizes successful\n");
 
     //initialize the number of objects per things in level
     int num_lights = sizes[0];
@@ -583,7 +583,7 @@ void loadLevel(int level,
 			  reinterpret_cast<void*>(doors_pos_x), reinterpret_cast<void*>(doors_pos_y),
 			  reinterpret_cast<void*>(ladders_pos_x), reinterpret_cast<void*>(ladders_pos_y), reinterpret_cast<void*>(ladders_height));
 
-	printf("read level successful\n");
+	// printf("read level successful\n");
 
 
     /***** done importing level, start initializing *****/
@@ -653,7 +653,7 @@ void loadLevel(int level,
 		(*Vector_Ladders_point)[i].size = glm::vec2(1.0f, ladders_height[i]);
 	}
 
-	printf("finished initialization\n");
+	// printf("finished initialization\n");
 
 
 	//free memory (initialization is done, we don't need these variable sized arrays)
@@ -723,7 +723,7 @@ void loadLevel(int level,
 	ladders_pos_y = NULL;
 	ladders_height = NULL;
 
-	printf("finished freeing\n");
+	// printf("finished freeing\n");
 }
 
 int main(int argc, char **argv) {
@@ -1005,8 +1005,22 @@ int main(int argc, char **argv) {
 
 	//------------ Initialization ---------------------------------------------
 
-	//load the starting level (starting level should be main menu later)
+	int completed_levels;
 
+	ifstream inFile;
+
+	//load previous progress    
+    inFile.open("levels_completed.txt");
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+
+    inFile >> completed_levels;
+
+    inFile.close();
+
+	//load the starting level (starting level should be main menu later)
     int level = 0;
 
 	std::vector< Platform > Vector_Platforms = {};
@@ -1025,11 +1039,11 @@ int main(int argc, char **argv) {
 	glm::vec2 default_player_pos = glm::vec2(0.25f, 1.0f);
 	glm::vec2 default_player_vel = glm::vec2(0.0f);
 
-	const float ceiling_height = 10.0f;
+	//const float ceiling_height = 10.0f;
 	const float floor_height = 0.25f;
 	const float level_end = 40.0f;
 	//for tutorial level, fix later but it looks like it works idk u tell me
-	const float air_plat_height = 2.0f;
+	//const float air_plat_height = 2.0f;
 
 	bool on_platform = false;
 	bool on_ladder = false;
@@ -1080,7 +1094,8 @@ int main(int argc, char **argv) {
 							/****** add "player climbing" sprite *******/
 						}
 					}
-					if (on_ladder && evt.key.state == SDL_PRESSED) {
+
+          if (on_ladder && evt.key.state == SDL_PRESSED) {
 						check_on_ladder = false;
 
 						//check if player will remain on ladder
@@ -1111,6 +1126,8 @@ int main(int argc, char **argv) {
 					player.behind_door = false;
 					player.aiming = false;
 					player.visible = false; 
+
+					player.num_projectiles = 5;
 
 					level = 1;
 
@@ -1164,7 +1181,19 @@ int main(int argc, char **argv) {
 					}
 				} 
 				else if (evt.key.keysym.sym == SDLK_s) {
-					if (evt.key.state == SDL_PRESSED) {
+					if (!on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
+						//climb onto the ladder
+						for (Ladder& ladder : Vector_Ladders){
+							ladder.detect_collision(player.pos, player.size);
+							on_ladder = on_ladder || ladder.player_collision;
+						}
+
+						if (on_ladder){
+							/****** add "player climbing" sprite *******/
+						}
+					}
+
+          if (evt.key.state == SDL_PRESSED) {
 						if (on_ladder){
 							check_on_ladder = false;
 
@@ -1176,7 +1205,7 @@ int main(int argc, char **argv) {
 
 							if (check_on_ladder){
 								//climb the actual ladder
-								player.pos.y -= 0.05f;
+								player.pos.y -= 0.1f;
 							}
 						}
 					} else {
@@ -1217,7 +1246,7 @@ int main(int argc, char **argv) {
 								player.behind_door = !player.behind_door;
 							}
 						}
-					}
+					}	
 				}
 			} 
 
@@ -1409,11 +1438,71 @@ int main(int argc, char **argv) {
 
 					if (enemies.face_right) {
 						if (enemies.pos.x <= player.pos.x && enemies.pos.x + enemies.catch_range >= player.pos.x && (abs(enemies.pos.y - player.pos.y) <= 0.5f)) {
-							should_quit = true;
+							// should_quit = true;
+
+							//player was caught restart the level
+							player.pos = default_player_pos;
+							player.vel = default_player_vel;
+
+							on_platform = false;
+							on_ladder = false;
+							check_on_ladder = false;
+
+							player.face_right = false;
+							player.jumping = false;
+							player.shifting = false;
+							player.behind_door = false;
+							player.aiming = false;
+							player.visible = false; 
+
+							player.num_projectiles = 5;
+
+							Vector_Platforms = {};
+							Vector_Doors = {};
+							Vector_Lights = {};
+							Vector_Enemies = {};
+							Vector_Ladders = {};
+
+							loadLevel(level,
+									  reinterpret_cast<void*>(&Vector_Platforms),
+									  reinterpret_cast<void*>(&Vector_Doors),
+									  reinterpret_cast<void*>(&Vector_Lights),
+									  reinterpret_cast<void*>(&Vector_Enemies),
+									  reinterpret_cast<void*>(&Vector_Ladders));
 						}
 					} else {
 						if (enemies.pos.x - enemies.catch_range <= player.pos.x && enemies.pos.x >= player.pos.x && (abs(enemies.pos.y - player.pos.y) <= 0.5f)) {
-							should_quit = true;
+							// should_quit = true;
+
+							//player was caught restart the level
+							player.pos = default_player_pos;
+							player.vel = default_player_vel;
+
+							on_platform = false;
+							on_ladder = false;
+							check_on_ladder = false;
+
+							player.face_right = false;
+							player.jumping = false;
+							player.shifting = false;
+							player.behind_door = false;
+							player.aiming = false;
+							player.visible = false; 
+
+							player.num_projectiles = 5;
+
+							Vector_Platforms = {};
+							Vector_Doors = {};
+							Vector_Lights = {};
+							Vector_Enemies = {};
+							Vector_Ladders = {};
+
+							loadLevel(level,
+									  reinterpret_cast<void*>(&Vector_Platforms),
+									  reinterpret_cast<void*>(&Vector_Doors),
+									  reinterpret_cast<void*>(&Vector_Lights),
+									  reinterpret_cast<void*>(&Vector_Enemies),
+									  reinterpret_cast<void*>(&Vector_Ladders));
 						}
 					}
 				}
@@ -1499,6 +1588,22 @@ int main(int argc, char **argv) {
 			if (player.pos.x >= level_end) {
 				/* go on to the next level (currently goes to level 1) */
 
+				//record the completed level
+				completed_levels = completed_levels | (1 << level);
+
+				ofstream outFile;
+
+				//load previous progress    
+			    outFile.open("levels_completed.txt");
+			    if (!outFile) {
+			        cout << "Unable to open file";
+			        exit(1); // terminate with error
+			    }
+
+			    outFile << completed_levels;
+
+			    outFile.close();
+
 				//reset player statuses
 				player.pos = default_player_pos;
 				player.vel = default_player_vel;
@@ -1514,7 +1619,9 @@ int main(int argc, char **argv) {
 				player.aiming = false;
 				player.visible = false; 
 
-				level = 1;
+				player.num_projectiles = 5;
+
+				level += 1;
 
 				Vector_Platforms = {};
 				Vector_Doors = {};
