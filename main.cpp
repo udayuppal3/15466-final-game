@@ -794,16 +794,55 @@ int main(int argc, char **argv) {
 	//Hide mouse cursor (note: showing can be useful for debugging):
 	//SDL_ShowCursor(SDL_DISABLE);
   
-  //SDL Audio
+  //SDL Background Audio
   SDL_AudioSpec wavSpec;
   Uint8 *wavStart;
   Uint32 wavLength;
+  //alert audio
+  SDL_AudioSpec alertSpec;
+  Uint8 *alertStart;
+  Uint32 alertLength;
+  //door audio
+  SDL_AudioSpec doorSpec;
+  Uint8 *doorStart;
+  Uint32 doorLength;
+  //ladder audio
+  SDL_AudioSpec ladderSpec;
+  Uint8 *ladderStart;
+  Uint32 ladderLength;
+  //ornament audio
+  SDL_AudioSpec ornSpec;
+  Uint8 *ornStart;
+  Uint32 ornLength;
+  //step audio
+  SDL_AudioSpec stepSpec;
+  Uint8 *stepStart;
+  Uint32 stepLength;
 
   if (SDL_LoadWAV(BG_MUSIC_PATH, &wavSpec, &wavStart, &wavLength) == NULL) {
     std::cerr << "Failed to load back ground music" << std::endl;
     exit(1);
   }
-  //if (SDL_LoadWAV(ALERT_MUSIC_PATH, ))
+  if (SDL_LoadWAV(ALERT_MUSIC_PATH, &alertSpec, &alertStart, &alertLength) == NULL) {
+  	std::cerr << "Failed to load alert music" << std::endl;
+  	exit(1);
+  }
+  if (SDL_LoadWAV(DOOR_MUSIC_PATH, &doorSpec, &doorStart, &doorLength) == NULL) {
+  	std::cerr << "Failed to load door music" << std::endl;
+  	exit(1);
+  }
+  if (SDL_LoadWAV(LADDER_MUSIC_PATH, &ladderSpec, &ladderStart, &ladderLength) == NULL) {
+  	std::cerr << "Failed to load ladder music" << std::endl;
+  	exit(1);
+  }
+  if (SDL_LoadWAV(ORNAMENT_PATH, &ornSpec, &ornStart, &ornLength) == NULL) {
+  	std::cerr << "Failed to load ornament sound" << std::endl;
+  	exit(1);
+  }
+  if (SDL_LoadWAV(STEP_MUSIC_PATH, &stepSpec, &stepStart, &stepLength) == NULL) {
+  	std::cerr << "Failed to load step sound" << std::endl;
+  	exit(1);
+  }
 
   AudioData audioData;
   audioData.pos = wavStart;
@@ -816,6 +855,7 @@ int main(int argc, char **argv) {
   wavSpec.userdata = &audioData;
 
   SDL_AudioDeviceID audioDevice = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  SDL_AudioDeviceID sfxAudioDevice = SDL_OpenAudioDevice(NULL, 0, &ornSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
 
   if (audioDevice == 0) {
     std::cerr << "Failed to grab a device" << std::endl;
