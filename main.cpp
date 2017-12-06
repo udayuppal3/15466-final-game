@@ -862,7 +862,7 @@ int main(int argc, char **argv) {
   doorData.init_pos = doorStart;
   doorData.init_length = doorLength;
 
-  doorSpec.callback = playEffect;
+  doorSpec.callback = playTone;
   doorSpec.userdata = &doorData;
 
   AudioData ladderData;
@@ -872,7 +872,7 @@ int main(int argc, char **argv) {
   ladderData.init_pos = ladderStart;
   ladderData.init_length = ladderLength;
 
-  ladderSpec.callback = playEffect;
+  ladderSpec.callback = playTone;
   ladderSpec.userdata = &ladderData;
 
   AudioData ornData;
@@ -882,7 +882,7 @@ int main(int argc, char **argv) {
   ornData.init_pos = ornStart;
   ornData.init_length = ornLength;
 
-  ornSpec.callback = playEffect;
+  ornSpec.callback = playTone;
   ornSpec.userdata = &ornData;
 
   AudioData alertData;
@@ -892,7 +892,7 @@ int main(int argc, char **argv) {
   alertData.init_pos = alertStart;
   alertData.init_length = alertLength;
 
-  alertSpec.callback = playEffect;
+  alertSpec.callback = playTone;
   alertSpec.userdata = &alertData;
 
   AudioData stepData;
@@ -902,7 +902,7 @@ int main(int argc, char **argv) {
   stepData.init_pos = stepStart;
   stepData.init_length = stepLength;
 
-  stepSpec.callback = playEffect;
+  stepSpec.callback = playTone;
   stepSpec.userdata = &stepData;
 
 
