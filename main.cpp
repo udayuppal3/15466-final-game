@@ -29,7 +29,7 @@ static const char *BG_MUSIC_PATH =
 "../sounds/Light_And_Shadow_Soundtrack.wav";
 
 static const char *ALERT_MUSIC_PATH =
-"../sounds/alert.wav";
+"../sounds/alert_quiet.wav";
 
 static const char *DOOR_MUSIC_PATH =
 "../sounds/door_grab.wav";
@@ -295,6 +295,7 @@ struct Air_Platform {
 };
 
 static void playTone(void *userdata, Uint8 *stream, int streamlength);
+static void playEffect(void *userdata, Uint8 *stream, int streamlength);
 
 void readSizes(int level,
 			   void *sizes_p){
@@ -854,13 +855,85 @@ int main(int argc, char **argv) {
   wavSpec.callback = playTone;
   wavSpec.userdata = &audioData;
 
+  AudioData doorData;
+  doorData.pos = doorStart;
+  doorData.length = doorLength;
+
+  doorData.init_pos = doorStart;
+  doorData.init_length = doorLength;
+
+  doorSpec.callback = playEffect;
+  doorSpec.userdata = &doorData;
+
+  AudioData ladderData;
+  ladderData.pos = ladderStart;
+  ladderData.length = ladderLength;
+
+  ladderData.init_pos = ladderStart;
+  ladderData.init_length = ladderLength;
+
+  ladderSpec.callback = playEffect;
+  ladderSpec.userdata = &ladderData;
+
+  AudioData ornData;
+  ornData.pos = ornStart;
+  ornData.length = ornLength;
+
+  ornData.init_pos = ornStart;
+  ornData.init_length = ornLength;
+
+  ornSpec.callback = playEffect;
+  ornSpec.userdata = &ornData;
+
+  AudioData alertData;
+  alertData.pos = alertStart;
+  alertData.length = alertLength;
+
+  alertData.init_pos = alertStart;
+  alertData.init_length = alertLength;
+
+  alertSpec.callback = playEffect;
+  alertSpec.userdata = &alertData;
+
+  AudioData stepData;
+  stepData.pos = stepStart;
+  stepData.length = stepLength;
+
+  stepData.init_pos = stepStart;
+  stepData.init_length = stepLength;
+
+  stepSpec.callback = playEffect;
+  stepSpec.userdata = &stepData;
+
+
   SDL_AudioDeviceID audioDevice = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
-  SDL_AudioDeviceID sfxAudioDevice = SDL_OpenAudioDevice(NULL, 0, &ornSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  SDL_AudioDeviceID doorDevice = SDL_OpenAudioDevice(NULL, 0, &doorSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  SDL_AudioDeviceID ladderDevice = SDL_OpenAudioDevice(NULL, 0, &ladderSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  SDL_AudioDeviceID ornDevice = SDL_OpenAudioDevice(NULL, 0, &ornSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  SDL_AudioDeviceID alertAudioDevice = SDL_OpenAudioDevice(NULL, 0, &alertSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  SDL_AudioDeviceID stepDevice = SDL_OpenAudioDevice(NULL, 0, &stepSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
 
   if (audioDevice == 0) {
     std::cerr << "Failed to grab a device" << std::endl;
     exit(1);
   }
+  if (doorDevice == 0) {
+  	std::cerr << "Failed to grab a device (door)" << std::endl;
+  	exit(1);
+  }
+  if (ladderDevice == 0) {
+  	std::cerr << "Failed to grab a device (ladder) " << std::endl;
+  	exit(1);
+  }
+  if (ornDevice == 0) {
+  	std::cerr << "Failed to grab a device (ornament) " << std::endl;
+  	exit(1);
+  }
+  if (alertAudioDevice == 0) {
+  	std::cerr << "Failed to grab a device (alert)" << std::endl;
+  	exit(1);
+  }
+
 
 	//------------ opengl objects / game assets ------------
 
@@ -1067,6 +1140,7 @@ int main(int argc, char **argv) {
 				if (evt.button.button == SDL_BUTTON_LEFT) {
 					if (player.aiming && player.num_projectiles > 0) {
 						player.num_projectiles--;
+						SDL_PauseAudioDevice(ornDevice, 0);
 							player.projectiles_pos.push_back(player.aimed_pos);
 						}
 				} else if (evt.button.button == SDL_BUTTON_RIGHT) {
@@ -1106,6 +1180,7 @@ int main(int argc, char **argv) {
 
 						if (check_on_ladder){
 							//climb the actual ladder
+							SDL_PauseAudioDevice(ladderDevice, 0);
 							player.pos.y += 0.1f;
 						}
 					}
@@ -1243,6 +1318,7 @@ int main(int argc, char **argv) {
 							if (player.pos.x + player.size.x / 2 < door.pos.x + door.size.x / 2
 									&& player.pos.x - player.size.x / 2 > door.pos.x - door.size.x / 2
 									&& player.pos.y + player.size.y / 2 < door.pos.y + door.size.y / 2) {
+								SDL_PauseAudioDevice(doorDevice, 0);
 								player.behind_door = !player.behind_door;
 							}
 						}
@@ -1255,6 +1331,8 @@ int main(int argc, char **argv) {
 				break;
 			}
 		}
+
+		//Audio stuff
 
 		if (should_quit) break;
 
@@ -1419,6 +1497,7 @@ int main(int argc, char **argv) {
 				if (player.visible && !player.behind_door) {
 					if (enemies.face_right) {
 						if (enemies.pos.x <= player.pos.x && enemies.pos.x + enemies.sight_range >= player.pos.x && (abs(enemies.pos.y - player.pos.y) <= 0.5f)) {
+  							SDL_PauseAudioDevice(alertAudioDevice, 0);
 							enemies.target = player.pos;
 							enemies.vel.x = 2.5f;
 							enemies.alerted = true;
@@ -1426,6 +1505,7 @@ int main(int argc, char **argv) {
 						}
 					} else {
 						if (enemies.pos.x - enemies.sight_range <= player.pos.x && enemies.pos.x >= player.pos.x && (abs(enemies.pos.y - player.pos.y) <= 0.5f)) {
+  							SDL_PauseAudioDevice(alertAudioDevice, 0);
 							enemies.target = player.pos;
 							enemies.vel.x = -2.5f;
 							enemies.alerted = true;
@@ -1515,8 +1595,10 @@ int main(int argc, char **argv) {
 				float sound = 0.0f;
 				if ((player.vel.x == 1.0f || player.vel.x == -1.0f) && !player.jumping && !player.behind_door) {
 					sound = 0.5f * player.walk_sound;
+					SDL_PauseAudioDevice(stepDevice, 0);
 				} else if ((player.vel.x == 2.0f || player.vel.x == -2.0f) && !player.jumping && !player.behind_door) {
 					sound = 0.5f * player.run_sound;
+					SDL_PauseAudioDevice(stepDevice, 0);
 				}
 
 				if (sqrt(h_diff * h_diff + v_diff * v_diff) <= sound) {
@@ -1639,6 +1721,34 @@ int main(int argc, char **argv) {
 			}
 
 		}
+
+		//Audio Stuff
+		if (alertData.length == 0) {
+			SDL_PauseAudioDevice(alertAudioDevice, 1);
+			alertData.pos = alertData.init_pos;
+			alertData.length = alertData.init_length;
+		}
+		if (doorData.length == 0) {
+			SDL_PauseAudioDevice(doorDevice, 1);
+			doorData.pos = doorData.init_pos;
+			doorData.length = doorData.init_length;
+		}
+		if (ladderData.length == 0) {
+			SDL_PauseAudioDevice(ladderDevice, 1);
+			ladderData.pos = ladderData.init_pos;
+			ladderData.length = ladderData.init_length;
+		}
+		if (ornData.length == 0) {
+			SDL_PauseAudioDevice(ornDevice, 1);
+			ornData.pos = ornData.init_pos;
+			ornData.length = ornData.init_length;
+		}
+		if (stepData.length == 0) {
+			SDL_PauseAudioDevice(stepDevice, 1);
+			stepData.pos = stepData.init_pos;
+			stepData.length = stepData.init_length;
+		}
+
 
 		//draw output:
 		glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -1862,6 +1972,7 @@ int main(int argc, char **argv) {
 
   //Close the audio devices
   SDL_CloseAudioDevice(audioDevice);
+  SDL_CloseAudioDevice(alertAudioDevice);
   SDL_FreeWAV(wavStart);
 
 	SDL_GL_DeleteContext(context);
@@ -1937,3 +2048,27 @@ static void playTone(void *userData, Uint8 *stream, int streamLength) {
   audioData->pos += length;
   audioData->length -= length;
 }
+
+
+static void playEffect(void *userData, Uint8 *stream, int streamLength) {
+
+  // change the user data passed by SDL into our User defined AudioData format
+  AudioData *audioData = (AudioData *)userData;
+
+  if (audioData ->length == 0) {
+    //Set the init length and pos
+    // audioData->pos = audioData->init_pos;
+    // audioData->length = audioData->init_length;
+    return;
+  }
+
+  Uint32 length = (Uint32) streamLength;
+  length = length > audioData->length ? audioData->length : length;
+
+  SDL_memcpy(stream, audioData->pos, length);
+
+  audioData->pos += length;
+  audioData->length -= length;
+}
+
+
