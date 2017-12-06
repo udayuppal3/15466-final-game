@@ -1043,7 +1043,19 @@ int main(int argc, char **argv) {
 			} 
 			else if (evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP) {
 				if (evt.key.keysym.sym == SDLK_w) {
-					if (on_ladder && evt.key.state == SDL_PRESSED) {
+					if (!on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
+						//climb onto the ladder
+						for (Ladder& ladder : Vector_Ladders){
+							ladder.detect_collision(player.pos, player.size);
+							on_ladder = on_ladder || ladder.player_collision;
+						}
+
+						if (on_ladder){
+							/****** add "player climbing" sprite *******/
+						}
+					}
+
+          if (on_ladder && evt.key.state == SDL_PRESSED) {
 						check_on_ladder = false;
 
 						//check if player will remain on ladder
@@ -1129,7 +1141,19 @@ int main(int argc, char **argv) {
 					}
 				} 
 				else if (evt.key.keysym.sym == SDLK_s) {
-					if (evt.key.state == SDL_PRESSED) {
+					if (!on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
+						//climb onto the ladder
+						for (Ladder& ladder : Vector_Ladders){
+							ladder.detect_collision(player.pos, player.size);
+							on_ladder = on_ladder || ladder.player_collision;
+						}
+
+						if (on_ladder){
+							/****** add "player climbing" sprite *******/
+						}
+					}
+
+          if (evt.key.state == SDL_PRESSED) {
 						if (on_ladder){
 							check_on_ladder = false;
 
@@ -1182,19 +1206,7 @@ int main(int argc, char **argv) {
 								player.behind_door = !player.behind_door;
 							}
 						}
-					}
-
-					if (!on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
-						//climb onto the ladder
-						for (Ladder& ladder : Vector_Ladders){
-							ladder.detect_collision(player.pos, player.size);
-							on_ladder = on_ladder || ladder.player_collision;
-						}
-
-						if (on_ladder){
-							/****** add "player climbing" sprite *******/
-						}
-					}
+					}	
 				}
 			} 
 
