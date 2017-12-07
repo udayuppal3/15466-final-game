@@ -79,6 +79,33 @@ struct Background{
 		glm::vec2(   0.0f/7000.0f, (5500.0f - 2000.0f) / 5500.0f),
 		glm::vec2( 200.0f/7000.0f, (5500.0f - 2200.0f) / 5500.0f),
 	};
+
+	SpriteInfo hints[6] = {
+		{
+			glm::vec2( 6400.0f/7000.0f, (5500.0f - 2300.0f) / 5500.0f),
+			glm::vec2( 6700.0f/7000.0f, (5500.0f - 1900.0f) / 5500.0f),
+		}, // walk
+		{
+			glm::vec2( 6000.0f/7000.0f, (5500.0f - 2200.0f) / 5500.0f),
+			glm::vec2( 6300.0f/7000.0f, (5500.0f - 1900.0f) / 5500.0f),
+		}, // Run
+		{
+			glm::vec2( 6000.0f/7000.0f, (5500.0f - 2400.0f) / 5500.0f),
+			glm::vec2( 6300.0f/7000.0f, (5500.0f - 2200.0f) / 5500.0f),
+		}, // Menu
+		{
+			glm::vec2( 6000.0f/7000.0f, (5500.0f - 2600.0f) / 5500.0f),
+			glm::vec2( 6300.0f/7000.0f, (5500.0f - 2400.0f) / 5500.0f),
+		}, // Climb
+		{
+			glm::vec2( 6000.0f/7000.0f, (5500.0f - 2800.0f) / 5500.0f),
+			glm::vec2( 6300.0f/7000.0f, (5500.0f - 2600.0f) / 5500.0f),
+		}, // Hide
+		{
+			glm::vec2( 5400.0f/7000.0f, (5500.0f - 1900.0f) / 5500.0f),
+			glm::vec2( 6600.0f/7000.0f, (5500.0f - 1300.0f) / 5500.0f),
+		}, // mouse
+	};
 };
 
 struct PlayerInfo{
@@ -2206,6 +2233,16 @@ int main(int argc, char **argv) {
 				draw_triangle(light.vectors[0], light.vectors[1], light.vectors[2], 
 						glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
 			}
+		}
+
+		// Draw tutorial hints
+		if (level == 0 && !in_menu) {
+			draw_sprite(bg.hints[0], glm::vec2(1.0f, 2.5f), glm::vec2(0.8f, 0.8f), glm::u8vec4(0xff,0xff,0xff,0xff));
+			draw_sprite(bg.hints[1], glm::vec2(2.5f, 2.5f), glm::vec2(0.8f, 0.8f), glm::u8vec4(0xff,0xff,0xff,0xff));
+			draw_sprite(bg.hints[2], glm::vec2(6.0f, 2.5f), glm::vec2(0.8f, 0.8f), glm::u8vec4(0xff,0xff,0xff,0xff));
+			draw_sprite(bg.hints[4], glm::vec2(4.0f, 2.5f), glm::vec2(0.8f, 0.8f), glm::u8vec4(0xff,0xff,0xff,0xff));
+			draw_sprite(bg.hints[3], glm::vec2(10.0f, 2.5f), glm::vec2(0.8f, 0.8f), glm::u8vec4(0xff,0xff,0xff,0xff));
+			draw_sprite(bg.hints[5], glm::vec2(16.0f, 4.0f), glm::vec2(2.0f, 2.0f), glm::u8vec4(0xff,0xff,0xff,0xff));
 		}
 
 		if (caught == true){
