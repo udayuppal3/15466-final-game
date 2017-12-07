@@ -2330,11 +2330,11 @@ int main(int argc, char **argv) {
 					float slope = (player.aimed_pos.y - player.pos.y) / (player.aimed_pos.x - player.pos.x);
 					for (float x = player.pos.x; x > player.aimed_pos.x; x -= 0.3f) {
 						draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), 
-								glm::vec2(0.03f * player.throw_sound));
+								glm::vec2(0.06f * player.throw_sound));
 					}
 					for (float x = player.pos.x; x < player.aimed_pos.x; x += 0.3f) {
 						draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), 
-								glm::vec2(0.03f * player.throw_sound));
+								glm::vec2(0.06f * player.throw_sound));
 					}
 					draw_sprite(mouse.sprite_throw, glm::vec2(player.aimed_pos.x, player.aimed_pos.y), glm::vec2(player.throw_sound));
 					break;
@@ -2371,10 +2371,10 @@ int main(int argc, char **argv) {
 					+ y2*x1*x3/((x2-x1)*(x2-x3))
 					+ y3*x1*x2/((x3-x1)*(x3-x2));
 				for (float x = player.pos.x; x > player.aimed_pos.x; x -= 0.3f) {
-					draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
+					draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.06f * player.throw_sound));
 				}
 				for (float x = player.pos.x; x < player.aimed_pos.x; x += 0.3f) {
-					draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
+					draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.06f * player.throw_sound));
 				}
 				draw_sprite(mouse.sprite_throw, glm::vec2(player.aimed_pos.x, player.aimed_pos.y), glm::vec2(player.throw_sound));
 			}
