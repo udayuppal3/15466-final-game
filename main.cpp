@@ -171,7 +171,7 @@ struct PlayerInfo{
 
 	glm::vec2 aimed_pos;
 	std::vector<glm::vec2> projectiles_pos;
-	int num_projectiles = 5;
+	int num_projectiles = 9;
 };
 
 struct Light {
@@ -1410,7 +1410,7 @@ int main(int argc, char **argv) {
 								player.aiming = false;
 								player.visible = false; 
 
-								player.num_projectiles = 5;
+								player.num_projectiles = 9;
 
 								level = level_highlighted;
 
@@ -1455,7 +1455,7 @@ int main(int argc, char **argv) {
 					player.aiming = false;
 					player.visible = false; 
 
-					player.num_projectiles = 5;
+					player.num_projectiles = 9;
 
 					//reset to level 0 just in case (shouldn't matter though)
 					level = 0;
@@ -1866,7 +1866,7 @@ int main(int argc, char **argv) {
 							player.aiming = false;
 							player.visible = false; 
 
-							player.num_projectiles = 5;
+							player.num_projectiles = 9;
 
 							Vector_Platforms = {};
 							Vector_Doors = {};
@@ -1903,7 +1903,7 @@ int main(int argc, char **argv) {
 							player.aiming = false;
 							player.visible = false; 
 
-							player.num_projectiles = 5;
+							player.num_projectiles = 9;
 
 							Vector_Platforms = {};
 							Vector_Doors = {};
@@ -2037,7 +2037,7 @@ int main(int argc, char **argv) {
 				player.aiming = false;
 				player.visible = false; 
 
-				player.num_projectiles = 5;
+				player.num_projectiles = 9;
 
 				level += 1;
 
