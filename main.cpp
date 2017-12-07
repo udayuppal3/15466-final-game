@@ -1078,22 +1078,8 @@ int main(int argc, char **argv) {
 
 	//------------ Initialization ---------------------------------------------
 
-	int completed_levels;
+	int completed_levels = 0;
 
-	ifstream inFile;
-
-	//load previous progress    
-    inFile.open("levels_completed.txt");
-    if (!inFile) {
-        cout << "Unable to open file";
-        exit(1); // terminate with error
-    }
-
-    inFile >> completed_levels;
-
-    inFile.close();
-
-	//load the starting level (starting level should be main menu later)
     int level = 0;
 
 	std::vector< Platform > Vector_Platforms = {};
@@ -1102,12 +1088,22 @@ int main(int argc, char **argv) {
 	std::vector< Enemy > Vector_Enemies = {};
 	std::vector< Ladder > Vector_Ladders = {};
 
-	loadLevel(level,
-			  reinterpret_cast<void*>(&Vector_Platforms),
-			  reinterpret_cast<void*>(&Vector_Doors),
-			  reinterpret_cast<void*>(&Vector_Lights),
-			  reinterpret_cast<void*>(&Vector_Enemies),
-			  reinterpret_cast<void*>(&Vector_Ladders));
+	//to start the game, we don't load the first level, we instead load the main menu page
+	bool in_menu = true;
+	bool in_level_select = false;
+
+	//likewise, we must set the player to be invisible if behind a door (beccomes visible when loading level)
+	player.behind_door = true;
+
+	//create variables associated with these 2 different screens
+	//for menu
+	bool play_highlighted = true;
+
+	//for level select
+	bool back_button_highlighted = false;
+	bool unlocked[5] = {true, false, false, false, false};
+	int num_unlocked = 0;
+	int level_highlighted = 0;
 
 	glm::vec2 default_player_pos = glm::vec2(0.25f, 1.0f);
 	glm::vec2 default_player_vel = glm::vec2(0.0f);
@@ -1157,7 +1153,16 @@ int main(int argc, char **argv) {
 			} 
 			else if (evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP) {
 				if (evt.key.keysym.sym == SDLK_w) {
-					if (!on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
+					if (in_menu && evt.key.state == SDL_PRESSED){
+						if (!in_level_select){
+							play_highlighted = !play_highlighted;
+						}
+						else{
+							back_button_highlighted = !back_button_highlighted;
+						}
+					}
+
+					if (!in_menu && !on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
 						//climb onto the ladder
 						for (Ladder& ladder : Vector_Ladders){
 							ladder.detect_collision(player.pos, player.size);
@@ -1169,7 +1174,7 @@ int main(int argc, char **argv) {
 						}
 					}
 
-          if (on_ladder && evt.key.state == SDL_PRESSED) {
+         			if (!in_menu && on_ladder && evt.key.state == SDL_PRESSED) {
 						check_on_ladder = false;
 
 						//check if player will remain on ladder
@@ -1185,8 +1190,78 @@ int main(int argc, char **argv) {
 						}
 					}
 				} 
-				//testing level loading using u
-				else if (evt.key.keysym.sym == SDLK_u) {
+				else if (evt.key.keysym.sym == SDLK_UP) {
+					if (in_menu && evt.key.state == SDL_PRESSED){
+						if (!in_level_select){
+							play_highlighted = !play_highlighted;
+						}
+						else{
+							back_button_highlighted = !back_button_highlighted;
+						}
+					}
+				} 
+				//selection using the return key
+				else if (evt.key.keysym.sym == SDLK_RETURN) {
+					if (in_menu && evt.key.state == SDL_PRESSED){
+						if (!in_level_select){
+							if (play_highlighted){
+								in_level_select = true;
+								back_button_highlighted = false;
+							} else{
+								should_quit = true;
+							}
+						}else{
+							if (back_button_highlighted){
+								in_level_select = false;
+							}else{
+								//load the level in this case
+
+								//exit main menu and level select
+								in_menu = false;
+								in_level_select = false;
+
+								//reset player statuses
+								player.pos = default_player_pos;
+								player.vel = default_player_vel;
+
+								on_platform = false;
+								on_ladder = false;
+								check_on_ladder = false;
+
+								player.face_right = false;
+								player.jumping = false;
+								player.shifting = false;
+								player.behind_door = false;
+								player.aiming = false;
+								player.visible = false; 
+
+								player.num_projectiles = 5;
+
+								level = level_highlighted;
+
+								Vector_Platforms = {};
+								Vector_Doors = {};
+								Vector_Lights = {};
+								Vector_Enemies = {};
+								Vector_Ladders = {};
+
+								loadLevel(level,
+										  reinterpret_cast<void*>(&Vector_Platforms),
+										  reinterpret_cast<void*>(&Vector_Doors),
+										  reinterpret_cast<void*>(&Vector_Lights),
+										  reinterpret_cast<void*>(&Vector_Enemies),
+										  reinterpret_cast<void*>(&Vector_Ladders));
+							}
+						}
+					}
+				} 
+				//testing ability to return to main menu
+				else if (evt.key.keysym.sym == SDLK_m) {
+					//go to menu
+					in_menu = true;
+					in_level_select = false;
+					play_highlighted = true;
+
 					//reset player statuses
 					player.pos = default_player_pos;
 					player.vel = default_player_vel;
@@ -1198,38 +1273,49 @@ int main(int argc, char **argv) {
 					player.face_right = false;
 					player.jumping = false;
 					player.shifting = false;
-					player.behind_door = false;
+
+					//we set player behind door as a hack to "remove" player while we're in the main menu
+					player.behind_door = true;
+
 					player.aiming = false;
 					player.visible = false; 
 
 					player.num_projectiles = 5;
 
-					level = 1;
+					//reset to level 0 just in case (shouldn't matter though)
+					level = 0;
 
 					Vector_Platforms = {};
 					Vector_Doors = {};
 					Vector_Lights = {};
 					Vector_Enemies = {};
 					Vector_Ladders = {};
-
-					loadLevel(level,
-							  reinterpret_cast<void*>(&Vector_Platforms),
-							  reinterpret_cast<void*>(&Vector_Doors),
-							  reinterpret_cast<void*>(&Vector_Lights),
-							  reinterpret_cast<void*>(&Vector_Enemies),
-							  reinterpret_cast<void*>(&Vector_Ladders));
 				} 
 				else if (evt.key.keysym.sym == SDLK_a) {
 					if (evt.key.state == SDL_PRESSED) {
-						if (player.shifting) {
-							player.vel.x = -2.0f;
-							player.face_right = false;
-						} else {
-							player.vel.x = -1.0f;
-							player.face_right = false;
+						if (in_menu){
+							if (in_level_select){
+								if (!back_button_highlighted){
+									if (level_highlighted == 0){
+										level_highlighted = num_unlocked;
+									}
+									else{
+										level_highlighted -= 1;
+									}
+								}
+							}
 						}
-						if (on_ladder){
-							on_ladder = false;
+						else{
+							if (player.shifting) {
+								player.vel.x = -2.0f;
+								player.face_right = false;
+							} else {
+								player.vel.x = -1.0f;
+								player.face_right = false;
+							}
+							if (on_ladder){
+								on_ladder = false;
+							}
 						}
 					} else {
 						if (player.vel.x == -1.0f || player.vel.x == -2.0f) {
@@ -1237,26 +1323,81 @@ int main(int argc, char **argv) {
 						}
 					}
 				} 
+				else if (evt.key.keysym.sym == SDLK_LEFT) {
+					if (evt.key.state == SDL_PRESSED) {
+						if (in_menu){
+							if (in_level_select){
+								if (!back_button_highlighted){
+									if (level_highlighted == 0){
+										level_highlighted = num_unlocked;
+									}
+									else{
+										level_highlighted -= 1;
+									}
+								}
+							}
+						}
+					}
+				} 
 				else if (evt.key.keysym.sym == SDLK_d) {
 					if (evt.key.state == SDL_PRESSED) {
-						if (player.shifting) {
-							player.vel.x = 2.0f;
-							player.face_right = true;
-						} else {
-							player.vel.x = 1.0f;
-							player.face_right = true;
+						if (in_menu){
+							if (in_level_select){
+								if (!back_button_highlighted){
+									if (level_highlighted == num_unlocked){
+										level_highlighted = 0;
+									}
+									else{
+										level_highlighted += 1;
+									}
+								}
+							}
 						}
-						if (on_ladder){
-							on_ladder = false;
+						else{
+							if (player.shifting) {
+								player.vel.x = 2.0f;
+								player.face_right = true;
+							} else {
+								player.vel.x = 1.0f;
+								player.face_right = true;
+							}
+							if (on_ladder){
+								on_ladder = false;
+							}
 						}
+						
 					} else {
 						if (player.vel.x == 1.0f || player.vel.x == 2.0f) {
 							player.vel.x = 0.0f;
 						}
 					}
 				} 
+				else if (evt.key.keysym.sym == SDLK_RIGHT) {
+					if (evt.key.state == SDL_PRESSED) {
+						if (in_menu){
+							if (in_level_select){
+								if (!back_button_highlighted){
+									if (level_highlighted == num_unlocked){
+										level_highlighted = 0;
+									}
+									else{
+										level_highlighted += 1;
+									}
+								}
+							}
+						}
+					}
+				} 
 				else if (evt.key.keysym.sym == SDLK_s) {
-					if (!on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
+					if (in_menu && evt.key.state == SDL_PRESSED){
+						if (!in_level_select){
+							play_highlighted = !play_highlighted;
+						}else{
+							back_button_highlighted = !back_button_highlighted;
+						}
+					}
+
+					if (!in_menu && !on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
 						//climb onto the ladder
 						for (Ladder& ladder : Vector_Ladders){
 							ladder.detect_collision(player.pos, player.size);
@@ -1268,7 +1409,7 @@ int main(int argc, char **argv) {
 						}
 					}
 
-          if (evt.key.state == SDL_PRESSED) {
+          			if (!in_menu && evt.key.state == SDL_PRESSED) {
 						if (on_ladder){
 							check_on_ladder = false;
 
@@ -1286,6 +1427,15 @@ int main(int argc, char **argv) {
 					} else {
 						if (player.vel.x == 1.0f || player.vel.x == 2.0f) {
 							player.vel.x = 0.0f;
+						}
+					}
+				} 
+				else if (evt.key.keysym.sym == SDLK_DOWN) {
+					if (in_menu && evt.key.state == SDL_PRESSED){
+						if (!in_level_select){
+							play_highlighted = !play_highlighted;
+						}else{
+							back_button_highlighted = !back_button_highlighted;
 						}
 					}
 				} 
@@ -1670,21 +1820,19 @@ int main(int argc, char **argv) {
 			if (player.pos.x >= level_end) {
 				/* go on to the next level (currently goes to level 1) */
 
+
+
 				//record the completed level
-				completed_levels = completed_levels | (1 << level);
+				if (completed_levels < level) {
+					completed_levels = level;
+				}
 
-				ofstream outFile;
-
-				//load previous progress    
-			    outFile.open("levels_completed.txt");
-			    if (!outFile) {
-			        cout << "Unable to open file";
-			        exit(1); // terminate with error
-			    }
-
-			    outFile << completed_levels;
-
-			    outFile.close();
+				if (level < 4){
+					unlocked[level + 1] = true;
+					if (num_unlocked < 4){
+						num_unlocked += 1;
+					}
+				}
 
 				//reset player statuses
 				player.pos = default_player_pos;
@@ -1704,6 +1852,9 @@ int main(int argc, char **argv) {
 				player.num_projectiles = 5;
 
 				level += 1;
+
+				//if the player beats the fifth level, cycle around to the starting level
+				level = level % 5;
 
 				Vector_Platforms = {};
 				Vector_Doors = {};
@@ -1821,19 +1972,74 @@ int main(int argc, char **argv) {
 				}
 				//}
 
-				//draw lights --------------------------------------------------------------
+				//draw flashlights --------------------------------------------------------------
 				if (enemy.flashlight.light_on) {
 					draw_triangle(enemy.flashlight.vectors[0], enemy.flashlight.vectors[1], enemy.flashlight.vectors[2], 
 						glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
 				}
 			}
 
+			//draw stage lights
       		for (Light& light : Vector_Lights) {
       			if (light.light_on) {
       				//printf("drawing triangles: (%f,%f), (%f,%f)\n", light.pos.x, light.pos.y, light.size.x, light.size.y);
       				draw_triangle(light.vectors[0], light.vectors[1], light.vectors[2], 
 					glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
       			}
+      		}
+
+      		//draw menu options --------------------------------------------------------
+      		//at the moment, we use triangles for buttons
+      		if (in_menu){
+      			//determine whether to be on the main select screen or the level select screen
+      			if (!in_level_select){
+	      			//do an if statement to "highlight" the hovering option
+	      			if (play_highlighted){
+	      				draw_triangle(glm::vec2(3.0f, 3.0f), glm::vec2(5.0f, 3.0f), glm::vec2(5.0f, 5.0f), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+		      			draw_triangle(glm::vec2(3.0f, 2.0f), glm::vec2(4.0f, 2.0f), glm::vec2(3.0f, 1.0f), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+	      			}
+	      			else{
+	      				draw_triangle(glm::vec2(3.0f, 3.0f), glm::vec2(4.0f, 3.0f), glm::vec2(4.0f, 4.0f), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+		      			draw_triangle(glm::vec2(3.0f, 2.0f), glm::vec2(5.0f, 2.0f), glm::vec2(3.0f, 0.0f), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+	      			}
+	      		}
+	      		else{
+	      			//display the levels (represented as triangles)
+	      			for (int i = 0; i < 5; i++){
+	      				float offset = (float)i;
+
+	      				int alpha;
+
+	      				if (unlocked[i]){
+	      					alpha = 0x88;
+	      				}else{
+	      					alpha = 0x22;
+	      				}
+
+	      				float y_scale;
+
+	      				if (i == level_highlighted && !back_button_highlighted){
+	      					y_scale = 0.5f;
+	      				}else{
+	      					y_scale = 0.0f;
+	      				}
+
+	      				draw_triangle(glm::vec2(0.5f + 2.5f * offset, 3.0f), glm::vec2(1.5f + 2.5f * offset, 3.0f), glm::vec2(1.5f + 2.5f * offset, 4.0f + y_scale), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, alpha));
+	      			}
+
+	      			if (back_button_highlighted){
+	      				draw_triangle(glm::vec2(5.5f, 1.0f), glm::vec2(6.5f, 1.0f), glm::vec2(6.5f, 2.0f + 0.5f), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+	      			}else{
+	      				draw_triangle(glm::vec2(5.5f, 1.0f), glm::vec2(6.5f, 1.0f), glm::vec2(6.5f, 2.0f), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+	      			}
+	      		}
       		}
 
 			//draw platforms -----------------------------------------------------------
