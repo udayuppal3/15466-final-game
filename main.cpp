@@ -1928,7 +1928,7 @@ int main(int argc, char **argv) {
 						if (enemies.pos.x - enemies.catch_range <= player.pos.x && enemies.pos.x >= player.pos.x && (abs(enemies.pos.y - player.pos.y) <= 0.5f)) {
 							// should_quit = true;
 
-							printf("made it to checkpoint 1\n");
+							// printf("made it to checkpoint 1\n");
 							caught = true;
 
 							//player was caught restart the level
@@ -1954,7 +1954,7 @@ int main(int argc, char **argv) {
 							Vector_Enemies = {};
 							Vector_Ladders = {};
 
-							printf("made it to checkpoint 2\n");
+							// printf("made it to checkpoint 2\n");
 
 							loadLevel(level,
 									reinterpret_cast<void*>(&Vector_Platforms),
@@ -1963,7 +1963,7 @@ int main(int argc, char **argv) {
 									reinterpret_cast<void*>(&Vector_Enemies),
 									reinterpret_cast<void*>(&Vector_Ladders));
 
-							printf("made it to checkpoint 3\n");
+							// printf("made it to checkpoint 3\n");
 						}
 					}
 				}
@@ -2132,7 +2132,7 @@ int main(int argc, char **argv) {
 		}
 
 		if (caught == true){
-			printf("made it to checkpoint 4\n");
+			// printf("made it to checkpoint 4\n");
 		}
 
 
@@ -2153,7 +2153,7 @@ int main(int argc, char **argv) {
 
 
 			//---- Functions ----
-			auto draw_sprite = [&verts, &in_menu](SpriteInfo const &sprite, glm::vec2 const &at, glm::vec2 size, glm::u8vec4 tint = glm::u8vec4(0x34, 0x4c, 0x73, 0xff), float angle = 0.0f) {
+			auto draw_sprite = [&verts, &in_menu](SpriteInfo const &sprite, glm::vec2 const &at, glm::vec2 size, glm::u8vec4 tint = glm::u8vec4(0x34, 0x4c, 0x73, 0x88), float angle = 0.0f) {
 				glm::vec2 min_uv = sprite.min_uv;
 				glm::vec2 max_uv = sprite.max_uv;
 				glm::vec2 right = glm::vec2(std::cos(angle), std::sin(angle));
@@ -2193,7 +2193,7 @@ int main(int argc, char **argv) {
 			}
 
 			if (caught == true){
-				printf("made it to checkpoint 5\n");
+				// printf("made it to checkpoint 5\n");
 			}
 
 			//draw player -----------------------------------------------------------
@@ -2213,7 +2213,7 @@ int main(int argc, char **argv) {
 			}
 
 			if (caught == true){
-				printf("made it to checkpoint 6\n");
+				// printf("made it to checkpoint 6\n");
 			}
 
 			//draw enemies -----------------------------------------------------------
@@ -2224,7 +2224,7 @@ int main(int argc, char **argv) {
 				}
 
 				if (caught == true){
-					printf("made it to checkpoint 7\n");
+					// printf("made it to checkpoint 7\n");
 				}
 
 				if (enemy.walking) {
@@ -2244,7 +2244,7 @@ int main(int argc, char **argv) {
 				}
 
 				if (caught == true){
-					printf("made it to checkpoint 8\n");
+					// printf("made it to checkpoint 8\n");
 				}
 
 				if (enemy.alerted) {
@@ -2255,7 +2255,7 @@ int main(int argc, char **argv) {
 				//}
 
 				if (caught == true){
-					printf("made it to checkpoint 9\n");
+					// printf("made it to checkpoint 9\n");
 				}
 
 				//draw flashlights --------------------------------------------------------------
@@ -2265,7 +2265,7 @@ int main(int argc, char **argv) {
 				}
 
 				if (caught == true){
-					printf("made it to checkpoint 10\n");
+					// printf("made it to checkpoint 10\n");
 				}
 			}
 
@@ -2289,7 +2289,7 @@ int main(int argc, char **argv) {
 		}
 
 		if (caught == true){
-			printf("made it to checkpoint 11\n");
+			// printf("made it to checkpoint 11\n");
 		}
 
 		//draw menu options --------------------------------------------------------
