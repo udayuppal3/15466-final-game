@@ -1262,6 +1262,10 @@ int main(int argc, char **argv) {
 	bool on_ladder = false;
 	bool check_on_ladder = false;
 
+
+	//debugging
+	bool caught = false;
+
 	//------------ game loop ------------
 
 	//Start audio playback
@@ -1854,6 +1858,9 @@ int main(int argc, char **argv) {
 						if (enemies.pos.x - enemies.catch_range <= player.pos.x && enemies.pos.x >= player.pos.x && (abs(enemies.pos.y - player.pos.y) <= 0.5f)) {
 							// should_quit = true;
 
+							printf("made it to checkpoint 1\n");
+							caught = true;
+
 							//player was caught restart the level
 							player.pos = default_player_pos;
 							player.vel = default_player_vel;
@@ -1877,12 +1884,16 @@ int main(int argc, char **argv) {
 							Vector_Enemies = {};
 							Vector_Ladders = {};
 
+							printf("made it to checkpoint 2\n");
+
 							loadLevel(level,
 									reinterpret_cast<void*>(&Vector_Platforms),
 									reinterpret_cast<void*>(&Vector_Doors),
 									reinterpret_cast<void*>(&Vector_Lights),
 									reinterpret_cast<void*>(&Vector_Enemies),
 									reinterpret_cast<void*>(&Vector_Ladders));
+
+							printf("made it to checkpoint 3\n");
 						}
 					}
 				}
@@ -2050,6 +2061,10 @@ int main(int argc, char **argv) {
 			stepData.length = stepData.init_length;
 		}
 
+		if (caught == true){
+			printf("made it to checkpoint 4\n");
+		}
+
 
 		//draw output:
 		//glClearColor(231.0 / 255, 125.0 / 255.0, 65.0 / 255.0, 1.0);
@@ -2107,6 +2122,10 @@ int main(int argc, char **argv) {
 				draw_sprite(ladder.sprite_empty, ladder.pos, ladder.size);
 			}
 
+			if (caught == true){
+				printf("made it to checkpoint 5\n");
+			}
+
 			//draw player -----------------------------------------------------------
 			glm::vec2 player_size = player.size;
 			if (!player.face_right) {
@@ -2123,12 +2142,21 @@ int main(int argc, char **argv) {
 				}
 			}
 
+			if (caught == true){
+				printf("made it to checkpoint 6\n");
+			}
+
 			//draw enemies -----------------------------------------------------------
 			for (Enemy& enemy : Vector_Enemies){
 				glm::vec2 enemy_size = enemy.size;
 				if (enemy.face_right) {
 					enemy_size.x *= -1.0f;
 				}
+
+				if (caught == true){
+					printf("made it to checkpoint 7\n");
+				}
+
 				if (enemy.walking) {
 					draw_sprite(enemy.sprite_animations[enemy.animation_count], enemy.pos, enemy_size);
 					enemy.animation_count = (enemy.animation_count + enemy.animation_delay / 10) % 4;
@@ -2144,6 +2172,11 @@ int main(int argc, char **argv) {
 					}
 					draw_sprite(enemy.sprite_animations[enemy.animation_count], enemy.pos, enemy_size);
 				}
+
+				if (caught == true){
+					printf("made it to checkpoint 8\n");
+				}
+
 				if (enemy.alerted) {
 					glm::vec2 alert_pos = glm::vec2(enemy.pos.x, 
 							enemy.pos.y + 0.51f*enemy.size.y + 0.51f*enemy.alert_size.y );
@@ -2151,12 +2184,20 @@ int main(int argc, char **argv) {
 				}
 				//}
 
+				if (caught == true){
+					printf("made it to checkpoint 9\n");
+				}
+
 				//draw flashlights --------------------------------------------------------------
 				if (enemy.flashlight.light_on) {
 					draw_triangle(enemy.flashlight.vectors[0], enemy.flashlight.vectors[1], enemy.flashlight.vectors[2], 
 							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
 				}
-		}
+
+				if (caught == true){
+					printf("made it to checkpoint 10\n");
+				}
+			}
 
 		//draw stage lights
 		for (Light& light : Vector_Lights) {
@@ -2165,6 +2206,10 @@ int main(int argc, char **argv) {
 				draw_triangle(light.vectors[0], light.vectors[1], light.vectors[2], 
 						glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
 			}
+		}
+
+		if (caught == true){
+			printf("made it to checkpoint 11\n");
 		}
 
 		//draw menu options --------------------------------------------------------
