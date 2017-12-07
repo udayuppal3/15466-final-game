@@ -74,6 +74,13 @@ struct MouseInfo{
 	float remaining_time = 0.0f;
 };
 
+struct Background{
+	SpriteInfo background = {
+		glm::vec2(   0.0f/7000.0f, (5500.0f - 2000.0f) / 5500.0f),
+		glm::vec2( 200.0f/7000.0f, (5500.0f - 2200.0f) / 5500.0f),
+	};
+};
+
 struct PlayerInfo{
 	glm::vec2 pos = glm::vec2(0.25f, 1.0f);
 	glm::vec2 size = glm::vec2(0.5f, 1.0f);
@@ -235,24 +242,24 @@ struct Enemy {
 
 	SpriteInfo sprite_animations[5] = {
 		{
-			glm::vec2(0.0f / 7000.0f, (5500.0f - 700.0f) / 5500.0f),
-			glm::vec2(400.0f / 7000.0f, (5500.0f - 0.0f) / 5500.0f),
+			glm::vec2(   0.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+			glm::vec2( 400.0f / 7000.0f, (5500.0f -   0.0f) / 5500.0f),
 		},
 		{
-			glm::vec2(400.0f / 7000.0f, (5500.0f - 700.0f) / 5500.0f),
-			glm::vec2(800.0f / 7000.0f, (5500.0f - 0.0f) / 5500.0f),
+			glm::vec2( 400.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+			glm::vec2( 800.0f / 7000.0f, (5500.0f -    0.0f) / 5500.0f),
 		},
 		{
-			glm::vec2(800.0f / 7000.0f, (5500.0f - 700.0f) / 5500.0f),
-			glm::vec2(1200.0f / 7000.0f, (5500.0f - 0.0f) / 5500.0f),
+			glm::vec2( 800.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+			glm::vec2(1200.0f / 7000.0f, (5500.0f -    0.0f) / 5500.0f),
 		},
 		{
-			glm::vec2(1200.0f / 7000.0f, (5500.0f - 700.0f) / 5500.0f),
-			glm::vec2(1600.0f / 7000.0f, (5500.0f - 0.0f) / 5500.0f),
+			glm::vec2(1200.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+			glm::vec2(1600.0f / 7000.0f, (5500.0f -    0.0f) / 5500.0f),
 		},
 		{
-			glm::vec2(1600.0f / 7000.0f, (5500.0f - 700.0f) / 5500.0f),
-			glm::vec2(2000.0f / 7000.0f, (5500.0f - 0.0f) / 5500.0f),
+			glm::vec2(1600.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+			glm::vec2(2000.0f / 7000.0f, (5500.0f -    0.0f) / 5500.0f),
 		},
 	};
 
@@ -335,6 +342,80 @@ struct Air_Platform {
 	SpriteInfo sprite = {
 		glm::vec2(0.0f / 7000.0f, (5500.0f - 1300.0f) / 5500.0f),
 		glm::vec2(2400.0f / 7000.0f, (5500.0f - 800.0f) / 5500.0f),
+	};
+};
+
+struct MenuesInfo {
+
+	int selected_menu;
+	int selected_level;
+
+	SpriteInfo levels_highlighted[5] = {
+		{
+			glm::vec2(3100.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+			glm::vec2(3700.0f / 7000.0f, (5500.0f - 1200.0f) / 5500.0f),
+		},
+		{
+			glm::vec2(3700.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+			glm::vec2(4300.0f / 7000.0f, (5500.0f - 1200.0f) / 5500.0f),
+		},
+		{
+			glm::vec2(4300.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+			glm::vec2(4900.0f / 7000.0f, (5500.0f - 1200.0f) / 5500.0f),
+		},
+		{
+			glm::vec2(4900.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+			glm::vec2(5500.0f / 7000.0f, (5500.0f - 1200.0f) / 5500.0f),
+		},
+		{
+			glm::vec2(5500.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+			glm::vec2(6100.0f / 7000.0f, (5500.0f - 1200.0f) / 5500.0f),
+		},
+	};
+
+	SpriteInfo levels[5] = {
+		{
+			glm::vec2(3100.0f / 7000.0f, (5500.0f -  200.0f) / 5500.0f),
+			glm::vec2(3700.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+		},
+		{
+			glm::vec2(3700.0f / 7000.0f, (5500.0f -  200.0f) / 5500.0f),
+			glm::vec2(4300.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+		},
+		{
+			glm::vec2(4300.0f / 7000.0f, (5500.0f -  200.0f) / 5500.0f),
+			glm::vec2(4900.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+		},
+		{
+			glm::vec2(4900.0f / 7000.0f, (5500.0f -  200.0f) / 5500.0f),
+			glm::vec2(5500.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+		},
+		{
+			glm::vec2(5500.0f / 7000.0f, (5500.0f -  200.0f) / 5500.0f),
+			glm::vec2(6100.0f / 7000.0f, (5500.0f -  700.0f) / 5500.0f),
+		},
+	};
+
+	SpriteInfo menus[2] = {
+		{
+			glm::vec2(3900.0f / 7000.0f, (5500.0f - 2200.0f) / 5500.0f),
+			glm::vec2(4900.0f / 7000.0f, (5500.0f - 2600.0f) / 5500.0f),
+		},
+		{
+			glm::vec2(3900.0f / 7000.0f, (5500.0f - 3700.0f) / 5500.0f),
+			glm::vec2(4900.0f / 7000.0f, (5500.0f - 4200.0f) / 5500.0f),
+		},
+	};
+
+	SpriteInfo menus_selected[2] = {
+		{
+			glm::vec2(5000.0f / 7000.0f, (5500.0f - 2200.0f) / 5500.0f),
+			glm::vec2(6000.0f / 7000.0f, (5500.0f - 2600.0f) / 5500.0f),
+		},
+		{
+			glm::vec2(5000.0f / 7000.0f, (5500.0f - 3700.0f) / 5500.0f),
+			glm::vec2(6000.0f / 7000.0f, (5500.0f - 4200.0f) / 5500.0f),
+		},
 	};
 };
 
@@ -999,8 +1080,9 @@ int main(int argc, char **argv) {
 		//set texture sampling parameters:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 
 
@@ -1114,6 +1196,8 @@ int main(int argc, char **argv) {
 	CameraInfo camera;
 	MouseInfo mouse;
 	PlayerInfo player;
+	MenuesInfo menus;
+	Background bg;
 
 	//adjust for aspect ratio
 	camera.size.x = camera.size.y * (float(config.size.x) / float(config.size.y));
@@ -1955,7 +2039,7 @@ int main(int argc, char **argv) {
 
 
 		//draw output:
-		glClearColor(0.0, 0.0, 0.0, 0.0);
+		glClearColor(231.0 / 255, 125.0 / 255.0, 65.0 / 255.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1966,7 +2050,7 @@ int main(int argc, char **argv) {
 
 
 			//---- Functions ----
-			auto draw_sprite = [&verts](SpriteInfo const &sprite, glm::vec2 const &at, glm::vec2 size, glm::u8vec4 tint = glm::u8vec4(0xff, 0xff, 0xff, 0xff), float angle = 0.0f) {
+			auto draw_sprite = [&verts](SpriteInfo const &sprite, glm::vec2 const &at, glm::vec2 size, glm::u8vec4 tint = glm::u8vec4(0x34, 0x4c, 0x73, 0xff), float angle = 0.0f) {
 				glm::vec2 min_uv = sprite.min_uv;
 				glm::vec2 max_uv = sprite.max_uv;
 				glm::vec2 right = glm::vec2(std::cos(angle), std::sin(angle));
@@ -2069,16 +2153,18 @@ int main(int argc, char **argv) {
 			if (!in_level_select){
 				//do an if statement to "highlight" the hovering option
 				if (play_highlighted){
-					draw_triangle(glm::vec2(3.0f, 3.0f), glm::vec2(5.0f, 3.0f), glm::vec2(5.0f, 5.0f), 
-							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
-					draw_triangle(glm::vec2(3.0f, 2.0f), glm::vec2(4.0f, 2.0f), glm::vec2(3.0f, 1.0f), 
-							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+					//draw_triangle(glm::vec2(3.0f, 3.0f), glm::vec2(5.0f, 3.0f), glm::vec2(5.0f, 5.0f), 
+					//		glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+					//draw_triangle(glm::vec2(3.0f, 2.0f), glm::vec2(4.0f, 2.0f), glm::vec2(3.0f, 1.0f), 
+					//		glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+					draw_sprite(menus.menus_selected[0], glm::vec2(2.0f, 6.0f), glm::vec2(1.5f,2.5f));
+					draw_sprite(menus.menus[1], glm::vec2(4.0f, 6.0f), glm::vec2(1.5f,2.5f));
 				}
 				else{
-					draw_triangle(glm::vec2(3.0f, 3.0f), glm::vec2(4.0f, 3.0f), glm::vec2(4.0f, 4.0f), 
-							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
-					draw_triangle(glm::vec2(3.0f, 2.0f), glm::vec2(5.0f, 2.0f), glm::vec2(3.0f, 0.0f), 
-							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+					//draw_triangle(glm::vec2(3.0f, 3.0f), glm::vec2(4.0f, 3.0f), glm::vec2(4.0f, 4.0f), 
+					//		glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+					//draw_triangle(glm::vec2(3.0f, 2.0f), glm::vec2(5.0f, 2.0f), glm::vec2(3.0f, 0.0f), 
+					//		glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
 				}
 			}
 			else{
