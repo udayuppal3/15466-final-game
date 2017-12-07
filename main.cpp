@@ -44,16 +44,16 @@ static const char *STEP_MUSIC_PATH =
 "../sounds/step.wav";
 
 struct AudioData {
-	Uint8 *pos;
-	Uint32 length;
-	Uint8 *init_pos;
-	Uint32 init_length;
+  Uint8 *pos;
+  Uint32 length;
+  Uint8 *init_pos;
+  Uint32 init_length;
 };
 
 //----------------- Structs ----------------------------------------------
 struct CameraInfo{
 	glm::vec2 pos = glm::vec2(6.0f, 2.5f);
-	glm::vec2 size = glm::vec2(12.0f, 8.0f);
+	glm::vec2 size = glm::vec2(12.0f, 7.0f);
 };
 
 struct SpriteInfo {
@@ -64,7 +64,7 @@ struct SpriteInfo {
 struct MouseInfo{
 	glm::vec2 pos = glm::vec2(0.0f);
 	glm::vec2 size = glm::vec2(6.0f);
-
+	
 	SpriteInfo sprite_throw = {
 		glm::vec2(1199.0f/3503.0f, 1625.0f/1689.0f),
 		glm::vec2(1263.0f/3503.0f, 1.0f),
@@ -77,22 +77,24 @@ struct PlayerInfo{
 	glm::vec2 pos = glm::vec2(0.25f, 1.0f);
 	glm::vec2 size = glm::vec2(0.5f, 1.0f);
 	glm::vec2 vel = glm::vec2(0.0f);
-
-	SpriteInfo WalkAnimations[19] = {
-		{
-			glm::vec2(700.0f / 7000.0f, (5500.0f - 2000.0f) / 5500.0f),
-			glm::vec2(1100.0f / 7000.0f, (5500.0f - 1400.0f) / 5500.0f),
-		},
-		{
-			glm::vec2(1100.0f / 7000.0f, (5500.0f - 2000.0f) / 5500.0f),
-			glm::vec2(1500.0f / 7000.0f, (5500.0f - 1400.0f) / 5500.0f),
-		},
-		{
-			glm::vec2(1500.0f / 7000.0f, (5500.0f - 2000.0f) / 5500.0f),
-			glm::vec2(1900.0f / 7000.0f, (5500.0f - 1400.0f) / 5500.0f),
-		},
+	
+	SpriteInfo sprite_stand = {
+		glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+		glm::vec2(1199.0f/3503.0f, 1.0f),
 	};
-
+	SpriteInfo sprite_walk = {
+		glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+		glm::vec2(1199.0f/3503.0f, 1.0f),
+	};
+	SpriteInfo sprite_run = {
+		glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+		glm::vec2(1199.0f/3503.0f, 1.0f),
+	};
+	SpriteInfo sprite_jump = {
+		glm::vec2(740.0f/3503.0f, 746.0f/1689.0f),
+		glm::vec2(1199.0f/3503.0f, 1.0f),
+	};
+	
 	bool face_right = false;
 	bool jumping = false;
 	bool shifting = false;
@@ -123,44 +125,44 @@ struct Light {
 	};
 
 	glm::vec2 vectors [3] = { glm::vec2(pos.x, 
-			pos.y + (0.5f * size.y)),
-		glm::vec2(pos.x + (0.5f * size.x), 
-				pos.y + (0.5f * -size.y)),
-		glm::vec2(pos.x + (0.5f * -size.x),
-				pos.y + (0.5f * -size.y)) };
+										pos.y + (0.5f * size.y)),
+							  glm::vec2(pos.x + (0.5f * size.x), 
+										pos.y + (0.5f * -size.y)),
+							  glm::vec2(pos.x + (0.5f * -size.x),
+										pos.y + (0.5f * -size.y)) };
 
 	void rotate() {
 		if (dir == 0.0f) {
 			vectors[0] = glm::vec2(pos.x + (0.5f + -size.y), 
-					pos.y);
+								   pos.y);
 			vectors[1] = glm::vec2(pos.x + (0.5f * size.y), 
-					pos.y + (0.5f * size.x));
+								   pos.y + (0.5f * size.x));
 			vectors[2] = glm::vec2(pos.x + (0.5f * size.y),
-					pos.y + (0.5f * -size.x));
+								   pos.y + (0.5f * -size.x));
 		}
 		else if (dir == (PI * 0.5f)) {
 			vectors[0] = glm::vec2(pos.x, 
-					pos.y + (0.5f * -size.y));
+								   pos.y + (0.5f * -size.y));
 			vectors[1] = glm::vec2(pos.x + (0.5f * -size.x), 
-					pos.y + (0.5f * size.y));
+								   pos.y + (0.5f * size.y));
 			vectors[2] = glm::vec2(pos.x + (0.5f * size.x),
-					pos.y + (0.5f * size.y));
+							       pos.y + (0.5f * size.y));
 		}
 		else if (dir == PI) {
 			vectors[0] = glm::vec2(pos.x + (0.5f + size.y), 
-					pos.y);
+								   pos.y);
 			vectors[1] = glm::vec2(pos.x + (0.5f * -size.y), 
-					pos.y + (0.5f * size.x));
+								   pos.y + (0.5f * size.x));
 			vectors[2] = glm::vec2(pos.x + (0.5f * -size.y),
-					pos.y + (0.5f * -size.x));
+								   pos.y + (0.5f * -size.x));
 		}
 		else {
 			vectors[0] = glm::vec2(pos.x, 
-					pos.y + (0.5f * size.y));
+								   pos.y + (0.5f * size.y));
 			vectors[1] = glm::vec2(pos.x + (0.5f * size.x), 
-					pos.y + (0.5f * -size.y));
+								   pos.y + (0.5f * -size.y));
 			vectors[2] = glm::vec2(pos.x + (0.5f * -size.x),
-					pos.y + (0.5f * -size.y));
+								   pos.y + (0.5f * -size.y));
 		}
 	}
 };
@@ -243,9 +245,9 @@ struct Ladder {
 	};
 	void detect_collision(glm::vec2 player_pos, glm::vec2 player_size) {
 		if (((player_pos.y + player_size.y / 2.0f) <= (pos.y + size.y/2.0f)) &&
-				((player_pos.y - player_size.y / 2.0f) >= (pos.y - size.y/2.0f))) {
+			((player_pos.y - player_size.y / 2.0f) >= (pos.y - size.y/2.0f))) {
 			if (((player_pos.x + player_size.x / 2.0f) <= (pos.x + size.x/2.0f)) &&
-					((player_pos.x - player_size.x / 2.0f) >= (pos.x - size.x/2.0f))) {
+			((player_pos.x - player_size.x / 2.0f) >= (pos.x - size.x/2.0f))) {
 				player_collision = true;
 			}
 			else
@@ -268,9 +270,9 @@ struct Platform {
 	};
 	void detect_collision(glm::vec2 player_pos, glm::vec2 player_size) {
 		if (((player_pos.y + player_size.y / 2.0f) >= (pos.y + size.y/2.0f)) &&
-				((player_pos.y - player_size.y / 2.0f) <= (pos.y + size.y/2.0f))) {
+			((player_pos.y - player_size.y / 2.0f) <= (pos.y + size.y/2.0f))) {
 			if (((player_pos.x + player_size.x / 2.0f) <= (pos.x + size.x/2.0f)) &&
-					((player_pos.x - player_size.x / 2.0f) >= (pos.x - size.x/2.0f))) {
+			((player_pos.x - player_size.x / 2.0f) >= (pos.x - size.x/2.0f))) {
 				player_collision = true;
 			}
 			else
@@ -293,41 +295,42 @@ struct Air_Platform {
 };
 
 static void playTone(void *userdata, Uint8 *stream, int streamlength);
+static void playEffect(void *userdata, Uint8 *stream, int streamlength);
 
 void readSizes(int level,
-		void *sizes_p){
+			   void *sizes_p){
 
 	int *sizes = reinterpret_cast<int*>(sizes_p);
 
 	const int num_variables = 5;
-	int x;
-	ifstream inFile;
+    int x;
+    ifstream inFile;
 
-	std::string prefix = "level";
-	std::string level_str = std::to_string(level);
-	std::string suffix = "/num_objects.txt";
+    std::string prefix = "level";
+    std::string level_str = std::to_string(level);
+    std::string suffix = "/num_objects.txt";
+    
+    inFile.open(prefix + level_str + suffix);
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
+    
+    for (int i = 0; i < num_variables; i++){
+    	inFile >> x;
+    	sizes[i] = x;
+    }
 
-	inFile.open(prefix + level_str + suffix);
-	if (!inFile) {
-		cout << "Unable to open file";
-		exit(1); // terminate with error
-	}
-
-	for (int i = 0; i < num_variables; i++){
-		inFile >> x;
-		sizes[i] = x;
-	}
-
-	inFile.close();
+    inFile.close();
 }
 
 void readLevel(int level,
-		void *sizes_p,
-		void* plat_pos_x_p, void* plat_pos_y_p, void* plat_size_x_p, void* plat_size_y_p,
-		void* enem_pos_x_p, void* enem_pos_y_p, void* enem_w1_x_p, void* enem_w1_y_p, void* enem_w2_x_p, void* enem_w2_y_p, void* enem_fs_x_p, void* enem_fs_y_p,
-		void* lights_pos_x_p, void* lights_pos_y_p, void* lights_size_x_p, void* lights_size_y_p, void* lights_dir_p,
-		void* doors_pos_x_p, void* doors_pos_y_p,
-		void* ladders_pos_x_p, void* ladders_pos_y_p, void* ladders_height_p){
+			   void *sizes_p,
+			   void* plat_pos_x_p, void* plat_pos_y_p, void* plat_size_x_p, void* plat_size_y_p,
+			   void* enem_pos_x_p, void* enem_pos_y_p, void* enem_w1_x_p, void* enem_w1_y_p, void* enem_w2_x_p, void* enem_w2_y_p, void* enem_fs_x_p, void* enem_fs_y_p,
+			   void* lights_pos_x_p, void* lights_pos_y_p, void* lights_size_x_p, void* lights_size_y_p, void* lights_dir_p,
+			   void* doors_pos_x_p, void* doors_pos_y_p,
+			   void* ladders_pos_x_p, void* ladders_pos_y_p, void* ladders_height_p){
 
 	int *sizes = reinterpret_cast<int*>(sizes_p);
 
@@ -363,139 +366,139 @@ void readLevel(int level,
 	float *ladders_pos_y = reinterpret_cast<float*>(ladders_pos_y_p);
 	float *ladders_height = reinterpret_cast<float*>(ladders_height_p);
 
-	float y;
-	ifstream inFile;
+    float y;
+    ifstream inFile;
 
-	//initialize the number of objects per things in level
-	int num_lights = sizes[0];
+    //initialize the number of objects per things in level
+    int num_lights = sizes[0];
 	int num_plats = sizes[1];
 	int num_enemies = sizes[2];
 	int num_doors = sizes[3];
 	int num_ladders = sizes[4];
 
 	//grab platform info
-	std::string prefix = "level";
-	std::string level_str = std::to_string(level);
-	std::string suffix = "/plats.txt";
-
-	inFile.open(prefix + level_str + suffix);
-	if (!inFile) {
-		cout << "Unable to open file";
-		exit(1); // terminate with error
-	}
+    std::string prefix = "level";
+    std::string level_str = std::to_string(level);
+    std::string suffix = "/plats.txt";
+    
+    inFile.open(prefix + level_str + suffix);
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
 
 	for (int i = 0; i < num_plats; i++){
-		inFile >> y;
-		plat_pos_x[i] = y;
-		inFile >> y;
-		plat_pos_y[i] = y;
-		inFile >> y;
-		plat_size_x[i] = y;
-		inFile >> y;
-		plat_size_y[i] = y;
-	}
+    	inFile >> y;
+    	plat_pos_x[i] = y;
+    	inFile >> y;
+    	plat_pos_y[i] = y;
+    	inFile >> y;
+    	plat_size_x[i] = y;
+    	inFile >> y;
+    	plat_size_y[i] = y;
+    }
 
-	inFile.close();
+    inFile.close();
 
-	//grab enemy info
+    //grab enemy info
 	suffix = "/enemies.txt";
-
-	inFile.open(prefix + level_str + suffix);
-	if (!inFile) {
-		cout << "Unable to open file";
-		exit(1); // terminate with error
-	}
+    
+    inFile.open(prefix + level_str + suffix);
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
 
 	for (int i = 0; i < num_enemies; i++){
-		inFile >> y;
-		enem_pos_x[i] = y;
-		inFile >> y;
-		enem_pos_y[i] = y;
-		inFile >> y;
-		enem_w1_x[i] = y;
-		inFile >> y;
-		enem_w1_y[i] = y;
-		inFile >> y;
-		enem_w2_x[i] = y;
-		inFile >> y;
-		enem_w2_y[i] = y;
-		inFile >> y;
-		enem_fs_x[i] = y;
-		inFile >> y;
-		enem_fs_y[i] = y;
-	}
+    	inFile >> y;
+    	enem_pos_x[i] = y;
+    	inFile >> y;
+    	enem_pos_y[i] = y;
+    	inFile >> y;
+    	enem_w1_x[i] = y;
+    	inFile >> y;
+    	enem_w1_y[i] = y;
+    	inFile >> y;
+    	enem_w2_x[i] = y;
+    	inFile >> y;
+    	enem_w2_y[i] = y;
+    	inFile >> y;
+    	enem_fs_x[i] = y;
+    	inFile >> y;
+    	enem_fs_y[i] = y;
+    }
 
-	inFile.close();
+    inFile.close();
 
 	//grab lights info
 	suffix = "/lights.txt";
-
-	inFile.open(prefix + level_str + suffix);
-	if (!inFile) {
-		cout << "Unable to open file";
-		exit(1); // terminate with error
-	}
+    
+    inFile.open(prefix + level_str + suffix);
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
 
 	for (int i = 0; i < num_lights; i++){
-		inFile >> y;
-		lights_pos_x[i] = y;
-		inFile >> y;
-		lights_pos_y[i] = y;
-		inFile >> y;
-		lights_size_x[i] = y;
-		inFile >> y;
-		lights_size_y[i] = y;
-		inFile >> y;
-		lights_dir[i] = y;
-	}
+    	inFile >> y;
+    	lights_pos_x[i] = y;
+    	inFile >> y;
+    	lights_pos_y[i] = y;
+    	inFile >> y;
+    	lights_size_x[i] = y;
+    	inFile >> y;
+    	lights_size_y[i] = y;
+    	inFile >> y;
+    	lights_dir[i] = y;
+    }
 
-	inFile.close();
+    inFile.close();
 
-	//grab doors info
-	suffix = "/doors.txt";
-
-	inFile.open(prefix + level_str + suffix);
-	if (!inFile) {
-		cout << "Unable to open file";
-		exit(1); // terminate with error
-	}
+    //grab doors info
+    suffix = "/doors.txt";
+    
+    inFile.open(prefix + level_str + suffix);
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
 
 	for (int i = 0; i < num_doors; i++){
-		inFile >> y;
-		doors_pos_x[i] = y;
-		inFile >> y;
-		doors_pos_y[i] = y;
-	}
+    	inFile >> y;
+    	doors_pos_x[i] = y;
+    	inFile >> y;
+    	doors_pos_y[i] = y;
+    }
 
-	inFile.close();
+    inFile.close();
 
-	//grab ladder info
-	suffix = "/ladders.txt";
-
-	inFile.open(prefix + level_str + suffix);
-	if (!inFile) {
-		cout << "Unable to open file";
-		exit(1); // terminate with error
-	}
+    //grab ladder info
+    suffix = "/ladders.txt";
+    
+    inFile.open(prefix + level_str + suffix);
+    if (!inFile) {
+        cout << "Unable to open file";
+        exit(1); // terminate with error
+    }
 
 	for (int i = 0; i < num_ladders; i++){
-		inFile >> y;
-		ladders_pos_x[i] = y;
-		inFile >> y;
-		ladders_pos_y[i] = y;
-		inFile >> y;
-		ladders_height[i] = y;
-	}
+    	inFile >> y;
+    	ladders_pos_x[i] = y;
+    	inFile >> y;
+    	ladders_pos_y[i] = y;
+    	inFile >> y;
+    	ladders_height[i] = y;
+    }
 
-	inFile.close();
+    inFile.close();
 }
 
 void loadLevel(int level,
-		void* Vector_Platforms_p,
-		void* Vector_Doors_p,
-		void* Vector_Lights_p,
-		void* Vector_Enemies_p,
-		void* Vector_Ladders_p){
+			   void* Vector_Platforms_p,
+			   void* Vector_Doors_p,
+			   void* Vector_Lights_p,
+			   void* Vector_Enemies_p,
+			   void* Vector_Ladders_p){
 
 	std::vector< Platform >* Vector_Platforms_point = reinterpret_cast< std::vector< Platform > *>(Vector_Platforms_p);
 	std::vector< Door >* Vector_Doors_point = reinterpret_cast< std::vector< Door > *>(Vector_Doors_p);
@@ -510,36 +513,36 @@ void loadLevel(int level,
 
 	const int num_variables = 5;
 
-	int sizes[num_variables];
+    int sizes[num_variables];
 
-	readSizes(level, reinterpret_cast<void*>(sizes));
+    readSizes(level, reinterpret_cast<void*>(sizes));
 
-	// printf("read sizes successful\n");
+    // printf("read sizes successful\n");
 
-	//initialize the number of objects per things in level
-	int num_lights = sizes[0];
+    //initialize the number of objects per things in level
+    int num_lights = sizes[0];
 	int num_plats = sizes[1];
 	int num_enemies = sizes[2];
 	int num_doors = sizes[3];
 	int num_ladders = sizes[4];
 
-	float* plat_pos_x;
-	float* plat_pos_y;
-	float* plat_size_x;
-	float* plat_size_y;
+    float* plat_pos_x;
+    float* plat_pos_y;
+    float* plat_size_x;
+    float* plat_size_y;
 	plat_pos_x = new float[num_plats];
 	plat_pos_y = new float[num_plats];
 	plat_size_x = new float[num_plats];
 	plat_size_y = new float[num_plats];
 
-	float* enem_pos_x;
-	float* enem_pos_y;
-	float* enem_w1_x;
-	float* enem_w1_y;
-	float* enem_w2_x;
-	float* enem_w2_y;
-	float* enem_fs_x;
-	float* enem_fs_y;
+    float* enem_pos_x;
+    float* enem_pos_y;
+    float* enem_w1_x;
+    float* enem_w1_y;
+    float* enem_w2_x;
+    float* enem_w2_y;
+    float* enem_fs_x;
+    float* enem_fs_y;
 	enem_pos_x = new float[num_enemies];
 	enem_pos_y = new float[num_enemies];
 	enem_w1_x = new float[num_enemies];
@@ -549,44 +552,44 @@ void loadLevel(int level,
 	enem_fs_x = new float[num_enemies];
 	enem_fs_y = new float[num_enemies];
 
-	float* lights_pos_x;
-	float* lights_pos_y;
-	float* lights_size_x;
-	float* lights_size_y;
-	float* lights_dir;
+    float* lights_pos_x;
+    float* lights_pos_y;
+    float* lights_size_x;
+    float* lights_size_y;
+    float* lights_dir;
 	lights_pos_x = new float[num_lights];
 	lights_pos_y = new float[num_lights];
 	lights_size_x = new float[num_lights];
 	lights_size_y = new float[num_lights];
 	lights_dir = new float[num_lights];
 
-	float* doors_pos_x;
-	float* doors_pos_y;
+    float* doors_pos_x;
+    float* doors_pos_y;
 	doors_pos_x = new float[num_doors];
 	doors_pos_y = new float[num_doors];
 
-	float* ladders_pos_x;
-	float* ladders_pos_y;
-	float* ladders_height;
+    float* ladders_pos_x;
+    float* ladders_pos_y;
+    float* ladders_height;
 	ladders_pos_x = new float[num_ladders];
 	ladders_pos_y = new float[num_ladders];
 	ladders_height = new float[num_ladders];
 
 	readLevel(level,
-			reinterpret_cast<void*>(sizes),
-			reinterpret_cast<void*>(plat_pos_x), reinterpret_cast<void*>(plat_pos_y), reinterpret_cast<void*>(plat_size_x), reinterpret_cast<void*>(plat_size_y),
-			reinterpret_cast<void*>(enem_pos_x), reinterpret_cast<void*>(enem_pos_y), reinterpret_cast<void*>(enem_w1_x), reinterpret_cast<void*>(enem_w1_y), 
-			reinterpret_cast<void*>(enem_w2_x), reinterpret_cast<void*>(enem_w2_y), reinterpret_cast<void*>(enem_fs_x), reinterpret_cast<void*>(enem_fs_y),
-			reinterpret_cast<void*>(lights_pos_x), reinterpret_cast<void*>(lights_pos_y), reinterpret_cast<void*>(lights_size_x), reinterpret_cast<void*>(lights_size_y), reinterpret_cast<void*>(lights_dir),
-			reinterpret_cast<void*>(doors_pos_x), reinterpret_cast<void*>(doors_pos_y),
-			reinterpret_cast<void*>(ladders_pos_x), reinterpret_cast<void*>(ladders_pos_y), reinterpret_cast<void*>(ladders_height));
+			  reinterpret_cast<void*>(sizes),
+			  reinterpret_cast<void*>(plat_pos_x), reinterpret_cast<void*>(plat_pos_y), reinterpret_cast<void*>(plat_size_x), reinterpret_cast<void*>(plat_size_y),
+			  reinterpret_cast<void*>(enem_pos_x), reinterpret_cast<void*>(enem_pos_y), reinterpret_cast<void*>(enem_w1_x), reinterpret_cast<void*>(enem_w1_y), 
+			  reinterpret_cast<void*>(enem_w2_x), reinterpret_cast<void*>(enem_w2_y), reinterpret_cast<void*>(enem_fs_x), reinterpret_cast<void*>(enem_fs_y),
+			  reinterpret_cast<void*>(lights_pos_x), reinterpret_cast<void*>(lights_pos_y), reinterpret_cast<void*>(lights_size_x), reinterpret_cast<void*>(lights_size_y), reinterpret_cast<void*>(lights_dir),
+			  reinterpret_cast<void*>(doors_pos_x), reinterpret_cast<void*>(doors_pos_y),
+			  reinterpret_cast<void*>(ladders_pos_x), reinterpret_cast<void*>(ladders_pos_y), reinterpret_cast<void*>(ladders_height));
 
 	// printf("read level successful\n");
 
 
-	/***** done importing level, start initializing *****/
+    /***** done importing level, start initializing *****/
 
-	Platform* platforms;
+    Platform* platforms;
 	Light* lights;
 	Enemy* enemies;
 	Door* door;
@@ -728,7 +731,7 @@ int main(int argc, char **argv) {
 	//Configuration:
 	struct {
 		std::string title = "Game1: Text/Tiles";
-		glm::uvec2 size = glm::uvec2(1200, 800);
+		glm::uvec2 size = glm::uvec2(1200, 700);
 	} config;
 
 	//------------  initialization ------------
@@ -753,11 +756,11 @@ int main(int argc, char **argv) {
 
 	//create window:
 	SDL_Window *window = SDL_CreateWindow(
-			config.title.c_str(),
-			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			config.size.x, config.size.y,
-			SDL_WINDOW_OPENGL /*| SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI*/
-			);
+		config.title.c_str(),
+		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+		config.size.x, config.size.y,
+		SDL_WINDOW_OPENGL /*| SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI*/
+	);
 
 	if (!window) {
 		std::cerr << "Error creating SDL window: " << SDL_GetError() << std::endl;
@@ -773,13 +776,13 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-#ifdef _WIN32
+	#ifdef _WIN32
 	//On windows, load OpenGL extensions:
 	if (!init_gl_shims()) {
 		std::cerr << "ERROR: failed to initialize shims." << std::endl;
 		return 1;
 	}
-#endif
+	#endif
 
 	//Set VSYNC + Late Swap (prevents crazy FPS):
 	if (SDL_GL_SetSwapInterval(-1) != 0) {
@@ -791,145 +794,145 @@ int main(int argc, char **argv) {
 
 	//Hide mouse cursor (note: showing can be useful for debugging):
 	//SDL_ShowCursor(SDL_DISABLE);
+  
+  //SDL Background Audio
+  SDL_AudioSpec wavSpec;
+  Uint8 *wavStart;
+  Uint32 wavLength;
+  //alert audio
+  SDL_AudioSpec alertSpec;
+  Uint8 *alertStart;
+  Uint32 alertLength;
+  //door audio
+  SDL_AudioSpec doorSpec;
+  Uint8 *doorStart;
+  Uint32 doorLength;
+  //ladder audio
+  SDL_AudioSpec ladderSpec;
+  Uint8 *ladderStart;
+  Uint32 ladderLength;
+  //ornament audio
+  SDL_AudioSpec ornSpec;
+  Uint8 *ornStart;
+  Uint32 ornLength;
+  //step audio
+  SDL_AudioSpec stepSpec;
+  Uint8 *stepStart;
+  Uint32 stepLength;
 
-	//SDL Background Audio
-	SDL_AudioSpec wavSpec;
-	Uint8 *wavStart;
-	Uint32 wavLength;
-	//alert audio
-	SDL_AudioSpec alertSpec;
-	Uint8 *alertStart;
-	Uint32 alertLength;
-	//door audio
-	SDL_AudioSpec doorSpec;
-	Uint8 *doorStart;
-	Uint32 doorLength;
-	//ladder audio
-	SDL_AudioSpec ladderSpec;
-	Uint8 *ladderStart;
-	Uint32 ladderLength;
-	//ornament audio
-	SDL_AudioSpec ornSpec;
-	Uint8 *ornStart;
-	Uint32 ornLength;
-	//step audio
-	SDL_AudioSpec stepSpec;
-	Uint8 *stepStart;
-	Uint32 stepLength;
+  if (SDL_LoadWAV(BG_MUSIC_PATH, &wavSpec, &wavStart, &wavLength) == NULL) {
+    std::cerr << "Failed to load back ground music" << std::endl;
+    exit(1);
+  }
+  if (SDL_LoadWAV(ALERT_MUSIC_PATH, &alertSpec, &alertStart, &alertLength) == NULL) {
+  	std::cerr << "Failed to load alert music" << std::endl;
+  	exit(1);
+  }
+  if (SDL_LoadWAV(DOOR_MUSIC_PATH, &doorSpec, &doorStart, &doorLength) == NULL) {
+  	std::cerr << "Failed to load door music" << std::endl;
+  	exit(1);
+  }
+  if (SDL_LoadWAV(LADDER_MUSIC_PATH, &ladderSpec, &ladderStart, &ladderLength) == NULL) {
+  	std::cerr << "Failed to load ladder music" << std::endl;
+  	exit(1);
+  }
+  if (SDL_LoadWAV(ORNAMENT_PATH, &ornSpec, &ornStart, &ornLength) == NULL) {
+  	std::cerr << "Failed to load ornament sound" << std::endl;
+  	exit(1);
+  }
+  if (SDL_LoadWAV(STEP_MUSIC_PATH, &stepSpec, &stepStart, &stepLength) == NULL) {
+  	std::cerr << "Failed to load step sound" << std::endl;
+  	exit(1);
+  }
 
-	if (SDL_LoadWAV(BG_MUSIC_PATH, &wavSpec, &wavStart, &wavLength) == NULL) {
-		std::cerr << "Failed to load back ground music" << std::endl;
-		exit(1);
-	}
-	if (SDL_LoadWAV(ALERT_MUSIC_PATH, &alertSpec, &alertStart, &alertLength) == NULL) {
-		std::cerr << "Failed to load alert music" << std::endl;
-		exit(1);
-	}
-	if (SDL_LoadWAV(DOOR_MUSIC_PATH, &doorSpec, &doorStart, &doorLength) == NULL) {
-		std::cerr << "Failed to load door music" << std::endl;
-		exit(1);
-	}
-	if (SDL_LoadWAV(LADDER_MUSIC_PATH, &ladderSpec, &ladderStart, &ladderLength) == NULL) {
-		std::cerr << "Failed to load ladder music" << std::endl;
-		exit(1);
-	}
-	if (SDL_LoadWAV(ORNAMENT_PATH, &ornSpec, &ornStart, &ornLength) == NULL) {
-		std::cerr << "Failed to load ornament sound" << std::endl;
-		exit(1);
-	}
-	if (SDL_LoadWAV(STEP_MUSIC_PATH, &stepSpec, &stepStart, &stepLength) == NULL) {
-		std::cerr << "Failed to load step sound" << std::endl;
-		exit(1);
-	}
+  AudioData audioData;
+  audioData.pos = wavStart;
+  audioData.length = wavLength;
 
-	AudioData audioData;
-	audioData.pos = wavStart;
-	audioData.length = wavLength;
+  audioData.init_pos = wavStart;
+  audioData.init_length = wavLength;
 
-	audioData.init_pos = wavStart;
-	audioData.init_length = wavLength;
+  wavSpec.callback = playTone;
+  wavSpec.userdata = &audioData;
 
-	wavSpec.callback = playTone;
-	wavSpec.userdata = &audioData;
+  AudioData doorData;
+  doorData.pos = doorStart;
+  doorData.length = doorLength;
 
-	AudioData doorData;
-	doorData.pos = doorStart;
-	doorData.length = doorLength;
+  doorData.init_pos = doorStart;
+  doorData.init_length = doorLength;
 
-	doorData.init_pos = doorStart;
-	doorData.init_length = doorLength;
+  doorSpec.callback = playTone;
+  doorSpec.userdata = &doorData;
 
-	doorSpec.callback = playTone;
-	doorSpec.userdata = &doorData;
+  AudioData ladderData;
+  ladderData.pos = ladderStart;
+  ladderData.length = ladderLength;
 
-	AudioData ladderData;
-	ladderData.pos = ladderStart;
-	ladderData.length = ladderLength;
+  ladderData.init_pos = ladderStart;
+  ladderData.init_length = ladderLength;
 
-	ladderData.init_pos = ladderStart;
-	ladderData.init_length = ladderLength;
+  ladderSpec.callback = playTone;
+  ladderSpec.userdata = &ladderData;
 
-	ladderSpec.callback = playTone;
-	ladderSpec.userdata = &ladderData;
+  AudioData ornData;
+  ornData.pos = ornStart;
+  ornData.length = ornLength;
 
-	AudioData ornData;
-	ornData.pos = ornStart;
-	ornData.length = ornLength;
+  ornData.init_pos = ornStart;
+  ornData.init_length = ornLength;
 
-	ornData.init_pos = ornStart;
-	ornData.init_length = ornLength;
+  ornSpec.callback = playTone;
+  ornSpec.userdata = &ornData;
 
-	ornSpec.callback = playTone;
-	ornSpec.userdata = &ornData;
+  AudioData alertData;
+  alertData.pos = alertStart;
+  alertData.length = alertLength;
 
-	AudioData alertData;
-	alertData.pos = alertStart;
-	alertData.length = alertLength;
+  alertData.init_pos = alertStart;
+  alertData.init_length = alertLength;
 
-	alertData.init_pos = alertStart;
-	alertData.init_length = alertLength;
+  alertSpec.callback = playTone;
+  alertSpec.userdata = &alertData;
 
-	alertSpec.callback = playTone;
-	alertSpec.userdata = &alertData;
+  AudioData stepData;
+  stepData.pos = stepStart;
+  stepData.length = stepLength;
 
-	AudioData stepData;
-	stepData.pos = stepStart;
-	stepData.length = stepLength;
+  stepData.init_pos = stepStart;
+  stepData.init_length = stepLength;
 
-	stepData.init_pos = stepStart;
-	stepData.init_length = stepLength;
-
-	stepSpec.callback = playTone;
-	stepSpec.userdata = &stepData;
+  stepSpec.callback = playTone;
+  stepSpec.userdata = &stepData;
 
 
-	SDL_AudioDeviceID audioDevice = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
-	SDL_AudioDeviceID doorDevice = SDL_OpenAudioDevice(NULL, 0, &doorSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
-	SDL_AudioDeviceID ladderDevice = SDL_OpenAudioDevice(NULL, 0, &ladderSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
-	SDL_AudioDeviceID ornDevice = SDL_OpenAudioDevice(NULL, 0, &ornSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
-	SDL_AudioDeviceID alertAudioDevice = SDL_OpenAudioDevice(NULL, 0, &alertSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
-	SDL_AudioDeviceID stepDevice = SDL_OpenAudioDevice(NULL, 0, &stepSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  SDL_AudioDeviceID audioDevice = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  SDL_AudioDeviceID doorDevice = SDL_OpenAudioDevice(NULL, 0, &doorSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  SDL_AudioDeviceID ladderDevice = SDL_OpenAudioDevice(NULL, 0, &ladderSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  SDL_AudioDeviceID ornDevice = SDL_OpenAudioDevice(NULL, 0, &ornSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  SDL_AudioDeviceID alertAudioDevice = SDL_OpenAudioDevice(NULL, 0, &alertSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  SDL_AudioDeviceID stepDevice = SDL_OpenAudioDevice(NULL, 0, &stepSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
 
-	if (audioDevice == 0) {
-		std::cerr << "Failed to grab a device" << std::endl;
-		exit(1);
-	}
-	if (doorDevice == 0) {
-		std::cerr << "Failed to grab a device (door)" << std::endl;
-		exit(1);
-	}
-	if (ladderDevice == 0) {
-		std::cerr << "Failed to grab a device (ladder) " << std::endl;
-		exit(1);
-	}
-	if (ornDevice == 0) {
-		std::cerr << "Failed to grab a device (ornament) " << std::endl;
-		exit(1);
-	}
-	if (alertAudioDevice == 0) {
-		std::cerr << "Failed to grab a device (alert)" << std::endl;
-		exit(1);
-	}
+  if (audioDevice == 0) {
+    std::cerr << "Failed to grab a device" << std::endl;
+    exit(1);
+  }
+  if (doorDevice == 0) {
+  	std::cerr << "Failed to grab a device (door)" << std::endl;
+  	exit(1);
+  }
+  if (ladderDevice == 0) {
+  	std::cerr << "Failed to grab a device (ladder) " << std::endl;
+  	exit(1);
+  }
+  if (ornDevice == 0) {
+  	std::cerr << "Failed to grab a device (ornament) " << std::endl;
+  	exit(1);
+  }
+  if (alertAudioDevice == 0) {
+  	std::cerr << "Failed to grab a device (alert)" << std::endl;
+  	exit(1);
+  }
 
 
 	//------------ opengl objects / game assets ------------
@@ -990,30 +993,30 @@ int main(int argc, char **argv) {
 	GLuint program_tex = 0;
 	{ //compile shader program:
 		GLuint vertex_shader = compile_shader(GL_VERTEX_SHADER,
-				"#version 330\n"
-				"uniform mat4 mvp;\n"
-				"in vec4 Position;\n"
-				"in vec2 TexCoord;\n"
-				"in vec4 Color;\n"
-				"out vec2 texCoord;\n"
-				"out vec4 color;\n"
-				"void main() {\n"
-				"	gl_Position = mvp * Position;\n"
-				"	color = Color;\n"
-				"	texCoord = TexCoord;\n"
-				"}\n"
-				);
+			"#version 330\n"
+			"uniform mat4 mvp;\n"
+			"in vec4 Position;\n"
+			"in vec2 TexCoord;\n"
+			"in vec4 Color;\n"
+			"out vec2 texCoord;\n"
+			"out vec4 color;\n"
+			"void main() {\n"
+			"	gl_Position = mvp * Position;\n"
+			"	color = Color;\n"
+			"	texCoord = TexCoord;\n"
+			"}\n"
+		);
 
 		GLuint fragment_shader = compile_shader(GL_FRAGMENT_SHADER,
-				"#version 330\n"
-				"uniform sampler2D tex;\n"
-				"in vec4 color;\n"
-				"in vec2 texCoord;\n"
-				"out vec4 fragColor;\n"
-				"void main() {\n"
-				"	fragColor = texture(tex, texCoord) * color;\n"
-				"}\n"
-				);
+			"#version 330\n"
+			"uniform sampler2D tex;\n"
+			"in vec4 color;\n"
+			"in vec2 texCoord;\n"
+			"out vec4 fragColor;\n"
+			"void main() {\n"
+			"	fragColor = texture(tex, texCoord) * color;\n"
+			"}\n"
+		);
 
 		program = link_program(fragment_shader, vertex_shader);
 
@@ -1075,23 +1078,9 @@ int main(int argc, char **argv) {
 
 	//------------ Initialization ---------------------------------------------
 
-	int completed_levels;
+	int completed_levels = 0;
 
-	ifstream inFile;
-
-	//load previous progress    
-	inFile.open("levels_completed.txt");
-	if (!inFile) {
-		cout << "Unable to open file";
-		exit(1); // terminate with error
-	}
-
-	inFile >> completed_levels;
-
-	inFile.close();
-
-	//load the starting level (starting level should be main menu later)
-	int level = 0;
+    int level = 0;
 
 	std::vector< Platform > Vector_Platforms = {};
 	std::vector< Door > Vector_Doors = {};
@@ -1099,12 +1088,22 @@ int main(int argc, char **argv) {
 	std::vector< Enemy > Vector_Enemies = {};
 	std::vector< Ladder > Vector_Ladders = {};
 
-	loadLevel(level,
-			reinterpret_cast<void*>(&Vector_Platforms),
-			reinterpret_cast<void*>(&Vector_Doors),
-			reinterpret_cast<void*>(&Vector_Lights),
-			reinterpret_cast<void*>(&Vector_Enemies),
-			reinterpret_cast<void*>(&Vector_Ladders));
+	//to start the game, we don't load the first level, we instead load the main menu page
+	bool in_menu = true;
+	bool in_level_select = false;
+
+	//likewise, we must set the player to be invisible if behind a door (beccomes visible when loading level)
+	player.behind_door = true;
+
+	//create variables associated with these 2 different screens
+	//for menu
+	bool play_highlighted = true;
+
+	//for level select
+	bool back_button_highlighted = false;
+	bool unlocked[5] = {true, false, false, false, false};
+	int num_unlocked = 0;
+	int level_highlighted = 0;
 
 	glm::vec2 default_player_pos = glm::vec2(0.25f, 1.0f);
 	glm::vec2 default_player_vel = glm::vec2(0.0f);
@@ -1121,8 +1120,8 @@ int main(int argc, char **argv) {
 
 	//------------ game loop ------------
 
-	//Start audio playback
-	SDL_PauseAudioDevice(audioDevice, 0);
+  //Start audio playback
+  SDL_PauseAudioDevice(audioDevice, 0);
 
 	bool should_quit = false;
 	while (true) {
@@ -1138,8 +1137,8 @@ int main(int argc, char **argv) {
 					if (player.aiming && player.num_projectiles > 0) {
 						player.num_projectiles--;
 						SDL_PauseAudioDevice(ornDevice, 0);
-						player.projectiles_pos.push_back(player.aimed_pos);
-					}
+							player.projectiles_pos.push_back(player.aimed_pos);
+						}
 				} else if (evt.button.button == SDL_BUTTON_RIGHT) {
 					if (mouse.remaining_time <= 0.0f) {
 						player.aiming = !player.aiming;
@@ -1154,7 +1153,16 @@ int main(int argc, char **argv) {
 			} 
 			else if (evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP) {
 				if (evt.key.keysym.sym == SDLK_w) {
-					if (!on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
+					if (in_menu && evt.key.state == SDL_PRESSED){
+						if (!in_level_select){
+							play_highlighted = !play_highlighted;
+						}
+						else{
+							back_button_highlighted = !back_button_highlighted;
+						}
+					}
+
+					if (!in_menu && !on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
 						//climb onto the ladder
 						for (Ladder& ladder : Vector_Ladders){
 							ladder.detect_collision(player.pos, player.size);
@@ -1166,7 +1174,7 @@ int main(int argc, char **argv) {
 						}
 					}
 
-					if (on_ladder && evt.key.state == SDL_PRESSED) {
+         			if (!in_menu && on_ladder && evt.key.state == SDL_PRESSED) {
 						check_on_ladder = false;
 
 						//check if player will remain on ladder
@@ -1182,8 +1190,78 @@ int main(int argc, char **argv) {
 						}
 					}
 				} 
-				//testing level loading using u
-				else if (evt.key.keysym.sym == SDLK_u) {
+				else if (evt.key.keysym.sym == SDLK_UP) {
+					if (in_menu && evt.key.state == SDL_PRESSED){
+						if (!in_level_select){
+							play_highlighted = !play_highlighted;
+						}
+						else{
+							back_button_highlighted = !back_button_highlighted;
+						}
+					}
+				} 
+				//selection using the return key
+				else if (evt.key.keysym.sym == SDLK_RETURN) {
+					if (in_menu && evt.key.state == SDL_PRESSED){
+						if (!in_level_select){
+							if (play_highlighted){
+								in_level_select = true;
+								back_button_highlighted = false;
+							} else{
+								should_quit = true;
+							}
+						}else{
+							if (back_button_highlighted){
+								in_level_select = false;
+							}else{
+								//load the level in this case
+
+								//exit main menu and level select
+								in_menu = false;
+								in_level_select = false;
+
+								//reset player statuses
+								player.pos = default_player_pos;
+								player.vel = default_player_vel;
+
+								on_platform = false;
+								on_ladder = false;
+								check_on_ladder = false;
+
+								player.face_right = false;
+								player.jumping = false;
+								player.shifting = false;
+								player.behind_door = false;
+								player.aiming = false;
+								player.visible = false; 
+
+								player.num_projectiles = 5;
+
+								level = level_highlighted;
+
+								Vector_Platforms = {};
+								Vector_Doors = {};
+								Vector_Lights = {};
+								Vector_Enemies = {};
+								Vector_Ladders = {};
+
+								loadLevel(level,
+										  reinterpret_cast<void*>(&Vector_Platforms),
+										  reinterpret_cast<void*>(&Vector_Doors),
+										  reinterpret_cast<void*>(&Vector_Lights),
+										  reinterpret_cast<void*>(&Vector_Enemies),
+										  reinterpret_cast<void*>(&Vector_Ladders));
+							}
+						}
+					}
+				} 
+				//testing ability to return to main menu
+				else if (evt.key.keysym.sym == SDLK_m) {
+					//go to menu
+					in_menu = true;
+					in_level_select = false;
+					play_highlighted = true;
+
 					//reset player statuses
 					player.pos = default_player_pos;
 					player.vel = default_player_vel;
@@ -1195,38 +1273,49 @@ int main(int argc, char **argv) {
 					player.face_right = false;
 					player.jumping = false;
 					player.shifting = false;
-					player.behind_door = false;
+
+					//we set player behind door as a hack to "remove" player while we're in the main menu
+					player.behind_door = true;
+
 					player.aiming = false;
 					player.visible = false; 
 
 					player.num_projectiles = 5;
 
-					level = 1;
+					//reset to level 0 just in case (shouldn't matter though)
+					level = 0;
 
 					Vector_Platforms = {};
 					Vector_Doors = {};
 					Vector_Lights = {};
 					Vector_Enemies = {};
 					Vector_Ladders = {};
-
-					loadLevel(level,
-							reinterpret_cast<void*>(&Vector_Platforms),
-							reinterpret_cast<void*>(&Vector_Doors),
-							reinterpret_cast<void*>(&Vector_Lights),
-							reinterpret_cast<void*>(&Vector_Enemies),
-							reinterpret_cast<void*>(&Vector_Ladders));
 				} 
 				else if (evt.key.keysym.sym == SDLK_a) {
 					if (evt.key.state == SDL_PRESSED) {
-						if (player.shifting) {
-							player.vel.x = -2.0f;
-							player.face_right = false;
-						} else {
-							player.vel.x = -1.0f;
-							player.face_right = false;
+						if (in_menu){
+							if (in_level_select){
+								if (!back_button_highlighted){
+									if (level_highlighted == 0){
+										level_highlighted = num_unlocked;
+									}
+									else{
+										level_highlighted -= 1;
+									}
+								}
+							}
 						}
-						if (on_ladder){
-							on_ladder = false;
+						else{
+							if (player.shifting) {
+								player.vel.x = -2.0f;
+								player.face_right = false;
+							} else {
+								player.vel.x = -1.0f;
+								player.face_right = false;
+							}
+							if (on_ladder){
+								on_ladder = false;
+							}
 						}
 					} else {
 						if (player.vel.x == -1.0f || player.vel.x == -2.0f) {
@@ -1234,26 +1323,81 @@ int main(int argc, char **argv) {
 						}
 					}
 				} 
+				else if (evt.key.keysym.sym == SDLK_LEFT) {
+					if (evt.key.state == SDL_PRESSED) {
+						if (in_menu){
+							if (in_level_select){
+								if (!back_button_highlighted){
+									if (level_highlighted == 0){
+										level_highlighted = num_unlocked;
+									}
+									else{
+										level_highlighted -= 1;
+									}
+								}
+							}
+						}
+					}
+				} 
 				else if (evt.key.keysym.sym == SDLK_d) {
 					if (evt.key.state == SDL_PRESSED) {
-						if (player.shifting) {
-							player.vel.x = 2.0f;
-							player.face_right = true;
-						} else {
-							player.vel.x = 1.0f;
-							player.face_right = true;
+						if (in_menu){
+							if (in_level_select){
+								if (!back_button_highlighted){
+									if (level_highlighted == num_unlocked){
+										level_highlighted = 0;
+									}
+									else{
+										level_highlighted += 1;
+									}
+								}
+							}
 						}
-						if (on_ladder){
-							on_ladder = false;
+						else{
+							if (player.shifting) {
+								player.vel.x = 2.0f;
+								player.face_right = true;
+							} else {
+								player.vel.x = 1.0f;
+								player.face_right = true;
+							}
+							if (on_ladder){
+								on_ladder = false;
+							}
 						}
+						
 					} else {
 						if (player.vel.x == 1.0f || player.vel.x == 2.0f) {
 							player.vel.x = 0.0f;
 						}
 					}
 				} 
+				else if (evt.key.keysym.sym == SDLK_RIGHT) {
+					if (evt.key.state == SDL_PRESSED) {
+						if (in_menu){
+							if (in_level_select){
+								if (!back_button_highlighted){
+									if (level_highlighted == num_unlocked){
+										level_highlighted = 0;
+									}
+									else{
+										level_highlighted += 1;
+									}
+								}
+							}
+						}
+					}
+				} 
 				else if (evt.key.keysym.sym == SDLK_s) {
-					if (!on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
+					if (in_menu && evt.key.state == SDL_PRESSED){
+						if (!in_level_select){
+							play_highlighted = !play_highlighted;
+						}else{
+							back_button_highlighted = !back_button_highlighted;
+						}
+					}
+
+					if (!in_menu && !on_ladder && !player.aiming && evt.key.state == SDL_PRESSED) {
 						//climb onto the ladder
 						for (Ladder& ladder : Vector_Ladders){
 							ladder.detect_collision(player.pos, player.size);
@@ -1265,7 +1409,7 @@ int main(int argc, char **argv) {
 						}
 					}
 
-					if (evt.key.state == SDL_PRESSED) {
+          			if (!in_menu && evt.key.state == SDL_PRESSED) {
 						if (on_ladder){
 							check_on_ladder = false;
 
@@ -1283,6 +1427,15 @@ int main(int argc, char **argv) {
 					} else {
 						if (player.vel.x == 1.0f || player.vel.x == 2.0f) {
 							player.vel.x = 0.0f;
+						}
+					}
+				} 
+				else if (evt.key.keysym.sym == SDLK_DOWN) {
+					if (in_menu && evt.key.state == SDL_PRESSED){
+						if (!in_level_select){
+							play_highlighted = !play_highlighted;
+						}else{
+							back_button_highlighted = !back_button_highlighted;
 						}
 					}
 				} 
@@ -1437,9 +1590,9 @@ int main(int argc, char **argv) {
 			//camera.pos.y = 2.5f + (player.pos.y - 1.0f);
 
 			//enemy update --------------------------------------------------------------
-			int counter = 0;
+    		int counter = 0;
 			for (Enemy& enemies : Vector_Enemies) {
-				counter += 1;
+    	    counter += 1;
 				if (!enemies.alerted) {
 					if (!enemies.walking) {
 						enemies.remaining_wait -= elapsed;
@@ -1494,7 +1647,7 @@ int main(int argc, char **argv) {
 				if (player.visible && !player.behind_door) {
 					if (enemies.face_right) {
 						if (enemies.pos.x <= player.pos.x && enemies.pos.x + enemies.sight_range >= player.pos.x && (abs(enemies.pos.y - player.pos.y) <= 0.5f)) {
-							SDL_PauseAudioDevice(alertAudioDevice, 0);
+  							SDL_PauseAudioDevice(alertAudioDevice, 0);
 							enemies.target = player.pos;
 							enemies.vel.x = 2.5f;
 							enemies.alerted = true;
@@ -1502,7 +1655,7 @@ int main(int argc, char **argv) {
 						}
 					} else {
 						if (enemies.pos.x - enemies.sight_range <= player.pos.x && enemies.pos.x >= player.pos.x && (abs(enemies.pos.y - player.pos.y) <= 0.5f)) {
-							SDL_PauseAudioDevice(alertAudioDevice, 0);
+  							SDL_PauseAudioDevice(alertAudioDevice, 0);
 							enemies.target = player.pos;
 							enemies.vel.x = -2.5f;
 							enemies.alerted = true;
@@ -1541,11 +1694,11 @@ int main(int argc, char **argv) {
 							Vector_Ladders = {};
 
 							loadLevel(level,
-									reinterpret_cast<void*>(&Vector_Platforms),
-									reinterpret_cast<void*>(&Vector_Doors),
-									reinterpret_cast<void*>(&Vector_Lights),
-									reinterpret_cast<void*>(&Vector_Enemies),
-									reinterpret_cast<void*>(&Vector_Ladders));
+									  reinterpret_cast<void*>(&Vector_Platforms),
+									  reinterpret_cast<void*>(&Vector_Doors),
+									  reinterpret_cast<void*>(&Vector_Lights),
+									  reinterpret_cast<void*>(&Vector_Enemies),
+									  reinterpret_cast<void*>(&Vector_Ladders));
 						}
 					} else {
 						if (enemies.pos.x - enemies.catch_range <= player.pos.x && enemies.pos.x >= player.pos.x && (abs(enemies.pos.y - player.pos.y) <= 0.5f)) {
@@ -1575,15 +1728,15 @@ int main(int argc, char **argv) {
 							Vector_Ladders = {};
 
 							loadLevel(level,
-									reinterpret_cast<void*>(&Vector_Platforms),
-									reinterpret_cast<void*>(&Vector_Doors),
-									reinterpret_cast<void*>(&Vector_Lights),
-									reinterpret_cast<void*>(&Vector_Enemies),
-									reinterpret_cast<void*>(&Vector_Ladders));
+									  reinterpret_cast<void*>(&Vector_Platforms),
+									  reinterpret_cast<void*>(&Vector_Doors),
+									  reinterpret_cast<void*>(&Vector_Lights),
+									  reinterpret_cast<void*>(&Vector_Enemies),
+									  reinterpret_cast<void*>(&Vector_Ladders));
 						}
 					}
 				}
-			}
+    		}
 
 			//detect footsteps
 			for (Enemy& enemy : Vector_Enemies) {
@@ -1618,7 +1771,7 @@ int main(int argc, char **argv) {
 			// projectile update ----------------------------------------------------------------
 			if (mouse.remaining_time == 1.0f) {
 				for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end() ; ++i) {
-
+					
 					for (Enemy& enemy : Vector_Enemies) {
 						//enemies
 						float h_diff = enemy.pos.x - i->x;
@@ -1641,25 +1794,25 @@ int main(int argc, char **argv) {
 					}
 
 					//lights
-					for (Light& light : Vector_Lights) {
-						float h_diff = light.pos.x - i->x;
-						float v_diff = light.pos.y + 0.5f * light.size.y - i->y;
-						if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 1.5f) {
-							light.light_on = false;
-						}
-					}
+          for (Light& light : Vector_Lights) {
+					  float h_diff = light.pos.x - i->x;
+					  float v_diff = light.pos.y + 0.5f * light.size.y - i->y;
+					  if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 1.5f) {
+					 	  light.light_on = false;
+            }
+          }
 				}       
 			}
 
 			for (Enemy& enemy : Vector_Enemies) {
 				if (enemy.vel.x > 0.0f) {
-					enemy.flashlight.dir = 0.0f;
+			        enemy.flashlight.dir = 0.0f;
 					enemy.update_pos();
 					//rotate_light(enemy.flashlight);
 				} else if (enemy.vel.x < 0.0f) {
-					enemy.flashlight.dir = PI;
-					enemy.update_pos();
-					//rotate_light(enemy.flashlight);
+				    enemy.flashlight.dir = PI;
+				    enemy.update_pos();
+				    //rotate_light(enemy.flashlight);
 				}
 			}
 
@@ -1667,21 +1820,19 @@ int main(int argc, char **argv) {
 			if (player.pos.x >= level_end) {
 				/* go on to the next level (currently goes to level 1) */
 
+
+
 				//record the completed level
-				completed_levels = completed_levels | (1 << level);
-
-				ofstream outFile;
-
-				//load previous progress    
-				outFile.open("levels_completed.txt");
-				if (!outFile) {
-					cout << "Unable to open file";
-					exit(1); // terminate with error
+				if (completed_levels < level) {
+					completed_levels = level;
 				}
 
-				outFile << completed_levels;
-
-				outFile.close();
+				if (level < 4){
+					unlocked[level + 1] = true;
+					if (num_unlocked < 4){
+						num_unlocked += 1;
+					}
+				}
 
 				//reset player statuses
 				player.pos = default_player_pos;
@@ -1702,6 +1853,9 @@ int main(int argc, char **argv) {
 
 				level += 1;
 
+				//if the player beats the fifth level, cycle around to the starting level
+				level = level % 5;
+
 				Vector_Platforms = {};
 				Vector_Doors = {};
 				Vector_Lights = {};
@@ -1709,11 +1863,11 @@ int main(int argc, char **argv) {
 				Vector_Ladders = {};
 
 				loadLevel(level,
-						reinterpret_cast<void*>(&Vector_Platforms),
-						reinterpret_cast<void*>(&Vector_Doors),
-						reinterpret_cast<void*>(&Vector_Lights),
-						reinterpret_cast<void*>(&Vector_Enemies),
-						reinterpret_cast<void*>(&Vector_Ladders));
+						  reinterpret_cast<void*>(&Vector_Platforms),
+						  reinterpret_cast<void*>(&Vector_Doors),
+						  reinterpret_cast<void*>(&Vector_Lights),
+						  reinterpret_cast<void*>(&Vector_Enemies),
+						  reinterpret_cast<void*>(&Vector_Ladders));
 				//should_quit = true;
 			}
 
@@ -1801,125 +1955,175 @@ int main(int argc, char **argv) {
 				player_size.x *= -1.0f;
 			}
 			if (player.behind_door == false) {
-				std::cout << player.pos.x + player.size.x / 2 << " "
-					<< player.pos.x - player.size.x / 2 << " "
-					<< player.pos.y + player.size.y / 2 << " "
-					<< player.pos.y - player.size.y / 2 << " " 
-					<< std::endl;
 				draw_sprite(player.sprite_stand, player.pos, player_size);
 			}
-
+			
 			//draw enemies -----------------------------------------------------------
 			for (Enemy& enemy : Vector_Enemies){
-				glm::vec2 enemy_size = enemy.size;
+        		glm::vec2 enemy_size = enemy.size;
 				if (enemy.face_right) {
 					enemy_size.x *= -1.0f;
 				}
 				draw_sprite(enemy.sprite_stand, enemy.pos, enemy_size);     
 				if (enemy.alerted) {
-					glm::vec2 alert_pos = glm::vec2(enemy.pos.x, 
+				glm::vec2 alert_pos = glm::vec2(enemy.pos.x, 
 							enemy.pos.y + 0.51f*enemy.size.y + 0.51f*enemy.alert_size.y );
 					draw_sprite(enemy.sprite_alert, alert_pos, enemy.alert_size);
 				}
 				//}
 
-				//draw lights --------------------------------------------------------------
+				//draw flashlights --------------------------------------------------------------
 				if (enemy.flashlight.light_on) {
 					draw_triangle(enemy.flashlight.vectors[0], enemy.flashlight.vectors[1], enemy.flashlight.vectors[2], 
-							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
-				}
-		}
-
-		for (Light& light : Vector_Lights) {
-			if (light.light_on) {
-				//printf("drawing triangles: (%f,%f), (%f,%f)\n", light.pos.x, light.pos.y, light.size.x, light.size.y);
-				draw_triangle(light.vectors[0], light.vectors[1], light.vectors[2], 
 						glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
-			}
-		}
-
-		//draw platforms -----------------------------------------------------------
-		for (Platform& platform : Vector_Platforms){
-			draw_sprite(platform.sprite, platform.pos, platform.size);
-		}
-
-		//draw sounds ---------------------------------------------------------------
-		if (!player.aiming && mouse.remaining_time > 0.0f) {
-			mouse.remaining_time -= elapsed;
-			for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
-				draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound * (1.0f - mouse.remaining_time)));
-			}
-
-			if (mouse.remaining_time <= 0.0f) {
-				mouse.remaining_time = 0.0f;
-				player.projectiles_pos.clear();
-			}
-		}
-
-		if (player.aiming) {
-			for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
-				draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound));
-			}
-
-			bool light_aimed = false;
-			for (Light& light : Vector_Lights) {
-				float h_diff = light.pos.x - mouse.pos.x;
-				float v_diff = light.pos.y + 0.5f * light.size.y - mouse.pos.y;
-				if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 1.5f) {
-					light_aimed = true;
-					player.aimed_pos = glm::vec2(light.pos.x, light.pos.y + 0.5f * light.size.y);
-					float slope = (player.aimed_pos.y - player.pos.y) / (player.aimed_pos.x - player.pos.x);
-					for (float x = player.pos.x; x > player.aimed_pos.x; x -= 0.3f) {
-						draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), 
-								glm::vec2(0.03f * player.throw_sound));
-					}
-					for (float x = player.pos.x; x < player.aimed_pos.x; x += 0.3f) {
-						draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), 
-								glm::vec2(0.03f * player.throw_sound));
-					}
-					draw_sprite(mouse.sprite_throw, glm::vec2(player.aimed_pos.x, player.aimed_pos.y), glm::vec2(player.throw_sound));
-					break;
 				}
 			}
 
-			if (!light_aimed) {
+			//draw stage lights
+      		for (Light& light : Vector_Lights) {
+      			if (light.light_on) {
+      				//printf("drawing triangles: (%f,%f), (%f,%f)\n", light.pos.x, light.pos.y, light.size.x, light.size.y);
+      				draw_triangle(light.vectors[0], light.vectors[1], light.vectors[2], 
+					glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+      			}
+      		}
 
-				float max_y = 0.5f;
-				for (Platform& platform : Vector_Platforms) {
-					if (platform.pos.y + 0.5f * platform.size.y > max_y &&
-							platform.pos.x - 0.5f * platform.size.x <= mouse.pos.x &&
-							platform.pos.x + 0.5f * platform.size.x >= mouse.pos.x &&
-							platform.pos.y + 0.5f * platform.size.y <= mouse.pos.y) { 
-						max_y = platform.pos.y + 0.5f * platform.size.y;
-					}
-				}
-				player.aimed_pos = glm::vec2(mouse.pos.x, max_y);
+      		//draw menu options --------------------------------------------------------
+      		//at the moment, we use triangles for buttons
+      		if (in_menu){
+      			//determine whether to be on the main select screen or the level select screen
+      			if (!in_level_select){
+	      			//do an if statement to "highlight" the hovering option
+	      			if (play_highlighted){
+	      				draw_triangle(glm::vec2(3.0f, 3.0f), glm::vec2(5.0f, 3.0f), glm::vec2(5.0f, 5.0f), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+		      			draw_triangle(glm::vec2(3.0f, 2.0f), glm::vec2(4.0f, 2.0f), glm::vec2(3.0f, 1.0f), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+	      			}
+	      			else{
+	      				draw_triangle(glm::vec2(3.0f, 3.0f), glm::vec2(4.0f, 3.0f), glm::vec2(4.0f, 4.0f), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+		      			draw_triangle(glm::vec2(3.0f, 2.0f), glm::vec2(5.0f, 2.0f), glm::vec2(3.0f, 0.0f), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+	      			}
+	      		}
+	      		else{
+	      			//display the levels (represented as triangles)
+	      			for (int i = 0; i < 5; i++){
+	      				float offset = (float)i;
 
-				float y1 = player.pos.y;
-				float y2 = player.aimed_pos.y + 2.0f;
-				float y3 = player.aimed_pos.y;
-				float x1 = player.pos.x;
-				float x2 = 0.5f*(player.aimed_pos.x + player.pos.x);
-				float x3 = player.aimed_pos.x;
-				//from https://stackoverflow.com/questions/16896577/using-points-to-generate-quadratic-equation-to-interpolate-data
-				float a = y1/((x1-x2)*(x1-x3)) 
-					+ y2/((x2-x1)*(x2-x3)) 
-					+ y3/((x3-x1)*(x3-x2));
-				float b = -y1*(x2+x3)/((x1-x2)*(x1-x3))
-					- y2*(x1+x3)/((x2-x1)*(x2-x3))
-					- y3*(x1+x2)/((x3-x1)*(x3-x2));
-				float c = y1*x2*x3/((x1-x2)*(x1-x3))
-					+ y2*x1*x3/((x2-x1)*(x2-x3))
-					+ y3*x1*x2/((x3-x1)*(x3-x2));
-				for (float x = player.pos.x; x > player.aimed_pos.x; x -= 0.3f) {
-					draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
+	      				int alpha;
+
+	      				if (unlocked[i]){
+	      					alpha = 0x88;
+	      				}else{
+	      					alpha = 0x22;
+	      				}
+
+	      				float y_scale;
+
+	      				if (i == level_highlighted && !back_button_highlighted){
+	      					y_scale = 0.5f;
+	      				}else{
+	      					y_scale = 0.0f;
+	      				}
+
+	      				draw_triangle(glm::vec2(0.5f + 2.5f * offset, 3.0f), glm::vec2(1.5f + 2.5f * offset, 3.0f), glm::vec2(1.5f + 2.5f * offset, 4.0f + y_scale), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, alpha));
+	      			}
+
+	      			if (back_button_highlighted){
+	      				draw_triangle(glm::vec2(5.5f, 1.0f), glm::vec2(6.5f, 1.0f), glm::vec2(6.5f, 2.0f + 0.5f), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+	      			}else{
+	      				draw_triangle(glm::vec2(5.5f, 1.0f), glm::vec2(6.5f, 1.0f), glm::vec2(6.5f, 2.0f), 
+							glm::vec2(1.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+	      			}
+	      		}
+      		}
+
+			//draw platforms -----------------------------------------------------------
+			for (Platform& platform : Vector_Platforms){
+				draw_sprite(platform.sprite, platform.pos, platform.size);
+			}
+
+			//draw sounds ---------------------------------------------------------------
+			if (!player.aiming && mouse.remaining_time > 0.0f) {
+				mouse.remaining_time -= elapsed;
+				for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
+						draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound * (1.0f - mouse.remaining_time)));
 				}
-				for (float x = player.pos.x; x < player.aimed_pos.x; x += 0.3f) {
-					draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
+
+				if (mouse.remaining_time <= 0.0f) {
+					mouse.remaining_time = 0.0f;
+					player.projectiles_pos.clear();
 				}
+			}
+
+			if (player.aiming) {
+				for (auto i = player.projectiles_pos.begin(); i != player.projectiles_pos.end(); ++i) {
+						draw_sprite(mouse.sprite_throw, *i, glm::vec2(player.throw_sound));
+				}
+
+		        bool light_aimed = false;
+				 for (Light& light : Vector_Lights) {
+					float h_diff = light.pos.x - mouse.pos.x;
+					float v_diff = light.pos.y + 0.5f * light.size.y - mouse.pos.y;
+					if (sqrt(h_diff*h_diff + v_diff*v_diff) <= 1.5f) {
+					 	light_aimed = true;
+	            player.aimed_pos = glm::vec2(light.pos.x, light.pos.y + 0.5f * light.size.y);
+	            float slope = (player.aimed_pos.y - player.pos.y) / (player.aimed_pos.x - player.pos.x);
+	            for (float x = player.pos.x; x > player.aimed_pos.x; x -= 0.3f) {
+	             	draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), 
+	                			glm::vec2(0.03f * player.throw_sound));
+	            }
+	            for (float x = player.pos.x; x < player.aimed_pos.x; x += 0.3f) {
+	            	draw_sprite(mouse.sprite_throw, glm::vec2(x, (x - player.pos.x) * slope + player.pos.y), 
+	                	glm::vec2(0.03f * player.throw_sound));
+	            }
 				draw_sprite(mouse.sprite_throw, glm::vec2(player.aimed_pos.x, player.aimed_pos.y), glm::vec2(player.throw_sound));
+	            break;
 			}
-		}
+        }
+
+        if (!light_aimed) {
+         
+          float max_y = 0.5f;
+			    for (Platform& platform : Vector_Platforms) {
+           if (platform.pos.y + 0.5f * platform.size.y > max_y &&
+               platform.pos.x - 0.5f * platform.size.x <= mouse.pos.x &&
+               platform.pos.x + 0.5f * platform.size.x >= mouse.pos.x &&
+               platform.pos.y + 0.5f * platform.size.y <= mouse.pos.y) { 
+             max_y = platform.pos.y + 0.5f * platform.size.y;
+           }
+          }
+          player.aimed_pos = glm::vec2(mouse.pos.x, max_y);
+
+          float y1 = player.pos.y;
+				  float y2 = player.aimed_pos.y + 2.0f;
+				  float y3 = player.aimed_pos.y;
+				  float x1 = player.pos.x;
+				  float x2 = 0.5f*(player.aimed_pos.x + player.pos.x);
+				  float x3 = player.aimed_pos.x;
+				  //from https://stackoverflow.com/questions/16896577/using-points-to-generate-quadratic-equation-to-interpolate-data
+				  float a = y1/((x1-x2)*(x1-x3)) 
+					  + y2/((x2-x1)*(x2-x3)) 
+					  + y3/((x3-x1)*(x3-x2));
+				  float b = -y1*(x2+x3)/((x1-x2)*(x1-x3))
+					  - y2*(x1+x3)/((x2-x1)*(x2-x3))
+					  - y3*(x1+x2)/((x3-x1)*(x3-x2));
+				  float c = y1*x2*x3/((x1-x2)*(x1-x3))
+					  + y2*x1*x3/((x2-x1)*(x2-x3))
+					  + y3*x1*x2/((x3-x1)*(x3-x2));
+				  for (float x = player.pos.x; x > player.aimed_pos.x; x -= 0.3f) {
+					  draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
+				  }
+				  for (float x = player.pos.x; x < player.aimed_pos.x; x += 0.3f) {
+					  draw_sprite(mouse.sprite_throw, glm::vec2(x, a*x*x + b*x + c), glm::vec2(0.03f * player.throw_sound));
+				  }
+				  draw_sprite(mouse.sprite_throw, glm::vec2(player.aimed_pos.x, player.aimed_pos.y), glm::vec2(player.throw_sound));
+		    }
+      }
 
 		player.sound_time -= elapsed;
 		if (player.sound_time < 0.0f) {
@@ -1932,60 +2136,60 @@ int main(int argc, char **argv) {
 				sound = player.run_sound;
 			}
 			draw_sprite(mouse.sprite_throw, glm::vec2(player.pos.x, player.pos.y - 0.5 * player.size.y), glm::vec2(sound * (1.0f - player.sound_time)));
-		}
+			}
 
-		//-----------------------------------------------------------------------
+			//-----------------------------------------------------------------------
 
-		glBindBuffer(GL_ARRAY_BUFFER, buffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * verts.size(), &verts[0], GL_STREAM_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, buffer);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * verts.size(), &verts[0], GL_STREAM_DRAW);
 
-		glUseProgram(program);
-		glUniform1i(program_tex, 0);
-		glm::vec2 scale = 2.0f / camera.size;
-		glm::vec2 offset = scale * -camera.pos;
-		glm::mat4 mvp = glm::mat4(
+			glUseProgram(program);
+			glUniform1i(program_tex, 0);
+			glm::vec2 scale = 2.0f / camera.size;
+			glm::vec2 offset = scale * -camera.pos;
+			glm::mat4 mvp = glm::mat4(
 				glm::vec4(scale.x, 0.0f, 0.0f, 0.0f),
 				glm::vec4(0.0f, scale.y, 0.0f, 0.0f),
 				glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
 				glm::vec4(offset.x, offset.y, 0.0f, 1.0f)
-				);
-		glUniformMatrix4fv(program_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
+			);
+			glUniformMatrix4fv(program_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 
-		glBindTexture(GL_TEXTURE_2D, tex);
-		glBindVertexArray(vao);
+			glBindTexture(GL_TEXTURE_2D, tex);
+			glBindVertexArray(vao);
 
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, verts.size());
-		//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, verts.size());
+			//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-		// glDisable(GL_TEXTURE_2D);
+			// glDisable(GL_TEXTURE_2D);
 
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * tri_verts.size(), &tri_verts[0], GL_STREAM_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * tri_verts.size(), &tri_verts[0], GL_STREAM_DRAW);
 
-		glBindTexture(GL_TEXTURE_2D, tex2);
+			glBindTexture(GL_TEXTURE_2D, tex2);
 
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, tri_verts.size());
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, tri_verts.size());
+		}
+
+		SDL_GL_SwapWindow(window);
 	}
 
-	SDL_GL_SwapWindow(window);
-}
 
+	//------------  teardown ------------
 
-//------------  teardown ------------
+  //Close the audio devices
+  SDL_CloseAudioDevice(audioDevice);
+  SDL_CloseAudioDevice(alertAudioDevice);
+  SDL_FreeWAV(wavStart);
 
-//Close the audio devices
-SDL_CloseAudioDevice(audioDevice);
-SDL_CloseAudioDevice(alertAudioDevice);
-SDL_FreeWAV(wavStart);
+	SDL_GL_DeleteContext(context);
+	context = 0;
 
-SDL_GL_DeleteContext(context);
-context = 0;
+	SDL_DestroyWindow(window);
+	window = NULL;
 
-SDL_DestroyWindow(window);
-window = NULL;
+  SDL_Quit();
 
-SDL_Quit();
-
-return 0;
+	return 0;
 }
 
 
@@ -2033,20 +2237,44 @@ static GLuint link_program(GLuint fragment_shader, GLuint vertex_shader) {
 
 static void playTone(void *userData, Uint8 *stream, int streamLength) {
 
-	// change the user data passed by SDL into our User defined AudioData format
-	AudioData *audioData = (AudioData *)userData;
+  // change the user data passed by SDL into our User defined AudioData format
+  AudioData *audioData = (AudioData *)userData;
 
-	if (audioData ->length == 0) {
-		//Set the init length and pos
-		audioData->pos = audioData->init_pos;
-		audioData->length = audioData->init_length;
-	}
+  if (audioData ->length == 0) {
+    //Set the init length and pos
+    audioData->pos = audioData->init_pos;
+    audioData->length = audioData->init_length;
+  }
 
-	Uint32 length = (Uint32) streamLength;
-	length = length > audioData->length ? audioData->length : length;
+  Uint32 length = (Uint32) streamLength;
+  length = length > audioData->length ? audioData->length : length;
 
-	SDL_memcpy(stream, audioData->pos, length);
+  SDL_memcpy(stream, audioData->pos, length);
 
-	audioData->pos += length;
-	audioData->length -= length;
+  audioData->pos += length;
+  audioData->length -= length;
 }
+
+
+static void playEffect(void *userData, Uint8 *stream, int streamLength) {
+
+  // change the user data passed by SDL into our User defined AudioData format
+  AudioData *audioData = (AudioData *)userData;
+
+  if (audioData ->length == 0) {
+    //Set the init length and pos
+    // audioData->pos = audioData->init_pos;
+    // audioData->length = audioData->init_length;
+    return;
+  }
+
+  Uint32 length = (Uint32) streamLength;
+  length = length > audioData->length ? audioData->length : length;
+
+  SDL_memcpy(stream, audioData->pos, length);
+
+  audioData->pos += length;
+  audioData->length -= length;
+}
+
+
