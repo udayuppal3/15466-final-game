@@ -157,6 +157,49 @@ struct PlayerInfo{
 		},
 	};
 
+  SpriteInfo numbers[10] = {
+		{
+			glm::vec2(3900.0f / 7000.0f, 55.0f / 5500.0f),
+			glm::vec2(4110.0f / 7000.0f, 290.0f / 5500.0f),
+		},
+		{
+			glm::vec2(4110.0f / 7000.0f, 55.0f / 5500.0f),
+			glm::vec2(4320.0f / 7000.0f, 290.0f / 5500.0f),
+		},
+		{
+			glm::vec2(4320.0f / 7000.0f, 55.0f / 5500.0f),
+			glm::vec2(4530.0f / 7000.0f, 290.0f / 5500.0f),
+		},
+		{
+			glm::vec2(4530.0f / 7000.0f, 55.0f / 5500.0f),
+			glm::vec2(4740.0f / 7000.0f, 290.0f / 5500.0f),
+		},
+		{
+			glm::vec2(4740.0f / 7000.0f, 55.0f / 5500.0f),
+			glm::vec2(4950.0f / 7000.0f, 290.0f / 5500.0f),
+		},
+		{
+			glm::vec2(4940.0f / 7000.0f, 55.0f / 5500.0f),
+			glm::vec2(5140.0f / 7000.0f, 290.0f / 5500.0f),
+		},
+		{
+			glm::vec2(5140.0f / 7000.0f, 55.0f / 5500.0f),
+			glm::vec2(5330.0f / 7000.0f, 290.0f / 5500.0f),
+		},
+		{
+			glm::vec2(5320.0f / 7000.0f, 55.0f / 5500.0f),
+			glm::vec2(5555.0f / 7000.0f, 290.0f / 5500.0f),
+		},
+		{
+			glm::vec2(5560.0f / 7000.0f, 55.0f / 5500.0f),
+			glm::vec2(5690.0f / 7000.0f, 290.0f / 5500.0f),
+		},
+		{
+			glm::vec2(5690.0f / 7000.0f, 55.0f / 5500.0f),
+			glm::vec2(5900.0f / 7000.0f, 290.0f / 5500.0f),
+		},
+	};
+
 	bool face_right = false;
 	bool jumping = false;
 	bool shifting = false;
@@ -2392,6 +2435,10 @@ int main(int argc, char **argv) {
 			}
 			draw_sprite(mouse.sprite_throw, glm::vec2(player.pos.x, player.pos.y - 0.5 * player.size.y), glm::vec2(sound * (1.0f - player.sound_time)));
 		}
+
+if (!in_level_select && !in_menu) {
+		draw_sprite(player.numbers[player.num_projectiles], camera.pos - glm::vec2(5.5f, 3.25f), glm::vec2(0.75f,0.75f), glm::u8vec4(0xff, 0xff, 0xff, 0xff));
+}
 
 		//-----------------------------------------------------------------------
 
